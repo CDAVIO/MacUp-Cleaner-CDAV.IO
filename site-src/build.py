@@ -273,8 +273,10 @@ def build_page(template, code, en_site, en_cli, asset_v):
     alternates = "\n".join(
         f'<link rel="alternate" hreflang="{HTML_LANG.get(l, l)}" href="{url_for(l)}">' for l in LANGS
     ) + f'\n<link rel="alternate" hreflang="x-default" href="{url_for("en")}">'
-    options = "".join(
-        f'<option value="{l}"{" selected" if l == code else ""}>{E(load_site(l)["lang_name"])}</option>'
+    items = "".join(
+        f'<li role="none"><a role="menuitem" href="{"/" if l == "en" else f"/{l}/"}" hreflang="{HTML_LANG.get(l, l)}" '
+        f'lang="{HTML_LANG.get(l, l)}" data-lang="{l}"{' aria-current="page"' if l == code else ""}>'
+        f'{E(load_site(l)["lang_name"])}</a></li>'
         for l in LANGS
     )
     ld = {
@@ -295,7 +297,7 @@ def build_page(template, code, en_site, en_cli, asset_v):
         "canonical": url_for(code),
         "home": "/" if code == "en" else f"/{code}/",
         "alternates": alternates,
-        "lang_options": options,
+        "lang_items": items,
         "lang_redirect": REDIRECT_JS if code == "en" else "",
         "ld_json": json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"),
         "demo_json": demo(cli, site),

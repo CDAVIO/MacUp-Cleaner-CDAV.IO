@@ -19,13 +19,53 @@
     });
   }
 
-  /* Language */
-  var langSel = document.getElementById("lang");
-  if (langSel) {
-    langSel.addEventListener("change", function () {
-      var code = langSel.value;
-      store("macup-lang", code);
-      location.href = (code === "en" ? "/" : "/" + code + "/") + location.hash;
+  /* Language menu */
+  var langBtn = document.getElementById("langbtn");
+  var langMenu = document.getElementById("langmenu");
+  if (langBtn && langMenu) {
+    var items = Array.prototype.slice.call(langMenu.querySelectorAll("a"));
+    var openMenu = function (focusIndex) {
+      langMenu.hidden = false;
+      langBtn.setAttribute("aria-expanded", "true");
+      if (focusIndex !== undefined) items[focusIndex].focus();
+    };
+    var closeMenu = function (refocus) {
+      if (langMenu.hidden) return;
+      langMenu.hidden = true;
+      langBtn.setAttribute("aria-expanded", "false");
+      if (refocus) langBtn.focus();
+    };
+    var current = function () {
+      for (var i = 0; i < items.length; i++) if (items[i].getAttribute("aria-current")) return i;
+      return 0;
+    };
+    langBtn.addEventListener("click", function () {
+      if (langMenu.hidden) openMenu(); else closeMenu();
+    });
+    langBtn.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); openMenu(current()); }
+    });
+    langMenu.addEventListener("keydown", function (e) {
+      var i = items.indexOf(document.activeElement);
+      if (e.key === "Escape") { e.preventDefault(); closeMenu(true); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+      else if (e.key === "Home") { e.preventDefault(); items[0].focus(); }
+      else if (e.key === "End") { e.preventDefault(); items[items.length - 1].focus(); }
+      else if (e.key === "Tab") { closeMenu(false); }
+    });
+    document.addEventListener("click", function (e) {
+      if (!langMenu.hidden && !e.target.closest("#langbox")) closeMenu(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeMenu(true);
+    });
+    items.forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        store("macup-lang", a.getAttribute("data-lang"));
+        if (a.getAttribute("aria-current")) { e.preventDefault(); closeMenu(true); return; }
+        if (location.hash) a.setAttribute("href", a.getAttribute("href") + location.hash);
+      });
     });
   }
 

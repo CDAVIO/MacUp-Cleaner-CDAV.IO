@@ -23,6 +23,7 @@ engine() {
 clean_scan() {
   local dir="$1" id
   mkdir -p "$dir"
+  rm -f "$dir/developer.items"
   for id in $CLEAN_IDS; do
     engine --scan-category-json "$id" > "$dir/$id.json" 2>/dev/null &
   done
@@ -30,18 +31,19 @@ clean_scan() {
 }
 
 # Safe developer sub-items with something in them: "id size" lines.
+# The engine writes one sub-item per line, so one sed pass reads them all
+# (calling plutil twice per item was slow on older Macs). Cached per scan.
 clean_dev_items() {
-  local f="$1/developer.json" i=0 id size
-  while :; do
-    id=$(pj "$f" "category.subitems.$i.id")
-    [ -z "$id" ] && break
-    size=$(pj "$f" "category.subitems.$i.size_bytes")
-    case "$CLEAN_DEV_SAFE" in *" $id "*)
-      case "$size" in ''|*[!0-9]*) size=0 ;; esac
-      [ "$size" -gt 0 ] && printf '%s %s\n' "$id" "$size" ;;
-    esac
-    i=$((i + 1))
-  done
+  local f="$1/developer.json" cache="$1/developer.items" id size
+  if [ ! -f "$cache" ]; then
+    sed -n 's/.*"id": *"\([a-z_0-9]*\)".*"size_bytes": *\([0-9]*\).*/\1 \2/p' "$f" 2>/dev/null |
+      while read -r id size; do
+        case "$CLEAN_DEV_SAFE" in *" $id "*)
+          [ "${size:-0}" -gt 0 ] && printf '%s %s\n' "$id" "$size" ;;
+        esac
+      done > "$cache"
+  fi
+  cat "$cache"
 }
 
 clean_size() {

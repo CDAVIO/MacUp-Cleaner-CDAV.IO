@@ -808,9 +808,18 @@ get_size_bytes() {
   local path="$1"
   [ -e "$path" ] || { echo "0"; return; }
   local result
-  result=$(du -sk "$path" 2>/dev/null | awk '{print $1 * 1024}')
-  [ -z "$result" ] && result="0"
-  echo "$result"
+  # Parsed with parameter expansion: one process (du) instead of three.
+  result=$(du -sk "$path" 2>/dev/null) || true
+  result=${result%%[[:space:]]*}
+  case "$result" in ''|*[!0-9]*) result=0 ;; esac
+  echo $((result * 1024))
+}
+
+# Total size in bytes of all the given paths, measured with a single du.
+sum_sizes_bytes() {
+  [ $# -eq 0 ] && { echo 0; return; }
+  # du exits non-zero when one folder is unreadable; still count the rest.
+  { printf '%s\0' "$@" | xargs -0 du -sk 2>/dev/null || true; } | awk '{ s += $1 } END { printf "%d", s * 1024 }'
 }
 
 get_free_disk() {
@@ -851,7 +860,7 @@ sudo_check() {
 
 # ─── Browser Dir Check ──────────────────────────────────────────────────────
 is_browser_cache_dir() {
-  local name; name=$(basename "$1")
+  local name="${1##*/}"
   local d
   for d in "${BROWSER_CACHE_TOPDIRS[@]}"; do
     [[ "$name" == "$d" ]] && return 0
@@ -970,14 +979,14 @@ is_app_installed() {
 
 # ─── Scan Functions ──────────────────────────────────────────────────────────
 scan_user_cache() {
-  local total=0
-  local item
+  local items=() item total
   while IFS= read -r -d '' item; do
     is_browser_cache_dir "$item" && continue
-    local s=0
-    s=$(get_size_bytes "$item") || s=0
-    total=$((total + s))
+    items+=("$item")
   done < <(find "$HOME/Library/Caches" -maxdepth 1 -mindepth 1 -print0 2>/dev/null)
+  # One du for every folder (a du per folder took seconds on slower Macs).
+  total=$(sum_sizes_bytes ${items[@]+"${items[@]}"}) || total=0
+  case "$total" in ''|*[!0-9]*) total=0 ;; esac
   CAT_SIZES[0]=$total
 }
 

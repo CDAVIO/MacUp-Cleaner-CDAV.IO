@@ -14,6 +14,7 @@ cmd_mac() {
   printf "  ${C_D}%s${C_R}\n" "$(t part_storage)"
   ui_row "$(t k_used)" "$(ui_bar $(( 100 - H_DISK_FREE_PCT )) 20) $(ui_size "$H_DISK_USED") / $(ui_size "$H_DISK_TOTAL")" ""
   ui_row "$(t k_free)" "${C_B}$(ui_size "$H_DISK_FREE")${C_R}  ${C_D}($H_DISK_FREE_PCT%)${C_R}" "$( [ "$H_DISK_FREE_PCT" -ge 15 ] && echo ok || echo warn )"
+  ui_row "$(t k_hidden_cache)" "$(ui_size "${H_CLEANABLE:-0}")" "$( [ "${H_CLEANABLE:-0}" -lt 2000000000 ] && echo ok || echo warn )"
 
   printf "\n  ${C_D}%s${C_R}\n" "$(t part_ssd)"
   ui_row "$(t k_model)" "${H_SSD_MODEL:-—} ($H_SSD_KIND)" info
@@ -111,7 +112,14 @@ cmd_performance() {
 }
 
 collect_mac_quiet() {
-  collect_hardware; collect_storage; collect_ssd; collect_battery; collect_memory; collect_cpu; collect_gpu
+  collect_cleanable_start
+  progress part_storage; collect_hardware; collect_storage
+  progress part_ssd;     collect_ssd
+  progress part_battery; collect_battery
+  progress part_memory;  collect_memory
+  progress part_cpu;     collect_cpu
+  progress part_gpu;     collect_gpu
+  progress part_cleanup; collect_cleanable_finish
   local v
   for v in $(compgen -v | grep -E '^H_'); do printf '%s=%q\n' "$v" "${!v}"; done > "$MACUP_TMP/collected.sh"
 }

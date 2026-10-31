@@ -106,14 +106,19 @@ ui_yes() {
 ui_spin() {
   local msg="$1"; shift
   if [ ! -t 1 ]; then "$@"; return $?; fi
+  local pfile="${MACUP_TMP:-/nonexistent}/progress" step=""
+  rm -f "$pfile" 2>/dev/null
   "$@" &
   local pid=$! frames='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏' i=0
   while kill -0 "$pid" 2>/dev/null; do
-    printf "\r  ${C_Y}%s${C_R} %s" "${frames:$((i % 10)):1}" "$msg"
+    step=""
+    [ -s "$pfile" ] && read -r step < "$pfile" 2>/dev/null
+    printf "\r  ${C_Y}%s${C_R} %s${C_D}%s${C_R}\033[K" "${frames:$((i % 10)):1}" "$msg" "${step:+  $step}"
     i=$((i + 1))
     sleep 0.1
   done
   wait "$pid"; local rc=$?
+  rm -f "$pfile" 2>/dev/null
   printf "\r\033[K"
   return $rc
 }

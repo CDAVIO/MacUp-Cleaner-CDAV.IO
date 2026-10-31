@@ -96,7 +96,7 @@ cmd_uninstall() {
   done
   # Remove only the PATH line our installer added (it carries a marker comment).
   local rc
-  for rc in "$HOME/.zprofile" "$HOME/.bash_profile"; do
+  for rc in "$HOME/.zshrc" "$HOME/.zprofile" "$HOME/.bash_profile"; do
     [ -f "$rc" ] && grep -q "# added by MacUp" "$rc" && sed -i '' '/# added by MacUp/d' "$rc"
   done
   [ -d "$HOME/.macup" ] && [ "$MACUP_ROOT" = "$HOME/.macup" ] && rm -rf "$HOME/.macup"

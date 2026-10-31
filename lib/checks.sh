@@ -40,11 +40,19 @@ collect_hardware() {
   [ -z "$H_CHIP" ] && H_CHIP=$(pj "$sp" SPHardwareDataType.0.cpu_type)
   [ -z "$H_CHIP" ] && H_CHIP=$(sysctl -n machdep.cpu.brand_string 2>/dev/null)
   [ -z "$H_MODEL" ] && H_MODEL="Mac"
-  H_CORES=$(sysctl -n hw.ncpu 2>/dev/null)
+  # Physical cores for display; logical CPUs (Intel Hyper-Threading counts
+  # each core twice) for the load %.
+  H_CORES=$(sysctl -n hw.physicalcpu 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null)
+  H_THREADS=$(sysctl -n hw.logicalcpu 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null)
   H_PCORES=$(sysctl -n hw.perflevel0.physicalcpu 2>/dev/null || true)
   H_ECORES=$(sysctl -n hw.perflevel1.physicalcpu 2>/dev/null || true)
   procs=$(pj "$sp" SPHardwareDataType.0.number_processors)
   case "$procs" in proc\ *) H_CORES=$(printf '%s' "$procs" | cut -d' ' -f2 | cut -d: -f1) ;; esac
+  # Show "P + E" only when it adds up (Intel has no core types; a future
+  # chip with a third core type would not add up either).
+  if [ -z "$H_PCORES" ] || [ -z "$H_ECORES" ] || [ "$(( H_PCORES + H_ECORES ))" != "${H_CORES:-0}" ]; then
+    H_PCORES=""; H_ECORES=""
+  fi
   H_MACOS=$(sw_vers -productVersion 2>/dev/null)
   H_BUILD=$(sw_vers -buildVersion 2>/dev/null)
   local boot now
@@ -144,7 +152,7 @@ collect_cpu() {
   local load
   load=$(sysctl -n vm.loadavg 2>/dev/null | tr -d '{}' | awk '{print $1}')
   H_LOAD1=${load:-0}
-  local cores=${H_CORES:-$(sysctl -n hw.ncpu 2>/dev/null)}
+  local cores=${H_THREADS:-$(sysctl -n hw.ncpu 2>/dev/null)}
   H_CPU_LOAD_PCT=$(awk -v l="$H_LOAD1" -v c="${cores:-1}" 'BEGIN { p = l * 100 / c; if (p > 100) p = 100; printf "%d", p }')
   # Intel Macs report a CPU speed limit; Apple silicon reports warnings only.
   H_THERMAL_LIMIT=$(pmset -g therm 2>/dev/null | sed -n 's/.*CPU_Speed_Limit *= *\([0-9]*\).*/\1/p' | head -1)
@@ -156,18 +164,30 @@ collect_cpu() {
 
 collect_gpu() {
   collect_profile
-  local sp="$MACUP_TMP/profile.json" metal i name res
-  H_GPU=$(pj "$sp" SPDisplaysDataType.0.sppci_model)
-  H_GPU_CORES=$(pj "$sp" SPDisplaysDataType.0.sppci_cores)
-  metal=$(pj "$sp" SPDisplaysDataType.0.spdisplays_mtlgpufamilysupport)
-  H_GPU_METAL=$(printf '%s' "$metal" | sed 's/spdisplays_metal/Metal /')
-  H_DISPLAYS=""
-  for i in 0 1 2 3; do
-    name=$(pj "$sp" "SPDisplaysDataType.0.spdisplays_ndrvs.$i._name")
-    [ -z "$name" ] && break
-    res=$(pj "$sp" "SPDisplaysDataType.0.spdisplays_ndrvs.$i._spdisplays_resolution")
-    H_DISPLAYS="${H_DISPLAYS}${H_DISPLAYS:+ · }$name${res:+ ($res)}"
+  local sp="$MACUP_TMP/profile.json" metal g i name res model vram
+  H_GPU=""; H_GPU_CORES=""; H_GPU_METAL=""; H_DISPLAYS=""
+  # Intel Macs can have two GPUs (Intel + AMD); screens hang under either.
+  for g in 0 1 2; do
+    model=$(pj "$sp" "SPDisplaysDataType.$g.sppci_model")
+    [ -z "$model" ] && break
+    # Dedicated video memory only (integrated GPUs share the main RAM).
+    vram=$(pj "$sp" "SPDisplaysDataType.$g.spdisplays_vram")
+    [ -n "$vram" ] && model="$model ($vram)"
+    H_GPU="${H_GPU}${H_GPU:+ + }$model"
+    [ -z "$H_GPU_CORES" ] && H_GPU_CORES=$(pj "$sp" "SPDisplaysDataType.$g.sppci_cores")
+    if [ -z "$H_GPU_METAL" ]; then
+      metal=$(pj "$sp" "SPDisplaysDataType.$g.spdisplays_mtlgpufamilysupport")
+      H_GPU_METAL=$(printf '%s' "$metal" | sed 's/spdisplays_metal/Metal /')
+    fi
+    for i in 0 1 2 3; do
+      name=$(pj "$sp" "SPDisplaysDataType.$g.spdisplays_ndrvs.$i._name")
+      [ -z "$name" ] && break
+      res=$(pj "$sp" "SPDisplaysDataType.$g.spdisplays_ndrvs.$i._spdisplays_resolution")
+      H_DISPLAYS="${H_DISPLAYS}${H_DISPLAYS:+ · }$name${res:+ ($res)}"
+    done
   done
+  [ -z "$H_GPU" ] && H_GPU="$H_CHIP"
+  return 0
 }
 
 # Protection: built-in macOS security, read-only. P_<id>=1 on, 0 off.
@@ -209,11 +229,22 @@ collect_performance() {
 }
 
 # Hidden caches MacUp can safely move to the Trash (see lib/clean.sh).
-collect_cleanable() {
+# The cache scan is the slowest part, so it starts first and runs in the
+# background while the other checks run; collect_cleanable_finish waits for it.
+collect_cleanable_start() {
   macup_tmp
-  clean_scan "$MACUP_TMP/scan" >/dev/null 2>&1 || true
+  clean_scan "$MACUP_TMP/scan" >/dev/null 2>&1 &
+  CLEAN_SCAN_PID=$!
+}
+collect_cleanable_finish() {
+  [ -n "${CLEAN_SCAN_PID:-}" ] && wait "$CLEAN_SCAN_PID" 2>/dev/null
+  CLEAN_SCAN_PID=""
   H_CLEANABLE=$(clean_total "$MACUP_TMP/scan")
 }
+collect_cleanable() { collect_cleanable_start; collect_cleanable_finish; }
+
+# progress KEY → shows which part is being checked next to the spinner.
+progress() { [ -n "${MACUP_TMP:-}" ] && printf '%s' "$(t "$1")" > "$MACUP_TMP/progress" 2>/dev/null; return 0; }
 
 smart_state() { case "$H_SSD_SMART" in *[Vv]erified*) echo ok ;; *) echo warn ;; esac; }
 
@@ -300,7 +331,15 @@ grade_key() {
 }
 
 collect_all() {
-  collect_hardware; collect_storage; collect_ssd; collect_battery; collect_memory
-  collect_cpu; collect_gpu; collect_protection; collect_performance; collect_cleanable
+  collect_cleanable_start
+  progress part_storage;     collect_hardware; collect_storage
+  progress part_ssd;         collect_ssd
+  progress part_battery;     collect_battery
+  progress part_memory;      collect_memory
+  progress part_cpu;         collect_cpu
+  progress part_gpu;         collect_gpu
+  progress part_protection;  collect_protection
+  progress part_performance; collect_performance
+  progress part_cleanup;     collect_cleanable_finish
   compute_scores
 }

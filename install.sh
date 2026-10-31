@@ -64,13 +64,17 @@ add_to_path() {
     *)         shown="$dir" ;;
   esac
   line="export PATH=\"$shown:\$PATH\" # added by MacUp"
+  # zsh reads ~/.zshrc in every interactive window (login or not), so new
+  # Terminal, VS Code and iTerm windows all find `macup`.
   case "${SHELL:-/bin/zsh}" in
-    */bash) rc="$HOME/.bash_profile" ;;
-    *)      rc="$HOME/.zprofile" ;;
+    */bash) set -- "$HOME/.bash_profile" ;;
+    *)      set -- "$HOME/.zshrc" ;;
   esac
-  if ! grep -qs '# added by MacUp' "$rc"; then
-    printf '\n%s\n' "$line" >> "$rc"
-  fi
+  for rc in "$@"; do
+    if ! grep -qs '# added by MacUp' "$rc"; then
+      printf '\n%s\n' "$line" >> "$rc"
+    fi
+  done
   return 0
 }
 
@@ -132,11 +136,13 @@ main() {
 
   if add_to_path "$bin"; then path_added=1; fi
 
-  printf '\n  Start it with:\n\n'
   if [ "$path_added" = "1" ]; then
+    # This window started before the PATH change, so it can't find `macup` yet.
+    printf '\n  Start it now (in this window):\n\n'
     printf '    \033[38;5;220m%s\033[0m\n\n' "$link"
-    say "(in new Terminal windows just type: macup)"
+    say "From the next Terminal window on, just type:  macup"
   else
+    printf '\n  Start it with:\n\n'
     printf '    \033[38;5;220mmacup\033[0m\n'
   fi
   printf '\n'

@@ -1,4 +1,5 @@
 """Tests for the MacUp Terminal tool (macup, lib/, install.sh)."""
+import json
 import os
 import re
 import subprocess
@@ -214,8 +215,8 @@ def test_install_update_and_uninstall(tmp_path):
     )
     link = tmp_path / ".local" / "bin" / "macup"
     assert link.is_symlink() and os.readlink(link) == str(dest / "macup")
-    zprofile = (tmp_path / ".zprofile").read_text()
-    assert zprofile.count("# added by MacUp") == 1
+    zshrc = (tmp_path / ".zshrc").read_text()
+    assert zshrc.count("# added by MacUp") == 1
 
     version = run([str(link), "--version"], tmp_path)
     assert version.returncode == 0, version.stderr
@@ -224,14 +225,14 @@ def test_install_update_and_uninstall(tmp_path):
     # Running it again updates in place without duplicating anything.
     again = install(tmp_path)
     assert again.returncode == 0, again.stderr + again.stdout
-    assert (tmp_path / ".zprofile").read_text().count("# added by MacUp") == 1
+    assert (tmp_path / ".zshrc").read_text().count("# added by MacUp") == 1
     assert not list(tmp_path.glob(".macup.*"))
 
     gone = run([str(link), "--yes", "--no-color", "uninstall"], tmp_path)
     assert gone.returncode == 0, gone.stderr + gone.stdout
     assert not dest.exists()
     assert not link.exists() and not link.is_symlink()
-    assert "# added by MacUp" not in (tmp_path / ".zprofile").read_text()
+    assert "# added by MacUp" not in (tmp_path / ".zshrc").read_text()
 
 
 def test_install_refuses_to_replace_a_folder_that_is_not_macup(tmp_path):
@@ -265,3 +266,106 @@ def test_complete_check_saves_a_three_page_pdf(tmp_path):
     data = pdfs[0].read_bytes()
     assert data.startswith(b"%PDF")
     assert len(re.findall(rb"/Type\s*/Page[^s]", data)) == 3
+
+
+# ── Intel / Apple silicon detection (simulated hardware) ─────────────────
+
+INTEL_PROFILE = {
+    "SPHardwareDataType": [{"machine_name": "MacBook Pro", "machine_model": "MacBookPro16,1",
+                            "cpu_type": "8-Core Intel Core i9", "number_processors": 8}],
+    "SPDisplaysDataType": [
+        {"sppci_model": "Intel UHD Graphics 630", "spdisplays_vram_shared": "1536 MB"},
+        {"sppci_model": "AMD Radeon Pro 5500M", "spdisplays_vram": "4 GB",
+         "spdisplays_mtlgpufamilysupport": "spdisplays_metal3",
+         "spdisplays_ndrvs": [{"_name": "Color LCD", "_spdisplays_resolution": "3072 x 1920"},
+                              {"_name": "LG UltraFine", "_spdisplays_resolution": "3840 x 2160"}]},
+    ],
+}
+M1_PROFILE = {
+    "SPHardwareDataType": [{"machine_name": "MacBook Air", "chip_type": "Apple M1",
+                            "number_processors": "proc 8:4:4"}],
+    "SPDisplaysDataType": [{"sppci_model": "Apple M1", "sppci_cores": "8",
+                            "spdisplays_mtlgpufamilysupport": "spdisplays_metal3",
+                            "spdisplays_ndrvs": [{"_name": "Color LCD", "_spdisplays_resolution": "2560 x 1600 Retina"}]}],
+}
+
+
+def detect(tmp_path, profile, sysctl):
+    """Runs collect_hardware/cpu/gpu with a fake profile and fake sysctl values."""
+    (tmp_path / "profile.json").write_text(json.dumps(profile))
+    cases = "\n".join(f'    {k}) echo {v!r} ;;' for k, v in sysctl.items())
+    script = f'''
+MACUP_ROOT="{ROOT}"; . "{ROOT}/lib/i18n.sh"; . "{ROOT}/lib/checks.sh"; i18n_load en
+MACUP_TMP="{tmp_path}"
+sysctl() {{
+  [ "$1" = "-n" ] && shift
+  case "$1" in
+{cases}
+    *) return 1 ;;
+  esac
+}}
+collect_hardware; collect_cpu; collect_gpu
+printf '%s|%s|%s|%s|%s|%s|%s\\n' "$H_CHIP" "$H_CORES" "$H_THREADS" "$H_PCORES" "$H_ECORES" "$H_GPU" "$H_DISPLAYS"
+printf '%s|%s\\n' "$H_GPU_CORES" "$H_CPU_LOAD_PCT"
+'''
+    out = bash(script)
+    assert out.returncode == 0, out.stderr
+    return out.stdout.strip().splitlines()
+
+
+def test_intel_mac_with_two_gpus(tmp_path):
+    hw, extra = detect(tmp_path, INTEL_PROFILE, {
+        "hw.physicalcpu": "8", "hw.logicalcpu": "16", "hw.ncpu": "16",
+        "vm.loadavg": "{ 8.00 6.00 5.00 }", "kern.boottime": "{ sec = 1, usec = 0 }",
+    })
+    chip, cores, threads, p, e, gpu, displays = hw.split("|")
+    assert chip == "8-Core Intel Core i9"
+    assert (cores, threads, p, e) == ("8", "16", "", "")
+    assert gpu == "Intel UHD Graphics 630 + AMD Radeon Pro 5500M (4 GB)"
+    assert displays == "Color LCD (3072 x 1920) · LG UltraFine (3840 x 2160)"
+    # load 8 over 16 logical CPUs = 50%, not 100%.
+    assert extra.split("|")[1] == "50"
+
+
+def test_apple_m1_core_split(tmp_path):
+    hw, extra = detect(tmp_path, M1_PROFILE, {
+        "hw.physicalcpu": "8", "hw.logicalcpu": "8", "hw.ncpu": "8",
+        "hw.perflevel0.physicalcpu": "4", "hw.perflevel1.physicalcpu": "4",
+        "vm.loadavg": "{ 2.00 1.00 1.00 }", "kern.boottime": "{ sec = 1, usec = 0 }",
+    })
+    chip, cores, threads, p, e, gpu, displays = hw.split("|")
+    assert (chip, cores, p, e, gpu) == ("Apple M1", "8", "4", "4", "Apple M1")
+    assert extra.split("|") == ["8", "25"]
+
+
+def test_future_chip_with_unexpected_core_layout_skips_the_split(tmp_path):
+    profile = json.loads(json.dumps(M1_PROFILE))
+    profile["SPHardwareDataType"][0]["chip_type"] = "Apple M6 Max"
+    profile["SPHardwareDataType"][0]["number_processors"] = "proc 18:6:8:4"
+    hw, _ = detect(tmp_path, profile, {
+        "hw.physicalcpu": "18", "hw.logicalcpu": "18", "hw.ncpu": "18",
+        "hw.perflevel0.physicalcpu": "6", "hw.perflevel1.physicalcpu": "8",
+        "vm.loadavg": "{ 1.00 1.00 1.00 }", "kern.boottime": "{ sec = 1, usec = 0 }",
+    })
+    chip, cores, threads, p, e, *_ = hw.split("|")
+    assert (chip, cores, p, e) == ("Apple M6 Max", "18", "", "")
+
+
+def test_developer_items_are_read_from_engine_output(tmp_path):
+    (tmp_path / "Library" / "Caches").mkdir(parents=True)
+    npm = tmp_path / ".npm" / "_cacache"
+    npm.mkdir(parents=True)
+    (npm / "blob").write_bytes(os.urandom(64 * 1024))
+    ollama = tmp_path / ".ollama" / "models"
+    ollama.mkdir(parents=True)
+    (ollama / "model.bin").write_bytes(os.urandom(64 * 1024))
+    out = subprocess.run(
+        ["bash", "-c", f'MACUP_ROOT="{ROOT}"; . "{ROOT}/lib/checks.sh"; . "{ROOT}/lib/clean.sh"; '
+                       f'd="{tmp_path}/scan"; clean_scan "$d"; clean_dev_items "$d"'],
+        env={"HOME": str(tmp_path), "PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "TMPDIR": str(tmp_path)},
+        capture_output=True, text=True, timeout=300,
+    )
+    assert out.returncode == 0, out.stderr
+    items = dict(line.split() for line in out.stdout.splitlines())
+    assert int(items.get("npm_cache", 0)) > 0
+    assert "ollama_models" not in items  # downloaded models are never offered

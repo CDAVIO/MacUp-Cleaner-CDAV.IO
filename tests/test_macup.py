@@ -534,3 +534,27 @@ def test_recent_items_never_cleared_without_a_terminal(tmp_path):
     out = run([str(tree / "macup"), "--no-color", "recent"], tmp_path)
     assert out.returncode == 0, out.stderr
     assert state.read_text().strip() == "4 2 1"
+
+
+def test_desktop_mac_without_battery_shows_ssd(tmp_path):
+    """Mac mini / iMac / Mac Studio: no battery, so the big number is the SSD."""
+    profile = {"SPHardwareDataType": [{"machine_name": "Mac mini", "chip_type": "Apple M2 Pro",
+                                       "number_processors": "proc 10:6:4"}],
+               "SPPowerDataType": [{"_name": "spac_charger"}],
+               "SPNVMeDataType": [{"_items": [{"device_model": "APPLE SSD AP0512Z", "smart_status": "Verified"}]}]}
+    (tmp_path / "profile.json").write_text(json.dumps(profile))
+    script = f'''
+MACUP_ROOT="{ROOT}"; for f in ui i18n checks clean report; do . "{ROOT}/lib/$f.sh"; done; i18n_load en
+MACUP_TMP="{tmp_path}"
+collect_hardware; collect_battery; collect_ssd
+H_DISK_FREE_PCT=40; H_MEM_FREE_PCT=50; H_SWAP_MB=0; H_CPU_LOAD_PCT=10; H_THERMAL_WARN=0
+H_UPTIME_DAYS=1; P_PASSED=7; P_TOTAL=7; H_CLEANABLE=0; H_DISK_FREE=100000000000
+compute_scores
+printf '%s|%s|%s|%s\\n' "$H_BAT" "$HERO_LABEL" "$HERO_NOTE" "$HERO_STATE"
+parts | sed -n 3p
+'''
+    out = bash(script)
+    assert out.returncode == 0, out.stderr
+    hero, battery_card = out.stdout.strip().splitlines()
+    assert hero == "0|SSD health|S.M.A.R.T.: Verified|ok"
+    assert battery_card == "none|Battery|—|No battery (desktop Mac)"

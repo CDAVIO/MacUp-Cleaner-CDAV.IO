@@ -278,6 +278,18 @@ section { padding: clamp(68px, 9vw, 120px) 0; }
 .ring b i { font-style: normal; font-size: .42em; color: #c9c9c9; }
 .ring span { font-size: 3cqw; color: #ffd905; font-weight: 700; margin-top: .8cqw; }
 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 2cqw; margin-top: auto; }
+.tile.warn { border-color: #ffd905; }
+.tile .th { display: flex; justify-content: space-between; align-items: center; gap: 1.5cqw; min-width: 0; }
+.tile .pill { font-size: 2.1cqw; padding: .5cqw 1.4cqw; }
+.pill { font-style: normal; font-weight: 700; border-radius: 99px; white-space: nowrap; }
+.pill.ok { color: #ffd905; border: 1px solid #3a3a3a; }
+.pill.warn { background: #ffd905; color: #111; }
+.pp-score p strong { display: block; color: #fff; font-size: 5.4cqw; line-height: 1.1; }
+.pp-score p strong + .y { display: block; font-size: 3.2cqw; margin: 1cqw 0 3cqw; font-weight: 600; }
+.explain { color: var(--muted); font-size: 16px; }
+.legend-pills { list-style: none; padding: 0; margin: 14px 0 0; display: flex; gap: 10px; }
+.legend-pills .pill { display: inline-block; font-size: 13px; padding: 5px 12px; }
+.legend-pills .pill.ok { background: var(--term); }
 .tile { background: #151515; border: 1px solid rgba(255,255,255,.08); border-radius: 2.4cqw; padding: 2.4cqw 3.2cqw; display: grid; gap: .6cqw; min-width: 0; }
 .tile small { font-size: 2.6cqw; color: #a3a4a8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tile b { font-size: 5.6cqw; font-weight: 800; line-height: 1; }

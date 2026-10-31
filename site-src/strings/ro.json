@@ -1,7 +1,7 @@
 {
   "lang_name": "Română",
   "meta_title": "MacUp — Verificare și curățare Mac gratuită, în Terminal",
-  "meta_desc": "Unealtă gratuită și open source pentru macOS, în Terminal: curăță cache-urile ascunse din „Date de sistem”, verifică SSD, baterie, RAM, procesor, grafică și securitate și primești sănătatea Mac-ului în % cu raport PDF. Fără aplicație, fără abonament, doar în Coș.",
+  "meta_desc": "Unealtă gratuită și open source pentru macOS, în Terminal: curăță cache-urile ascunse din „Date de sistem”, verifică SSD, baterie, RAM, procesor, grafică și securitate și vezi sănătatea bateriei în % într-un raport PDF. Fără aplicație, fără abonament, doar în Coș.",
   "og_title": "MacUp — Sănătatea Mac-ului, direct în Terminal. Gratuit.",
   "skip": "Sari la conținut",
   "nav_demo": "Vezi demo",
@@ -10,7 +10,6 @@
   "nav_faq": "Întrebări",
   "theme_label": "Comută luminos / întunecat",
   "lang_label": "Limbă",
-
   "hero_eyebrow": "Gratuit · Open source · Terminal",
   "hero_title_1": "Sănătatea Mac-ului tău,",
   "hero_title_2": "direct în Terminal.",
@@ -23,7 +22,6 @@
   "badge_trash": "Doar în Coș — nimic șters definitiv",
   "badge_pass": "Fără parolă de administrator",
   "badge_mac": "macOS 13+ · Apple silicon și Intel",
-
   "demo_eyebrow": "Vezi cum rulează",
   "demo_title": "Toate ecranele în 60 de secunde",
   "demo_lead": "Exact asta arată MacUp în Terminal. Apasă play sau alege un capitol.",
@@ -35,10 +33,9 @@
   "demo_cap_2": "Acest Mac: spațiu, sănătate SSD, sănătatea și ciclurile bateriei, memorie, procesor și grafică pe un singur ecran.",
   "demo_cap_3": "Protecție verifică securitatea deja inclusă în macOS — doar citire, cu locul unde activezi ce lipsește.",
   "demo_cap_4": "Performanță arată încărcarea, aplicațiile cele mai active și elementele de pornire rămase de la aplicații șterse.",
-  "demo_cap_5": "Verificare completă rulează tot, îți dă sănătatea Mac-ului în % și îți spune ce să faci.",
+  "demo_cap_5": "Verificare completă rulează tot: sănătatea bateriei în %, Bun sau Necesită atenție pentru fiecare parte și ce ai de făcut.",
   "demo_cap_6": "…și salvează un raport PDF de trei pagini în folderul Descărcări.",
   "demo_note": "Valori de exemplu — Mac-ul tău arată propriile cifre.",
-
   "start_eyebrow": "Pornești în 30 de secunde",
   "start_title": "Trei pași. Fără pagină de descărcare.",
   "step1_t": "Deschide Terminal",
@@ -47,16 +44,14 @@
   "step2_d": "Instalează MacUp în folderul tău personal. Fără parolă, nimic nu rulează în fundal.",
   "step3_t": "Scrie macup",
   "step3_d": "Alege 1–5, apasă q pentru ieșire. Îl poți elimina oricând cu macup uninstall.",
-
   "feat_eyebrow": "Ce face",
   "feat_title": "Cinci unelte, o singură comandă",
   "f1_d": "Găsește cache-uri de aplicații și browsere, jurnale, rapoarte de erori și peste 30 de cache-uri pentru dezvoltatori. Îți arată întâi mărimile, apoi mută în Coș ce alegi.",
   "f2_d": "Spațiu folosit și liber, modelul SSD și starea S.M.A.R.T., sănătatea bateriei în %, cicluri și încărcare, RAM și swap, nuclee, încărcare și temperatura procesorului, grafică și ecrane.",
   "f3_d": "Gatekeeper, Protecția integrității sistemului, FileVault, firewall, XProtect, răspunsuri de securitate și actualizări automate — pornite sau oprite.",
   "f4_d": "Încărcarea, aplicațiile cele mai active după procesor și memorie, elementele de pornire și cele defecte lăsate de aplicații șterse.",
-  "f5_d": "Tot ce e mai sus, o singură sănătate a Mac-ului în % și un raport PDF de trei pagini salvat în Descărcări.",
+  "f5_d": "Tot ce e mai sus: sănătatea bateriei în %, Bun sau Necesită atenție pentru fiecare parte și un raport PDF de trei pagini în Descărcări.",
   "f_check_tag": "Cel mai folosit",
-
   "ghost_eyebrow": "Fantoma din „Date de sistem”",
   "ghost_title": "Cache-uri ascunse — nu un Mac stricat",
   "ghost_lead": "macOS păstrează cache-uri, jurnale și rapoarte de erori în foldere ascunse. În câteva luni ajung la mulți gigaocteți și apar în Configurări ca „Date de sistem”. Aplicațiile le refac singure, deci le poți șterge în siguranță.",
@@ -70,18 +65,16 @@
   "ghost_where": "Unde se ascund",
   "ghost_no_reset_t": "Nu trebuie să formatezi sau să resetezi Mac-ul",
   "ghost_no_reset_d": "Să ștergi tot Mac-ul ca să recuperezi spațiu durează ore și trebuie să refaci totul. Curățarea cache-urilor durează un minut — și totul merge întâi în Coș, ca să poți recupera.",
-
   "report_eyebrow": "Verificare completă",
-  "report_title": "Sănătatea Mac-ului în %, ca PDF",
-  "report_lead": "macup check îi dă Mac-ului tău un scor din 100 și salvează un PDF de trei pagini în Descărcări — ușor de păstrat, tipărit sau trimis.",
-  "report_weights": "Cum se calculează scorul",
-  "report_weights_note": "Componentele pe care Mac-ul nu le are — de exemplu bateria la un iMac — nu se socotesc.",
-  "report_p1": "Scorul și șase carduri",
+  "report_title": "Sănătatea bateriei în % și un raport PDF clar",
+  "report_lead": "macup check îți arată sănătatea bateriei în % — ca pe iPhone — și salvează un PDF de trei pagini în Descărcări, ușor de păstrat, tipărit sau trimis.",
+  "report_weights": "Cum îl citești",
+  "report_weights_note": "Numărul mare este sănătatea bateriei (Mac-urile fără baterie arată SSD-ul). Fiecare altă parte primește o stare simplă:",
+  "report_p1": "Sănătatea bateriei și șase carduri",
   "report_p2": "Toate detaliile",
   "report_p3": "Ce ai de făcut, pas cu pas",
   "report_hw_t": "Verificate în fiecare raport",
   "report_hw_d": "RAM, SSD, baterie, grafică și procesor — cu o stare clară și, dacă ceva nu e în regulă, soluția sau comanda exactă.",
-
   "av_eyebrow": "Un răspuns sincer",
   "av_title": "Are nevoie un Mac de antivirus plătit?",
   "av_lead": "Pentru majoritatea oamenilor, nu. Fiecare Mac are deja protecție gratuită, actualizată automat de Apple. Un abonament anual de „curățat viruși” nu o face mai puternică.",
@@ -99,7 +92,6 @@
   "av_help_2": "Instalează aplicații din App Store sau de la dezvoltatori de încredere",
   "av_help_3": "Ține FileVault și firewall-ul pornite — macup protect le arată pe amândouă",
   "av_note": "MacUp nu este antivirus. Îți arată dacă protecția deja inclusă în macOS este pornită.",
-
   "cmp_eyebrow": "Comparație",
   "cmp_title": "De ce să plătești în fiecare an?",
   "cmp_feature": "Funcție",
@@ -139,7 +131,6 @@
   "v_never": "Niciodată",
   "v_sometimes": "Uneori",
   "cmp_note": "O comparație generală între tipuri de produse, nu între anumite companii.",
-
   "safe_eyebrow": "Siguranța pe primul loc",
   "safe_title": "Făcut ca să nu pierzi fișiere",
   "s1_t": "Doar în Coș",
@@ -154,7 +145,6 @@
   "s5_d": "Dacă o aplicație folosește un fișier chiar acum, MacUp nu se atinge de el.",
   "s6_t": "Open source",
   "s6_d": "Fiecare linie e pe GitHub. Citește install.sh înainte să-l rulezi — e scurt.",
-
   "faq_title": "Întrebări",
   "q1": "MacUp e chiar gratuit?",
   "a1": "Da. E open source sub licența MIT — fără perioadă de probă, fără abonament, fără cont, fără reclame.",
@@ -172,7 +162,6 @@
   "a7": "macup update instalează cea mai nouă versiune. macup uninstall îl elimină complet; rapoartele PDF rămân în Descărcări.",
   "q8": "Trimite MacUp vreo informație?",
   "a8": "Nu. Funcționează offline și nu are telemetrie. Site-ul acesta nu folosește cookie-uri sau urmărire.",
-
   "cta_title": "Fă-i Mac-ului un control",
   "cta_lead": "Gratuit, pentru totdeauna. Lipește o linie în Terminal.",
   "footer_tag": "Sănătatea Mac-ului în Terminal, gratuit și open source.",

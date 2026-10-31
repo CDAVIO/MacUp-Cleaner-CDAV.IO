@@ -7,7 +7,14 @@
 # ── helpers ────────────────────────────────────────────────────────────────
 
 # pj FILE KEYPATH → raw value from a JSON/plist file ("" when missing)
-pj() { plutil -extract "$2" raw -o - "$1" 2>/dev/null || true; }
+# Some macOS versions (e.g. 15) print "Could not extract value…" on stdout
+# for a missing key, so the output is used only when plutil succeeded.
+pj() {
+  local v
+  v=$(plutil -extract "$2" raw -o - "$1" 2>/dev/null) || return 0
+  case "$v" in *"Could not extract value"*|*"No value at that key path"*) return 0 ;; esac
+  printf '%s\n' "$v"
+}
 
 # Integer from text like "93%" or "24 GB"
 num() { printf '%s' "$1" | tr -cd '0-9' | cut -c1-12; }
@@ -64,11 +71,15 @@ collect_hardware() {
 }
 
 collect_storage() {
+  macup_tmp
   local plist="" total="" free=""
   plist=$(diskutil info -plist / 2>/dev/null) || true
   if [ -n "$plist" ]; then
-    total=$(printf '%s' "$plist" | plutil -extract APFSContainerSize raw -o - - 2>/dev/null || true)
-    free=$(printf '%s' "$plist" | plutil -extract APFSContainerFree raw -o - - 2>/dev/null || true)
+    printf '%s' "$plist" > "$MACUP_TMP/disk.plist" 2>/dev/null
+    total=$(pj "$MACUP_TMP/disk.plist" APFSContainerSize)
+    free=$(pj "$MACUP_TMP/disk.plist" APFSContainerFree)
+    case "$total" in *[!0-9]*) total="" ;; esac
+    case "$free" in *[!0-9]*) free="" ;; esac
   fi
   if [ -z "$total" ] || [ -z "$free" ]; then
     # Fallback: the Data volume as df sees it (1K blocks).
@@ -281,7 +292,7 @@ score_memory() {
   elif [ "$f" -ge 5 ];  then s=$(( 45 + (f - 5) * 3 ))
   else s=30; fi
   # Heavy swap use means the Mac often runs out of memory.
-  if   [ "$H_SWAP_MB" -gt 8192 ]; then s=$(( s - 20 ))
+  if   [ "$H_SWAP_MB" -gt 8192 ]; then s=$(( s - 25 ))
   elif [ "$H_SWAP_MB" -gt 2048 ]; then s=$(( s - 10 )); fi
   clamp "$s"
 }
@@ -311,24 +322,41 @@ compute_scores() {
   S_STORAGE=$(score_storage); S_SSD=$(score_ssd); S_BATTERY=$(score_battery)
   S_MEMORY=$(score_memory); S_CPU=$(score_cpu); S_PROTECTION=$(score_protection)
   S_CLEANUP=$(score_cleanup)
-  local sum=0 weight=0 pair score w
-  for pair in "STORAGE:20" "SSD:15" "BATTERY:15" "MEMORY:15" "CPU:10" "PROTECTION:15" "CLEANUP:10"; do
-    score=$(eval "printf '%s' \"\$S_${pair%%:*}\"")
-    w=${pair##*:}
-    [ -z "$score" ] && continue
-    sum=$(( sum + score * w )); weight=$(( weight + w ))
-  done
-  S_TOTAL=0
-  [ "$weight" -gt 0 ] && S_TOTAL=$(( (sum + weight / 2) / weight ))
+  compute_hero
 }
 
-grade_key() {
-  local s="$1"
-  if   [ "$s" -ge 90 ]; then echo grade_excellent
-  elif [ "$s" -ge 75 ]; then echo grade_good
-  elif [ "$s" -ge 55 ]; then echo grade_fair
-  else echo grade_attention; fi
+# part_state SCORE → ok | warn | bad, or none when the part isn't on this Mac.
+part_state() {
+  if [ -z "$1" ]; then echo none; elif [ "$1" -ge 80 ]; then echo ok; elif [ "$1" -ge 55 ]; then echo warn; else echo bad; fi
 }
+
+# The one big number: battery health, like on iPhone. Macs without a battery
+# (iMac, Mac mini, Mac Studio, Mac Pro) show the SSD instead.
+compute_hero() {
+  if [ "$H_BAT" = "1" ] && [ -n "$H_BAT_HEALTH" ]; then
+    HERO_LABEL=$(t battery_health)
+    HERO_PCT="$H_BAT_HEALTH"
+    HERO_NOTE="$(t k_cycles): ${H_BAT_CYCLES:-—}$(bat_service_note)"
+    HERO_STATE=$(part_state "$S_BATTERY")
+  else
+    HERO_LABEL=$(t part_ssd)
+    HERO_PCT=""
+    [ -n "$H_SSD_WEAR" ] && HERO_PCT=$(( 100 - H_SSD_WEAR ))
+    HERO_NOTE="S.M.A.R.T.: ${H_SSD_SMART:-—}"
+    HERO_STATE=$(part_state "$S_SSD")
+  fi
+  [ "$HERO_STATE" = "none" ] && HERO_STATE=ok
+  return 0
+}
+
+# " · Service Recommended" only when Apple asks for a battery service
+# (a normal battery would otherwise show "Good" twice).
+bat_service_note() {
+  case "$H_BAT_CONDITION" in *[Ss]ervice*|*[Rr]eplace*|*[Pp]oor*) printf ' · %s' "$H_BAT_CONDITION" ;; esac
+}
+
+# state_word ok|warn|bad → "Good" / "Needs attention"
+state_word() { case "$1" in ok) t grade_good ;; none) printf '—' ;; *) t grade_attention ;; esac; }
 
 collect_all() {
   collect_cleanable_start

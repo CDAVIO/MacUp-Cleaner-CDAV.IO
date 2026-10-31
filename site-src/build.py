@@ -164,11 +164,15 @@ def demo(c, s):
     check = [
         title("5", "check_title"), rule, dim(c["check_intro"]),
         {"k": "spin", "t": c["checking"], "ms": 1700},
-        {"k": "big", "l": c["mac_health"], "p": 89, "g": c["grade_good"]},
+        {"k": "big", "l": c["battery_health"], "p": 91, "g": f'{c["k_cycles"]}: 312'},
         blank,
-        score("part_storage", 72), score("part_ssd", 100), score("part_battery", 91),
-        score("part_memory", 100), score("part_cpu", 100), score("part_protection", 85),
-        score("part_cleanup", 85),
+        warn(c["part_storage"], f'{t("note_storage", "63.2 GB", 13)}  · {c["grade_attention"]}'),
+        ok(c["part_ssd"], f'S.M.A.R.T.: Verified  · {c["grade_good"]}'),
+        ok(c["part_battery"], f'{c["k_bat_health"]} 91% · {c["k_cycles"]}: 312  · {c["grade_good"]}'),
+        ok(c["part_memory"], f'{t("note_memory", 38, 0)}  · {c["grade_good"]}'),
+        ok(c["part_cpu"], f'{t("note_cpu", 18, 3)}  · {c["grade_good"]}'),
+        warn(c["part_protection"], f'{t("note_protection", 6, 7)}  · {c["grade_attention"]}'),
+        warn(c["part_cleanup"], f'8.6 GB  · {c["grade_attention"]}'),
         blank,
         {"k": "group", "t": "→  " + c["report_recs"]},
         rec("✕", "bad", t("rec_space_low", 13), c["rec_space_low_d"], "$ macup clean"),
@@ -190,29 +194,32 @@ def demo(c, s):
 
 
 # ── Report mock-ups ──────────────────────────────────────────────────────
-TILES = [("part_storage", 72, "note_storage", ("63.2 GB", 13)),
-         ("part_ssd", 100, None, ()),
-         ("part_battery", 91, "note_battery", (91, 312)),
-         ("part_memory", 100, "note_memory", (38, "0.4")),
-         ("part_cpu", 100, "note_cpu", (18, 3)),
-         ("part_protection", 85, "note_protection", (6, 7))]
-
-
 def pdf_mock(c):
+    t = lambda k, *a: fill(c[k], *a)  # noqa: E731
+    cards = [
+        ("warn", c["part_storage"], "63.2 GB", t("note_storage", "63.2 GB", 13)),
+        ("ok", c["part_ssd"], "Verified", "S.M.A.R.T.: Verified"),
+        ("ok", c["part_battery"], "91%", f'{c["k_bat_health"]} 91% · {c["k_cycles"]}: 312'),
+        ("ok", c["part_memory"], "16 GB", t("note_memory", 38, 0)),
+        ("ok", c["part_cpu"], t("gpu_cores", 8), t("note_cpu", 18, 3)),
+        ("warn", c["part_protection"], "6/7", t("note_protection", 6, 7)),
+    ]
     tiles = []
-    for key, pct, note, args in TILES:
-        n = fill(c[note], *args) if note else "SMART: Verified"
+    for state, label, big, note in cards:
+        pill = (f'<i class="pill ok">✓ {E(c["grade_good"])}</i>' if state == "ok"
+                else f'<i class="pill warn">! {E(c["grade_attention"])}</i>')
         tiles.append(
-            f'<div class="tile"><small>{E(c[key])}</small><b>{pct}<i>%</i></b>'
-            f'<span class="tb"><span style="--p:{pct}%"></span></span><em>{E(n)}</em></div>'
+            f'<div class="tile {state}"><span class="th"><small>{E(label)}</small>{pill}</span>'
+            f'<b>{E(big)}</b><em>{E(note)}</em></div>'
         )
     return (
         '<div class="paper dark"><div class="pp">'
         '<div class="pp-head"><span class="pp-logo">✦ MacUp</span><span>2026-10-31</span></div>'
         f'<h4>{E(c["report_title"])}</h4><p class="pp-sub">MacBook Air · Apple M3 · macOS 15</p>'
-        '<div class="pp-score"><div class="ring" style="--p:89"><div><b>89<i>%</i></b>'
+        '<div class="pp-score"><div class="ring" style="--p:91"><div><b>91<i>%</i></b>'
         f'<span>{E(c["grade_good"])}</span></div></div>'
-        f'<p>{E(c["report_cache"])} <b class="y">8.6 GB</b></p></div>'
+        f'<p><strong>{E(c["battery_health"])}</strong><span class="y">{E(c["k_cycles"])}: 312</span>'
+        f'{E(c["report_cache"])} <b class="y">8.6 GB</b></p></div>'
         f'<div class="tiles">{"".join(tiles)}</div></div></div>'
     )
 
@@ -230,22 +237,6 @@ def recs_mock(c):
     items = [fill(c["rec_space_low"], 13), fill(c["rec_cache"], "8.6 GB"), c["rec_firewall"]]
     out = "".join(f'<span class="ri"><i>{i}</i>{E(x)}</span>' for i, x in enumerate(items, 1))
     return out + f'<span class="good-box">{E(c["good_title"])}</span>'
-
-
-def weights(c):
-    parts = [("part_storage", 20), ("part_ssd", 15), ("part_battery", 15), ("part_memory", 15),
-             ("part_protection", 15), ("part_cpu", 10), ("part_cleanup", 10)]
-    return "".join(
-        f'<li><span>{E(c[k])}</span><span class="wb"><span style="--p:{w * 5}%"></span></span><b>{w}%</b></li>'
-        for k, w in parts
-    )
-
-
-def grades(c):
-    return " · ".join([
-        f'<b>90%+</b> {E(c["grade_excellent"])}', f'<b>75%+</b> {E(c["grade_good"])}',
-        f'<b>55%+</b> {E(c["grade_fair"])}', f'<b>&lt;55%</b> {E(c["grade_attention"])}',
-    ])
 
 
 # ── Page assembly ────────────────────────────────────────────────────────
@@ -304,8 +295,6 @@ def build_page(template, code, en_site, en_cli, asset_v):
         "pdf_mock": pdf_mock(cli),
         "details_mock": details_mock(cli),
         "recs_mock": recs_mock(cli),
-        "weights": weights(cli),
-        "grades": grades(cli),
         "install_cmd": E(INSTALL_CMD),
         "asset_v": asset_v,
     }

@@ -1,7 +1,7 @@
 {
   "lang_name": "English",
   "meta_title": "MacUp — Free Mac health check & cleaner in Terminal",
-  "meta_desc": "Free, open-source Terminal tool for macOS: clear the hidden caches behind “System Data”, check SSD, battery, RAM, processor, graphics and security, and get a Mac health % with a PDF report. No app, no subscription, Trash only.",
+  "meta_desc": "Free, open-source Terminal tool for macOS: clear the hidden caches behind “System Data”, check SSD, battery, RAM, processor, graphics and security, and see your battery health % in a PDF report. No app, no subscription, Trash only.",
   "og_title": "MacUp — Your Mac’s health, right in Terminal. Free.",
   "skip": "Skip to content",
   "nav_demo": "Watch",
@@ -10,7 +10,6 @@
   "nav_faq": "FAQ",
   "theme_label": "Switch light / dark",
   "lang_label": "Language",
-
   "hero_eyebrow": "Free · Open source · Terminal",
   "hero_title_1": "Your Mac’s health,",
   "hero_title_2": "right in Terminal.",
@@ -23,7 +22,6 @@
   "badge_trash": "Trash only — nothing deleted for good",
   "badge_pass": "No admin password",
   "badge_mac": "macOS 13+ · Apple silicon & Intel",
-
   "demo_eyebrow": "Watch it run",
   "demo_title": "Every screen in 60 seconds",
   "demo_lead": "This is exactly what MacUp shows in Terminal. Press play or pick a chapter.",
@@ -35,10 +33,9 @@
   "demo_cap_2": "This Mac: storage, SSD health, battery health and cycles, memory, processor and graphics on one screen.",
   "demo_cap_3": "Protection checks the security already built into macOS — read-only, with where to switch things on.",
   "demo_cap_4": "Performance shows the load, the busiest apps and startup items left behind by deleted apps.",
-  "demo_cap_5": "Complete check runs everything, gives your Mac a health % and tells you what to do.",
+  "demo_cap_5": "Complete check runs everything: your battery health %, Good or Needs attention for each part, and what to do.",
   "demo_cap_6": "…and saves a three-page PDF report in your Downloads folder.",
   "demo_note": "Example values — your Mac shows its own numbers.",
-
   "start_eyebrow": "Start in 30 seconds",
   "start_title": "Three steps. No download page.",
   "step1_t": "Open Terminal",
@@ -47,16 +44,14 @@
   "step2_d": "It installs MacUp in your home folder. No password, nothing runs in the background.",
   "step3_t": "Type macup",
   "step3_d": "Choose 1–5, press q to quit. Remove it any time with macup uninstall.",
-
   "feat_eyebrow": "What it does",
   "feat_title": "Five tools, one command",
   "f1_d": "Finds app caches, browser caches, logs, crash reports and 30+ developer caches. Shows sizes first, then moves your choice to the Trash.",
   "f2_d": "Storage used and free, SSD model and S.M.A.R.T. status, battery health %, cycles and charge, RAM and swap, processor cores, load and heat, graphics and displays.",
   "f3_d": "Gatekeeper, System Integrity Protection, FileVault, firewall, XProtect, security responses and automatic updates — on or off.",
   "f4_d": "Load, the busiest apps by processor and memory, startup items, and broken startup items left by deleted apps.",
-  "f5_d": "Everything above, one Mac health % and a three-page PDF report saved in Downloads.",
+  "f5_d": "Everything above: your battery health %, Good or Needs attention for each part, and a three-page PDF report in Downloads.",
   "f_check_tag": "Most popular",
-
   "ghost_eyebrow": "The ghost in “System Data”",
   "ghost_title": "Hidden caches — not a broken Mac",
   "ghost_lead": "macOS keeps caches, logs and crash reports in hidden folders. Over months they grow to many gigabytes and show up in Settings as “System Data”. Apps rebuild them by themselves, so clearing them is safe.",
@@ -70,18 +65,16 @@
   "ghost_where": "Where they hide",
   "ghost_no_reset_t": "No need to format or reset your Mac",
   "ghost_no_reset_d": "Erasing a Mac to win back space takes hours and you have to restore everything. Clearing caches takes a minute — and it all goes to the Trash first, so you can put it back.",
-
   "report_eyebrow": "Complete check",
-  "report_title": "Your Mac health %, as a PDF",
-  "report_lead": "macup check gives your Mac one score out of 100 and saves a three-page PDF in Downloads — easy to keep, print or share.",
-  "report_weights": "How the score is made",
-  "report_weights_note": "Parts your Mac doesn’t have — like a battery on an iMac — are left out.",
-  "report_p1": "Score and six tiles",
+  "report_title": "Battery health % and a clear PDF report",
+  "report_lead": "macup check shows your battery health % — like on iPhone — and saves a three-page PDF in Downloads, easy to keep, print or share.",
+  "report_weights": "How to read it",
+  "report_weights_note": "The big number is your battery health (Macs without a battery show the SSD instead). Every other part gets a plain status:",
+  "report_p1": "Battery health and six cards",
   "report_p2": "Every detail",
   "report_p3": "What to do, step by step",
   "report_hw_t": "Checked in every report",
   "report_hw_d": "RAM, SSD, battery, graphics and processor — with a clear status and, if something is wrong, the exact fix or command.",
-
   "av_eyebrow": "An honest answer",
   "av_title": "Does a Mac need a paid antivirus?",
   "av_lead": "For most people, no. Every Mac already includes free protection that Apple updates automatically. A yearly “virus cleaner” subscription doesn’t make it stronger.",
@@ -99,7 +92,6 @@
   "av_help_2": "Install apps from the App Store or developers you trust",
   "av_help_3": "Keep FileVault and the firewall on — macup protect shows both",
   "av_note": "MacUp is not an antivirus. It shows whether the protection already in macOS is switched on.",
-
   "cmp_eyebrow": "Compare",
   "cmp_title": "Why pay every year?",
   "cmp_feature": "Feature",
@@ -139,7 +131,6 @@
   "v_never": "Never",
   "v_sometimes": "Sometimes",
   "cmp_note": "A general comparison of product types, not of any specific company.",
-
   "safe_eyebrow": "Safety first",
   "safe_title": "Built so you can’t lose files",
   "s1_t": "Trash only",
@@ -154,7 +145,6 @@
   "s5_d": "If an app is using a file right now, MacUp leaves it alone.",
   "s6_t": "Open source",
   "s6_d": "Every line is on GitHub. Read install.sh before you run it — it’s short.",
-
   "faq_title": "Questions",
   "q1": "Is MacUp really free?",
   "a1": "Yes. It’s open source under the MIT license — no trial, no subscription, no account, no ads.",
@@ -172,7 +162,6 @@
   "a7": "macup update installs the latest version. macup uninstall removes it completely; your PDF reports stay in Downloads.",
   "q8": "Does MacUp send any data?",
   "a8": "No. It works offline and has no telemetry. This website uses no cookies and no trackers.",
-
   "cta_title": "Give your Mac a check-up",
   "cta_lead": "Free, forever. Paste one line in Terminal.",
   "footer_tag": "Free, open-source Mac health in Terminal.",

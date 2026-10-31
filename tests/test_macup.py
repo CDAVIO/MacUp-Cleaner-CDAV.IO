@@ -148,8 +148,8 @@ def test_battery_score():
 
 def test_memory_and_cpu_scores():
     assert score("score_memory", H_MEM_FREE_PCT=40, H_SWAP_MB=0) == "100"
-    assert score("score_memory", H_MEM_FREE_PCT=37, H_SWAP_MB=19000) == "80"
-    assert score("score_memory", H_MEM_FREE_PCT=2, H_SWAP_MB=9000) == "10"
+    assert score("score_memory", H_MEM_FREE_PCT=37, H_SWAP_MB=19000) == "75"
+    assert score("score_memory", H_MEM_FREE_PCT=2, H_SWAP_MB=9000) == "5"
     cpu = dict(H_CPU_LOAD_PCT=10, H_THERMAL_WARN=0, H_UPTIME_DAYS=1)
     assert score("score_cpu", **cpu) == "100"
     assert score("score_cpu", **{**cpu, "H_CPU_LOAD_PCT": 100}) == "70"
@@ -369,3 +369,111 @@ def test_developer_items_are_read_from_engine_output(tmp_path):
     items = dict(line.split() for line in out.stdout.splitlines())
     assert int(items.get("npm_cache", 0)) > 0
     assert "ollama_models" not in items  # downloaded models are never offered
+
+
+def test_missing_values_never_show_plutil_errors(tmp_path):
+    """macOS 15's plutil prints 'Could not extract value' on stdout and exits 1."""
+    fake = tmp_path / "bin"
+    fake.mkdir()
+    (fake / "plutil").write_text(
+        '#!/bin/bash\n'
+        'out=$(/usr/bin/plutil "$@" 2>&1); rc=$?\n'
+        'if [ $rc -ne 0 ]; then echo "$5: Could not extract value, error: No value at that key path or invalid key path: $2"; exit 1; fi\n'
+        'printf "%s\\n" "$out"\n'
+    )
+    (fake / "plutil").chmod(0o755)
+    (tmp_path / "profile.json").write_text(json.dumps(M1_PROFILE))
+    script = f'''
+PATH="{fake}:$PATH"
+MACUP_ROOT="{ROOT}"; . "{ROOT}/lib/i18n.sh"; . "{ROOT}/lib/checks.sh"; i18n_load en
+MACUP_TMP="{tmp_path}"
+collect_hardware; collect_gpu; collect_battery; collect_ssd
+printf 'GPU=%s\\nDISPLAYS=%s\\nBAT=%s|%s\\nSSD=%s\\n' "$H_GPU" "$H_DISPLAYS" "$H_BAT" "$H_BAT_CYCLES" "$H_SSD_MODEL"
+'''
+    out = bash(script)
+    assert out.returncode == 0, out.stderr
+    assert "Could not extract" not in out.stdout and "key path" not in out.stdout, out.stdout
+    assert "GPU=Apple M1\n" in out.stdout
+    assert "DISPLAYS=Color LCD (2560 x 1600 Retina)\n" in out.stdout
+    assert "BAT=0|\n" in out.stdout  # this fake profile has no battery
+
+
+# ── Real Terminal (pseudo-TTY): spinner, prompts and the 1–5 menu ────────
+
+def run_tty(home, args, answers, quiet=2.5, limit=240):
+    """Runs macup in a pseudo-terminal and types each answer when output goes quiet."""
+    import pty
+    import select
+    import time
+    env = {"HOME": str(home), "PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "LANG": "en_US.UTF-8",
+           "TERM": "xterm-256color", "TMPDIR": str(home / "tmp"), "SHELL": "/bin/zsh"}
+    (home / "tmp").mkdir(parents=True, exist_ok=True)
+    pid, fd = pty.fork()
+    if pid == 0:
+        os.execve(str(MACUP), [str(MACUP), *args], env)
+    out = b""
+
+    def settle():
+        nonlocal out
+        start = last = time.time()
+        while time.time() - start < limit:
+            r, _, _ = select.select([fd], [], [], 0.2)
+            if r:
+                try:
+                    data = os.read(fd, 65536)
+                except OSError:
+                    return False
+                if not data:
+                    return False
+                out += data
+                last = time.time()
+            elif time.time() - last > quiet:
+                return True
+        return True
+
+    alive = settle()
+    for a in answers:
+        if not alive:
+            break
+        os.write(fd, (a + "\r").encode())
+        alive = settle()
+    try:
+        os.kill(pid, 9)
+        os.waitpid(pid, 0)
+    except OSError:
+        pass
+    return re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", out.decode("utf-8", "replace"))
+
+
+BAD_OUTPUT = ["unbound variable", "command not found", "syntax error", "Could not extract", "key path"]
+
+
+@pytest.mark.parametrize("args,answers,expect", [
+    (["clean"], ["p"], "Preview only"),
+    (["mac"], [], "Hidden caches you can clear"),
+    (["protect"], ["n"], "System Integrity Protection"),
+    (["perf"], [], "Busiest apps"),
+    (["check"], ["n", "n"], "What to do"),
+    ([], ["2", "", "q"], "This Mac"),
+])
+def test_tty_every_screen(tmp_path, args, answers, expect):
+    (tmp_path / "Downloads").mkdir()
+    cache = make_cache(tmp_path)
+    text = run_tty(tmp_path, ["--no-color", *args], answers)
+    for bad in BAD_OUTPUT:
+        assert bad not in text, bad
+    assert expect in text
+    assert (cache / "blob.bin").exists()  # nothing here moves files
+    if args == ["check"]:
+        assert "Battery health" in text or "SSD health" in text
+        assert list((tmp_path / "Downloads").glob("MacUp-Health-Report-*.pdf"))
+
+
+@pytest.mark.parametrize("code", ["ro", "ko"])
+def test_tty_complete_check_in_other_languages(tmp_path, code):
+    (tmp_path / "Downloads").mkdir()
+    text = run_tty(tmp_path, ["--no-color", "--lang", code, "check"], ["n", "n"])
+    for bad in BAD_OUTPUT:
+        assert bad not in text, bad
+    assert lang_strings(code)["S_battery_health"] in text or lang_strings(code)["S_part_ssd"] in text
+    assert list((tmp_path / "Downloads").glob("MacUp-Health-Report-*.pdf"))

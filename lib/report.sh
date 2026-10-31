@@ -43,20 +43,49 @@ build_recommendations() {
   return 0
 }
 
-status_word() { # score → ok|warn|bad
-  if [ -z "$1" ]; then echo none; elif [ "$1" -ge 80 ]; then echo ok; elif [ "$1" -ge 55 ]; then echo warn; else echo bad; fi
+# One line per part: state|label|big value|note (used by Terminal and PDF).
+parts() {
+  local ssd_big ssd_note
+  if [ -n "$H_SSD_WEAR" ]; then
+    ssd_big="$(( 100 - H_SSD_WEAR ))%"; ssd_note=$(t ssd_wear_value "$(( 100 - H_SSD_WEAR ))")
+  else
+    ssd_big="${H_SSD_SMART:-—}"; ssd_note="S.M.A.R.T.: ${H_SSD_SMART:-—}"
+  fi
+  printf '%s|%s|%s|%s\n' "$(part_state "$S_STORAGE")" "$(t part_storage)" "$(ui_size "$H_DISK_FREE")" \
+    "$(t note_storage "$(ui_size "$H_DISK_FREE")" "$H_DISK_FREE_PCT")"
+  printf '%s|%s|%s|%s\n' "$(part_state "$S_SSD")" "$(t part_ssd)" "$ssd_big" "$ssd_note"
+  if [ "$H_BAT" = "1" ]; then
+    printf '%s|%s|%s|%s\n' "$(part_state "$S_BATTERY")" "$(t part_battery)" "${H_BAT_HEALTH:-—}%" \
+      "$(t k_bat_health) ${H_BAT_HEALTH:-—}% · $(t k_cycles): ${H_BAT_CYCLES:-—}$(bat_service_note)"
+  else
+    printf '%s|%s|%s|%s\n' none "$(t part_battery)" "—" "$(t no_battery)"
+  fi
+  printf '%s|%s|%s|%s\n' "$(part_state "$S_MEMORY")" "$(t part_memory)" "$H_MEM_LABEL" \
+    "$(t note_memory "$H_MEM_FREE_PCT" "$(( H_SWAP_MB / 1024 ))")"
+  printf '%s|%s|%s|%s\n' "$(part_state "$S_CPU")" "$(t part_cpu)" "$(t gpu_cores "$H_CORES")" \
+    "$(t note_cpu "$H_CPU_LOAD_PCT" "$H_UPTIME_DAYS")"
+  printf '%s|%s|%s|%s\n' "$(part_state "$S_PROTECTION")" "$(t part_protection)" "$P_PASSED/$P_TOTAL" \
+    "$(t note_protection "$P_PASSED" "$P_TOTAL")"
 }
 
 # ── Terminal summary ───────────────────────────────────────────────────────
 
-show_scores() {
-  ui_score "$(t part_storage)" "$S_STORAGE"
-  ui_score "$(t part_ssd)" "$S_SSD"
-  ui_score "$(t part_battery)" "$S_BATTERY"
-  ui_score "$(t part_memory)" "$S_MEMORY"
-  ui_score "$(t part_cpu)" "$S_CPU"
-  ui_score "$(t part_protection)" "$S_PROTECTION"
-  ui_score "$(t part_cleanup)" "$S_CLEANUP"
+show_hero() {
+  local big="${HERO_PCT:+$HERO_PCT%}"
+  [ -z "$big" ] && big=$(state_word "$HERO_STATE")
+  printf "  ${C_B}%s${C_R}  %s  ${C_Y}${C_B}%s${C_R}  ${C_D}%s${C_R}\n" \
+    "$HERO_LABEL" "$(ui_bar "${HERO_PCT:-100}" 24)" "$big" "$HERO_NOTE"
+}
+
+show_parts() {
+  local state label big note icon
+  while IFS='|' read -r state label big note; do
+    [ -z "$state" ] && continue
+    icon="$state"; [ "$state" = "none" ] && icon=info
+    ui_row "$label" "$note  ${C_D}· $(state_word "$state")${C_R}" "$icon"
+  done <<< "$(parts)"
+  state=$(part_state "$S_CLEANUP")
+  ui_row "$(t part_cleanup)" "$(ui_size "${H_CLEANABLE:-0}")  ${C_D}· $(state_word "$state")${C_R}" "$state"
 }
 
 show_recommendations() {
@@ -73,24 +102,27 @@ show_recommendations() {
 
 # ── HTML report (fixed A4 pages) ───────────────────────────────────────────
 
-tile() { # label score note
-  local st; st=$(status_word "$2")
-  if [ -z "$2" ]; then
-    printf '<div class="tile none"><div class="tl">%s</div><div class="tv">—</div><div class="tn">%s</div></div>' "$(esc "$1")" "$(esc "$3")"
-  else
-    printf '<div class="tile %s"><div class="tl">%s</div><div class="tv">%s<small>%%</small></div><div class="bar"><i style="width:%s%%"></i></div><div class="tn">%s</div></div>' \
-      "$st" "$(esc "$1")" "$2" "$2" "$(esc "$3")"
-  fi
+tile() { # state label big note
+  local pill
+  case "$1" in
+    ok)   pill="<span class=\"pill ok\">✓ $(esc "$(state_word ok)")</span>" ;;
+    none) pill="" ;;
+    *)    pill="<span class=\"pill warn\">! $(esc "$(state_word warn)")</span>" ;;
+  esac
+  printf '<div class="tile %s"><div class="th"><div class="tl">%s</div>%s</div><div class="tv">%s</div><div class="tn">%s</div></div>' \
+    "$1" "$(esc "$2")" "$pill" "$(esc "$3")" "$(esc "$4")"
 }
 
 kv() { printf '<tr><th>%s</th><td>%s</td></tr>' "$(esc "$1")" "$(esc "$2")"; }
 onoff() { if [ "$2" = "1" ]; then printf '<li class="on"><b>✓</b>%s<span>%s</span></li>' "$(esc "$1")" "$(esc "$(t on)")"; else printf '<li class="off"><b>!</b>%s<span>%s</span></li>' "$(esc "$1")" "$(esc "$(t off)")"; fi; }
 
 build_html() {
-  local out="$1" date ring grade cores ssd_wear bat_note
+  local out="$1" date ring grade hero_big cores ssd_wear bat_note st label big note
   date=$(date '+%Y-%m-%d %H:%M')
-  ring=$(( S_TOTAL * 503 / 100 ))
-  grade=$(t "$(grade_key "$S_TOTAL")")
+  ring=$(( ${HERO_PCT:-100} * 503 / 100 ))
+  grade=$(state_word "$HERO_STATE")
+  hero_big="${HERO_PCT:+$HERO_PCT<small>%</small>}"
+  [ -z "$hero_big" ] && hero_big="✓"
   cores="$H_CORES"
   [ -n "$H_PCORES" ] && [ -n "$H_ECORES" ] && cores=$(t cores_split "$H_CORES" "$H_PCORES" "$H_ECORES")
   if [ -n "$H_SSD_WEAR" ]; then ssd_wear=$(t ssd_wear_value "$(( 100 - H_SSD_WEAR ))"); else ssd_wear=$(t ssd_wear_unknown); fi
@@ -118,15 +150,19 @@ h1{font-size:46px;letter-spacing:-.03em;margin:46px 0 6px;line-height:1.05}
 .ring b em{font-style:normal;font-size:60px;letter-spacing:-.04em;line-height:1;white-space:nowrap}
 .ring b small{font-size:24px;color:#a3a3a3;margin-left:2px}
 .ring b span{display:block;font-size:14px;font-weight:600;color:#ffd905;letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
-.hero p{color:#cfcfcf;font-size:16px;line-height:1.55;margin:0}
+.hl{font-size:30px;font-weight:800;letter-spacing:-.02em}
+.hn{color:#ffd905;font-size:15px;font-weight:600;margin:4px 0 14px}
+.hero p{color:#cfcfcf;font-size:15px;line-height:1.55;margin:0}
 .cache{margin-top:18px;display:inline-block;padding:12px 16px;border-radius:14px;background:#151515;border:1px solid #2a2a2a;font-size:15px}
 .cache b{color:#ffd905;font-size:20px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:40px}
 .tile{padding:16px 18px;border-radius:16px;background:#151515;border:1px solid #262626}
+.tile.warn,.tile.bad{border-color:#ffd905}
+.th{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .tl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#a3a3a3}
-.tv{font-size:34px;font-weight:800;letter-spacing:-.02em;margin-top:4px}.tv small{font-size:16px;color:#a3a3a3;margin-left:2px}
-.bar{height:7px;border-radius:5px;background:#2a2a2a;overflow:hidden;margin:8px 0 8px}.bar i{display:block;height:100%;background:#ffd905;border-radius:5px}
-.tile.warn .bar i{background:#e6c300}.tile.bad .bar i{background:#ffd905}.tile.bad{border-color:#ffd905}
+.pill{font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;white-space:nowrap}
+.pill.ok{color:#ffd905;border:1px solid #3a3a3a}.pill.warn{background:#ffd905;color:#0a0a0a}
+.tv{font-size:32px;font-weight:800;letter-spacing:-.02em;margin:6px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tn{font-size:12.5px;color:#cfcfcf;line-height:1.4}
 .foot{position:absolute;left:58px;right:58px;bottom:36px;display:flex;justify-content:space-between;font-size:11.5px;color:#8a8a8a}
 h2{font-size:26px;letter-spacing:-.02em;margin:34px 0 14px}
@@ -153,19 +189,16 @@ ul.chk li.off b{background:#ffd905;color:#0a0a0a}ul.chk span{margin-left:auto;co
   <div class="mac">$(esc "$H_MODEL") · $(esc "$H_CHIP") · macOS $(esc "$H_MACOS")</div>
   <div class="hero">
     <div class="ring"><svg width="220" height="220" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="none" stroke="#262626" stroke-width="16"/><circle cx="100" cy="100" r="80" fill="none" stroke="#ffd905" stroke-width="16" stroke-linecap="round" stroke-dasharray="$ring 503" transform="rotate(-90 100 100)"/></svg>
-      <b><em>${S_TOTAL}<small>%</small></em><span>$(esc "$grade")</span></b></div>
-    <div><p>$(esc "$(t report_intro)")</p>
+      <b><em>${hero_big}</em><span>$(esc "$grade")</span></b></div>
+    <div><div class="hl">$(esc "$HERO_LABEL")</div><div class="hn">$(esc "$HERO_NOTE")</div>
+      <p>$(esc "$(t report_intro)")</p>
       <div class="cache">$(esc "$(t report_cache)") <b>$(esc "$(ui_size "${H_CLEANABLE:-0}")")</b></div></div>
   </div>
   <div class="tiles">
 HTML
-    tile "$(t part_storage)" "$S_STORAGE" "$(t note_storage "$(ui_size "$H_DISK_FREE")" "$H_DISK_FREE_PCT")"
-    tile "$(t part_ssd)" "$S_SSD" "$H_SSD_KIND · SMART: ${H_SSD_SMART:-—}"
-    if [ "$H_BAT" = "1" ]; then tile "$(t part_battery)" "$S_BATTERY" "$(t note_battery "${H_BAT_HEALTH:-—}" "${H_BAT_CYCLES:-—}")"
-    else tile "$(t part_battery)" "" "$(t no_battery)"; fi
-    tile "$(t part_memory)" "$S_MEMORY" "$(t note_memory "$H_MEM_FREE_PCT" "$(( H_SWAP_MB / 1024 ))")"
-    tile "$(t part_cpu)" "$S_CPU" "$(t note_cpu "$H_CPU_LOAD_PCT" "$H_UPTIME_DAYS")"
-    tile "$(t part_protection)" "$S_PROTECTION" "$(t note_protection "$P_PASSED" "$P_TOTAL")"
+    while IFS='|' read -r st label big note; do
+      [ -n "$st" ] && tile "$st" "$label" "$big" "$note"
+    done <<< "$(parts)"
     cat <<HTML
   </div>
   <div class="foot"><span>$(esc "$(t report_footer)")</span><span>1 / 3</span></div>
@@ -274,10 +307,9 @@ cmd_check() {
   ui_spin "$(t checking)" collect_all_quiet
   load_collected
   echo
-  printf "  ${C_B}%s${C_R}  ${C_Y}${C_B}%s%%${C_R}  ${C_D}%s${C_R}\n" "$(t mac_health)" "$S_TOTAL" "$(t "$(grade_key "$S_TOTAL")")"
-  printf "  %s\n" "$(ui_bar "$S_TOTAL" 50)"
+  show_hero
   echo
-  show_scores
+  show_parts
   ui_title "$(t report_recs)" "→"
   build_recommendations
   show_recommendations
@@ -298,7 +330,7 @@ cmd_check() {
 collect_all_quiet() {
   collect_all
   local v
-  for v in $(compgen -v | grep -E '^(H_|P_|S_[A-Z])'); do
+  for v in $(compgen -v | grep -E '^(H_|P_|S_[A-Z]|HERO_)'); do
     printf '%s=%q\n' "$v" "${!v}"
   done > "$MACUP_TMP/collected.sh"
 }

@@ -187,12 +187,15 @@ cmd_clean() {
 }
 
 clean_report() {
-  local f="$1" dry="$2" sel="$3" i cat status bytes msg moved
+  local f="$1" dry="$2" sel="$3" i cat status freed msg moved n=0
   moved=$(pj "$f" estimated_bytes); case "$moved" in ''|*[!0-9]*) moved=0 ;; esac
   i=0
   while :; do
     cat=$(pj "$f" "details.$i.category"); [ -z "$cat" ] && break
     status=$(pj "$f" "details.$i.status")
+    freed=$(pj "$f" "details.$i.freed")
+    # "error" with something moved means some items were in use or locked.
+    case "$status:$freed" in error:0*|error:|error:—*) ;; error:*) status=partial ;; esac
     case "$status" in
       error|skipped) ui_row "$(clean_label "$cat")" "$(t status_skipped)" warn ;;
       partial) ui_row "$(clean_label "$cat")" "$( [ "$dry" = "1" ] && t status_would || t status_partial )" warn ;;
@@ -200,12 +203,18 @@ clean_report() {
     esac
     i=$((i + 1))
   done
-  i=0
-  while :; do
-    msg=$(pj "$f" "warnings.$i.message"); [ -z "$msg" ] && break
-    [ "$i" -lt 3 ] && ui_note "  · ${msg:0:90}"
-    i=$((i + 1))
+  # Items left where they were (in use, locked or protected) — at most 4 lines.
+  local kind
+  for kind in warnings errors; do
+    i=0
+    while :; do
+      msg=$(pj "$f" "$kind.$i.message"); [ -z "$msg" ] && break
+      msg=${msg% could not be deleted}
+      [ "$n" -lt 4 ] && ui_note "  · ${msg:0:90}"
+      n=$((n + 1)); i=$((i + 1))
+    done
   done
+  [ "$n" -gt 4 ] && ui_note "  · … +$((n - 4))"
   ui_line
   if [ "$dry" = "1" ]; then
     printf "  ${C_B}%s${C_R} ${C_Y}${C_B}%s${C_R}\n" "$(t preview_total)" "$(ui_size "$moved")"

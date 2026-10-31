@@ -1,7 +1,7 @@
 {
   "lang_name": "Italiano",
   "meta_title": "MacUp — Controllo salute e pulizia del Mac gratis, nel Terminale",
-  "meta_desc": "Strumento gratuito e open source per macOS nel Terminale: elimina le cache nascoste dietro “Dati di sistema”, controlla SSD, batteria, RAM, processore, grafica e sicurezza e ti dà la salute del Mac in % con un report PDF. Nessuna app, nessun abbonamento, solo Cestino.",
+  "meta_desc": "Strumento gratuito e open source per macOS nel Terminale: elimina le cache nascoste dietro “Dati di sistema”, controlla SSD, batteria, RAM, processore, grafica e sicurezza e mostra la salute della batteria in % in un report PDF. Nessuna app, nessun abbonamento, solo Cestino.",
   "og_title": "MacUp — La salute del tuo Mac, direttamente nel Terminale. Gratis.",
   "skip": "Vai al contenuto",
   "nav_demo": "Guarda",
@@ -10,7 +10,6 @@
   "nav_faq": "Domande",
   "theme_label": "Passa a chiaro / scuro",
   "lang_label": "Lingua",
-
   "hero_eyebrow": "Gratis · Open source · Terminale",
   "hero_title_1": "La salute del tuo Mac,",
   "hero_title_2": "nel Terminale.",
@@ -23,7 +22,6 @@
   "badge_trash": "Solo Cestino — niente eliminato per sempre",
   "badge_pass": "Nessuna password da amministratore",
   "badge_mac": "macOS 13+ · Apple silicon e Intel",
-
   "demo_eyebrow": "Guardalo all’opera",
   "demo_title": "Tutte le schermate in 60 secondi",
   "demo_lead": "È esattamente ciò che MacUp mostra nel Terminale. Premi play o scegli un capitolo.",
@@ -35,10 +33,9 @@
   "demo_cap_2": "Questo Mac: spazio, salute SSD, salute e cicli della batteria, memoria, processore e grafica in una sola schermata.",
   "demo_cap_3": "Protezione controlla la sicurezza già integrata in macOS — in sola lettura, con dove attivare ciò che manca.",
   "demo_cap_4": "Prestazioni mostra il carico, le app più attive e gli elementi all’avvio lasciati da app eliminate.",
-  "demo_cap_5": "Il controllo completo esegue tutto, dà al Mac una salute in % e ti dice cosa fare.",
+  "demo_cap_5": "Il controllo completo esegue tutto: salute della batteria in %, Buona o Richiede attenzione per ogni parte e cosa fare.",
   "demo_cap_6": "…e salva un report PDF di tre pagine nella cartella Download.",
   "demo_note": "Valori di esempio — il tuo Mac mostra i suoi numeri.",
-
   "start_eyebrow": "Pronto in 30 secondi",
   "start_title": "Tre passaggi. Nessuna pagina di download.",
   "step1_t": "Apri il Terminale",
@@ -47,16 +44,14 @@
   "step2_d": "Installa MacUp nella tua cartella Inizio. Nessuna password, niente in background.",
   "step3_t": "Scrivi macup",
   "step3_d": "Scegli 1–5, premi q per uscire. Rimuovilo quando vuoi con macup uninstall.",
-
   "feat_eyebrow": "Cosa fa",
   "feat_title": "Cinque strumenti, un comando",
   "f1_d": "Trova cache delle app e dei browser, log, report di crash e oltre 30 cache per sviluppatori. Prima mostra le dimensioni, poi sposta nel Cestino ciò che scegli.",
   "f2_d": "Spazio usato e libero, modello SSD e stato S.M.A.R.T., salute della batteria in %, cicli e carica, RAM e swap, core, carico e temperatura del processore, grafica e schermi.",
   "f3_d": "Gatekeeper, Protezione dell’integrità del sistema, FileVault, firewall, XProtect, risposte di sicurezza e aggiornamenti automatici — attivi o no.",
   "f4_d": "Carico, le app più attive per processore e memoria, gli elementi all’avvio e quelli non validi lasciati da app eliminate.",
-  "f5_d": "Tutto quanto sopra, una salute del Mac in % e un report PDF di tre pagine salvato in Download.",
+  "f5_d": "Tutto quanto sopra: salute della batteria in %, uno stato chiaro per ogni parte e un report PDF di tre pagine in Download.",
   "f_check_tag": "Il più usato",
-
   "ghost_eyebrow": "Il fantasma nei “Dati di sistema”",
   "ghost_title": "Cache nascoste — non un Mac guasto",
   "ghost_lead": "macOS tiene cache, log e report di crash in cartelle nascoste. In pochi mesi crescono fino a molti gigabyte e compaiono nelle Impostazioni come “Dati di sistema”. Le app le ricreano da sole, quindi eliminarle è sicuro.",
@@ -70,18 +65,16 @@
   "ghost_where": "Dove si nascondono",
   "ghost_no_reset_t": "Non serve formattare o ripristinare il Mac",
   "ghost_no_reset_d": "Inizializzare il Mac per recuperare spazio richiede ore e devi ripristinare tutto. Pulire le cache richiede un minuto — e tutto va prima nel Cestino, così puoi recuperarlo.",
-
   "report_eyebrow": "Controllo completo",
-  "report_title": "La salute del Mac in %, in PDF",
-  "report_lead": "macup check dà al tuo Mac un punteggio su 100 e salva un PDF di tre pagine in Download — facile da conservare, stampare o condividere.",
-  "report_weights": "Come si calcola il punteggio",
-  "report_weights_note": "Le parti che il tuo Mac non ha — come la batteria su un iMac — non vengono contate.",
-  "report_p1": "Punteggio e sei riquadri",
+  "report_title": "Salute della batteria in % e un report PDF chiaro",
+  "report_lead": "macup check mostra la salute della batteria in % — come su iPhone — e salva un PDF di tre pagine in Download, facile da conservare, stampare o condividere.",
+  "report_weights": "Come leggerlo",
+  "report_weights_note": "Il numero grande è la salute della batteria (i Mac senza batteria mostrano l’SSD). Ogni altra parte riceve uno stato semplice:",
+  "report_p1": "Salute della batteria e sei riquadri",
   "report_p2": "Tutti i dettagli",
   "report_p3": "Cosa fare, passo per passo",
   "report_hw_t": "Controllati in ogni report",
   "report_hw_d": "RAM, SSD, batteria, grafica e processore — con uno stato chiaro e, se qualcosa non va, la soluzione o il comando esatto.",
-
   "av_eyebrow": "Una risposta onesta",
   "av_title": "Un Mac ha bisogno di un antivirus a pagamento?",
   "av_lead": "Per la maggior parte delle persone, no. Ogni Mac include già una protezione gratuita, aggiornata automaticamente da Apple. Un abbonamento annuale “pulisci virus” non la rende più forte.",
@@ -99,7 +92,6 @@
   "av_help_2": "Installa app dall’App Store o da sviluppatori affidabili",
   "av_help_3": "Tieni attivi FileVault e il firewall — macup protect li mostra entrambi",
   "av_note": "MacUp non è un antivirus. Mostra se la protezione già presente in macOS è attiva.",
-
   "cmp_eyebrow": "Confronto",
   "cmp_title": "Perché pagare ogni anno?",
   "cmp_feature": "Funzione",
@@ -139,7 +131,6 @@
   "v_never": "Mai",
   "v_sometimes": "A volte",
   "cmp_note": "Un confronto generale tra tipi di prodotto, non tra aziende specifiche.",
-
   "safe_eyebrow": "Prima la sicurezza",
   "safe_title": "Fatto perché tu non perda file",
   "s1_t": "Solo Cestino",
@@ -154,7 +145,6 @@
   "s5_d": "Se un’app sta usando un file proprio ora, MacUp non lo tocca.",
   "s6_t": "Open source",
   "s6_d": "Ogni riga è su GitHub. Leggi install.sh prima di eseguirlo — è breve.",
-
   "faq_title": "Domande",
   "q1": "MacUp è davvero gratis?",
   "a1": "Sì. È open source con licenza MIT — nessuna prova, nessun abbonamento, nessun account, nessuna pubblicità.",
@@ -172,7 +162,6 @@
   "a7": "macup update installa l’ultima versione. macup uninstall lo rimuove del tutto; i report PDF restano in Download.",
   "q8": "MacUp invia dati?",
   "a8": "No. Funziona offline e non ha telemetria. Questo sito non usa cookie né tracker.",
-
   "cta_title": "Fai un check-up al tuo Mac",
   "cta_lead": "Gratis, per sempre. Incolla una riga nel Terminale.",
   "footer_tag": "Salute del Mac nel Terminale, gratis e open source.",

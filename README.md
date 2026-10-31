@@ -2,8 +2,8 @@
 
 **Mac health from the Terminal — free & open source.**
 Find the hidden caches behind “System Data”, check your SSD, battery, memory,
-processor, graphics and built-in security, and get a one-page **Mac health %**
-with a PDF report saved in Downloads.
+processor, graphics and built-in security, and see your **battery health %** —
+like on iPhone — with a PDF report saved in Downloads.
 
 No app to download, no account, no subscription, no admin password.
 MacUp **never deletes anything for good** — everything it cleans goes to the Trash.
@@ -42,7 +42,7 @@ you like; it is short.
    2  This Mac         Storage, SSD, battery, memory, processor, graphics
    3  Protection       Is macOS’s built-in security switched on?
    4  Performance      Load, busiest apps, startup items
-   5  Complete check   Everything + Mac health % + PDF report in Downloads
+   5  Complete check   Everything + battery health % + PDF report in Downloads
 ```
 
 | # | Command | What you get |
@@ -51,7 +51,7 @@ you like; it is short.
 | 2 | `macup mac` | Storage used/free, hidden caches, **SSD** model + S.M.A.R.T. status (+ life left % if `smartmontools` is installed), **battery** health %, cycle count, condition and charge, **RAM** free + swap, **processor** cores, load and heat, **graphics** and displays. |
 | 3 | `macup protect` | Gatekeeper, System Integrity Protection, FileVault, Firewall, XProtect, security responses and automatic updates — on or off, and where to switch them on. |
 | 4 | `macup perf` | Load, busiest apps (processor and memory), startup items and broken startup items. |
-| 5 | `macup check` | Runs everything (read-only), gives your Mac a **health %** and saves `MacUp-Health-Report-….pdf` in **Downloads**. |
+| 5 | `macup check` | Runs everything (read-only), shows your **battery health %**, marks every part **✓ Good** or **! Needs attention**, and saves `MacUp-Health-Report-….pdf` in **Downloads**. |
 
 Other commands: `macup update`, `macup uninstall`, `macup --lang ro|de|it|fr|ko|zh`,
 `macup --help`. The language follows your Mac automatically.
@@ -61,34 +61,32 @@ Other commands: `macup update`, `macup uninstall`, `macup --lang ro|de|it|fr|ko|
 ```
   5  Complete check
   ──────────────────────────────────────────────────────────────
-  Mac health               ███████████████████░░░░░   79%  Good
+  Battery health  ██████████████████████░░  93%  Cycle count: 228
 
-  Storage                  ████████░░░░░░░░░░░░░░░░   36%
-  SSD health               ████████████████████████  100%
-  Battery                  ██████████████████████░░   93%
-  Memory (RAM)             ███████████████████░░░░░   80%
-  Processor                ████████████████░░░░░░░░   70%
-  Protection               ████████████████████████  100%
-  Hidden caches            ███████████████████░░░░░   85%
+  !  Storage                      59.1 GB free (11%)  · Needs attention
+  ✓  SSD health                   S.M.A.R.T.: Verified  · Good
+  ✓  Battery                      Health 93% · Cycle count: 228  · Good
+  ✓  Memory (RAM)                 39% free · 0 GB swap  · Good
+  ✓  Processor                    18% load · 2 days since restart  · Good
+  ✓  Protection                   7 of 7 protections on  · Good
+  !  Hidden caches                3.1 GB  · Needs attention
 
   →  What to do
-  ✕  Low disk space (6% free)
+  ✕  Low disk space (11% free)
      Below 15% free, macOS slows down. Clear hidden caches first, then empty the Trash.
      $ macup clean
-  !  Memory is under pressure
-     macOS is using 19 GB of swap. Quit apps and browser tabs you don’t need, or restart.
 
   ✓ PDF report saved:
      ~/Downloads/MacUp-Health-Report-2026-10-31-1720.pdf
 ```
 
-The PDF has three A4 pages: the health ring with six score tiles, every detail
-(storage, SSD, battery, memory, processor, graphics, security), and a numbered
-“What to do” list.
+The PDF has three A4 pages: battery health with six cards (each marked
+**Good** or **Needs attention**), every detail (storage, SSD, battery, memory,
+processor, graphics, security), and a numbered “What to do” list.
 
-**How the health % is made:** storage 20 · SSD 15 · battery 15 · memory 15 ·
-security 15 · processor 10 · hidden caches 10. Parts your Mac doesn’t have
-(e.g. a battery on an iMac) are left out. 90 %+ Excellent · 75 %+ Good · 55 %+ Fair.
+**The big number is your battery health** — the same value Apple shows in
+System Settings → Battery. Macs without a battery (iMac, Mac mini, Mac Studio,
+Mac Pro) show the SSD instead. There is no made-up overall score.
 
 ---
 

@@ -26,6 +26,28 @@ BASE = "https://macup.cdav.io"
 REPO_RAW = "https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh"
 INSTALL_CMD = f"curl -fsSL {REPO_RAW} | bash"
 LANGS = ["en", "ro", "de", "it", "fr", "ko", "zh"]
+LEGAL_PAGES = [("terms", "Terms of Use"), ("privacy", "Privacy Policy"), ("legal", "Legal Notice")]
+
+# Footer social icons. To add LinkedIn or Instagram, move its line out of the
+# comment and put the real profile address in.
+ICON_GITHUB = ('<path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 '
+               '1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 '
+               '.8-.3 2.8 1a9.6 9.6 0 0 1 5 0c1.9-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 '
+               '1.9V21c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/>')
+ICON_LINKEDIN = ('<path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4V21H3V9.75Zm6.5 0h3.8v1.6h.06c.53-1 1.83-2.05 '
+                 '3.77-2.05 4.03 0 4.77 2.65 4.77 6.1V21h-4v-4.98c0-1.19-.02-2.72-1.66-2.72-1.66 0-1.92 1.3-1.92 2.63V21h-4V9.75Z"/>')
+ICON_INSTAGRAM = ('<path d="M12 7.3a4.7 4.7 0 1 0 0 9.4 4.7 4.7 0 0 0 0-9.4Zm0 7.7a3 3 0 1 1 0-6 3 3 0 0 1 0 6Zm4.9-8.98a1.1 1.1 0 1 1 '
+                  '0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 3.6c2.3 0 2.57 0 3.48.05 2.34.1 3.43 1.21 3.53 3.53.04.9.05 1.18.05 3.48s0 '
+                  '2.57-.05 3.48c-.1 2.32-1.19 3.43-3.53 3.53-.9.04-1.18.05-3.48.05s-2.57 0-3.48-.05c-2.34-.1-3.43-1.21-3.53-3.53C4.95 '
+                  '14.57 4.94 14.3 4.94 12s0-2.57.05-3.48c.1-2.32 1.19-3.43 3.53-3.53.9-.04 1.18-.05 3.48-.05ZM12 2c-2.34 0-2.63 '
+                  '0-3.55.05-3.15.15-4.9 1.89-5.05 5.05C3.35 8.02 3.34 8.31 3.34 12s0 2.63.06 3.55c.14 3.15 1.89 4.9 5.05 5.05.92.04 '
+                  '1.21.06 3.55.06s2.63 0 3.55-.06c3.15-.14 4.9-1.89 5.05-5.05.04-.92.06-1.21.06-3.55s0-2.63-.06-3.55c-.14-3.15-1.89-4.9-5.05-5.05C14.63 '
+                  '2.01 14.34 2 12 2Z"/>')
+SOCIAL = [
+    ("GitHub", "https://github.com/CDAVIO", ICON_GITHUB),
+    # ("LinkedIn", "https://www.linkedin.com/in/…", ICON_LINKEDIN),
+    # ("Instagram", "https://www.instagram.com/…", ICON_INSTAGRAM),
+]
 HTML_LANG = {"zh": "zh-Hans"}
 CLI_KEY = re.compile(r"^S_([a-z_0-9]+)='(.*)'$", re.M)
 
@@ -240,6 +262,28 @@ def recs_mock(c):
 
 
 # ── Page assembly ────────────────────────────────────────────────────────
+def footer(site, home):
+    repo = "https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO"
+    links = [("/terms/", site["footer_terms"]), ("/privacy/", site["footer_privacy_policy"]),
+             ("/legal/", site["footer_legal"]), (f"{repo}/blob/main/LICENSE", site["footer_license"]),
+             (f"{repo}/blob/main/SECURITY.md", site["footer_security"])]
+    nav = "".join(f'<a href="{href}">{E(label)}</a>' for href, label in links)
+    social = "".join(
+        f'<li><a href="{url}" aria-label="{name}" title="{name}" rel="me noopener">'
+        f'<svg viewBox="0 0 24 24" aria-hidden="true">{icon}</svg></a></li>'
+        for name, url, icon in SOCIAL
+    )
+    return (
+        '<footer class="foot">\n  <div class="wrap foot-in">\n'
+        f'    <a class="brand" href="{home}"><img src="/favicon.svg" alt="" width="26" height="26"><span>MacUp</span></a>\n'
+        f'    <nav class="foot-links" aria-label="Footer">{nav}</nav>\n'
+        '    <div class="fine">\n'
+        f'      <p>Copyright © 2026 <a href="https://cdav.io">CDAV.IO</a>. {E(site["footer_rights"])}</p>\n'
+        f'      <ul class="social">{social}</ul>\n'
+        '    </div>\n  </div>\n</footer>'
+    )
+
+
 def url_for(code):
     return f"{BASE}/" if code == "en" else f"{BASE}/{code}/"
 
@@ -296,6 +340,7 @@ def build_page(template, code, en_site, en_cli, asset_v):
         "details_mock": details_mock(cli),
         "recs_mock": recs_mock(cli),
         "install_cmd": E(INSTALL_CMD),
+        "footer": footer(site, "/" if code == "en" else f"/{code}/"),
         "asset_v": asset_v,
     }
 
@@ -335,6 +380,53 @@ def main():
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(page)
 
+    # Legal pages (English), sharing the header style, footer and CSP-hashed theme script.
+    theme_js = re.search(r"<script>(.*?)</script>", template, re.S).group(1).replace("{{lang_redirect}}", "")
+    for slug, title in LEGAL_PAGES:
+        body = (SRC / "legal" / f"{slug}.html").read_text()
+        page = f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{E(title)} — MacUp</title>
+<meta name="description" content="{E(title)} for MacUp, the free Mac health tool for the Terminal.">
+<link rel="canonical" href="{BASE}/{slug}/">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script>{theme_js}</script>
+<link rel="stylesheet" href="/assets/style.css?v={asset_v}">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="/" aria-label="MacUp"><img src="/favicon.svg" alt="" width="30" height="30"><span>MacUp</span></a>
+    <nav class="nav" aria-label="Main"><a href="/terms/">Terms</a><a href="/privacy/">Privacy</a><a href="/legal/">Legal</a></nav>
+    <div class="tools">
+      <button class="icon-btn" id="theme" type="button" aria-label="Switch light / dark" title="Switch light / dark">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<main id="main" class="wrap legal">
+<article>
+{body}
+</article>
+</main>
+{footer(en_site, "/")}
+<script src="/assets/app.js?v={asset_v}" defer></script>
+</body>
+</html>
+"""
+        if "{{" in page:
+            sys.exit(f"Leftover token in {slug}")
+        hashes.add(inline_script_hash(page))
+        dest = OUT / slug / "index.html"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(page)
+
     s = en_site
     (OUT / "404.html").write_text(f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -352,6 +444,7 @@ def main():
         + "</url>\n"
         for c in LANGS
     )
+    urls += "".join(f"  <url><loc>{BASE}/{slug}/</loc></url>\n" for slug, _ in LEGAL_PAGES)
     (OUT / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
@@ -366,8 +459,8 @@ def main():
 /success          /  301
 /success.html     /  301
 /license          /  301
-/license.html     /  301
-/privacy.html     /  301
+/license.html     /terms/  301
+/privacy.html     /privacy/  301
 /help.html        /#faq  301
 /security.html    https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/SECURITY.md  301
 /version.json     /  301

@@ -51,3 +51,18 @@ def test_site_names_no_security_vendor():
         text = page.read_text().lower()
         for v in vendors:
             assert v not in text, (page, v)
+
+
+def test_legal_pages_and_footer_links():
+    for slug in ("terms", "privacy", "legal"):
+        page = (ROOT / "site" / slug / "index.html").read_text()
+        assert "<h1>" in page and "Copyright © 2026" in page
+    legal = (ROOT / "site" / "legal" / "index.html").read_text()
+    assert "trademarks of Apple Inc." in legal
+    for code in LANGS:
+        page = ROOT / "site" / ("index.html" if code == "en" else f"{code}/index.html")
+        foot = page.read_text().split('<footer class="foot">')[1]
+        for href in ('href="/terms/"', 'href="/privacy/"', 'href="/legal/"', 'href="https://github.com/CDAVIO"'):
+            assert href in foot, (code, href)
+        assert "Copyright © 2026" in foot and "CDAV.IO" in foot
+        assert "trademarks of Apple" not in foot

@@ -166,9 +166,11 @@
   "cta_title": "Offrez un bilan à votre Mac",
   "cta_lead": "Gratuit, pour toujours. Collez une ligne dans le Terminal.",
   "footer_license": "Licence MIT",
+  "footer_terms": "Conditions",
+  "footer_privacy_policy": "Confidentialité",
+  "footer_legal": "Mentions légales",
   "footer_security": "Sécurité",
   "footer_rights": "Tous droits réservés.",
-  "footer_apple": "Non affilié à Apple Inc. Mac et macOS sont des marques d’Apple Inc.",
   "not_found_t": "Page introuvable",
   "not_found_d": "Cette page n’existe pas — MacUp est désormais un outil Terminal gratuit.",
   "not_found_btn": "Aller à l’accueil"

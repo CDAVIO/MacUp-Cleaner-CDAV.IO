@@ -166,9 +166,11 @@
   "cta_title": "Fă-i Mac-ului un control",
   "cta_lead": "Gratuit, pentru totdeauna. Lipește o linie în Terminal.",
   "footer_license": "Licență MIT",
+  "footer_terms": "Termeni",
+  "footer_privacy_policy": "Confidențialitate",
+  "footer_legal": "Informații legale",
   "footer_security": "Securitate",
   "footer_rights": "Toate drepturile rezervate.",
-  "footer_apple": "Nu este afiliat cu Apple Inc. Mac și macOS sunt mărci comerciale ale Apple Inc.",
   "not_found_t": "Pagina nu există",
   "not_found_d": "Această pagină nu există — MacUp este acum o unealtă gratuită de Terminal.",
   "not_found_btn": "Mergi la pagina principală"

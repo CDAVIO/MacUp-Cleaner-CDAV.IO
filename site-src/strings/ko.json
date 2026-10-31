@@ -166,9 +166,11 @@
   "cta_title": "Mac 건강 검진을 받아 보세요",
   "cta_lead": "평생 무료. 터미널에 한 줄만 붙여 넣으세요.",
   "footer_license": "MIT 라이선스",
+  "footer_terms": "이용 약관",
+  "footer_privacy_policy": "개인정보 처리방침",
+  "footer_legal": "법적 고지",
   "footer_security": "보안",
   "footer_rights": "모든 권리 보유.",
-  "footer_apple": "Apple Inc.와 제휴하지 않았습니다. Mac 및 macOS는 Apple Inc.의 상표입니다.",
   "not_found_t": "페이지를 찾을 수 없음",
   "not_found_d": "존재하지 않는 페이지입니다 — MacUp은 이제 무료 터미널 도구입니다.",
   "not_found_btn": "홈으로 가기"

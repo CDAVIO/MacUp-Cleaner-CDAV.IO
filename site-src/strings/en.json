@@ -166,9 +166,11 @@
   "cta_title": "Give your Mac a check-up",
   "cta_lead": "Free, forever. Paste one line in Terminal.",
   "footer_license": "MIT license",
+  "footer_terms": "Terms",
+  "footer_privacy_policy": "Privacy",
+  "footer_legal": "Legal",
   "footer_security": "Security",
   "footer_rights": "All rights reserved.",
-  "footer_apple": "Not affiliated with Apple Inc. Mac and macOS are trademarks of Apple Inc.",
   "not_found_t": "Page not found",
   "not_found_d": "This page doesn’t exist — MacUp is now a free Terminal tool.",
   "not_found_btn": "Go to the home page"

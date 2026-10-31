@@ -166,9 +166,11 @@
   "cta_title": "Fai un check-up al tuo Mac",
   "cta_lead": "Gratis, per sempre. Incolla una riga nel Terminale.",
   "footer_license": "Licenza MIT",
+  "footer_terms": "Termini",
+  "footer_privacy_policy": "Privacy",
+  "footer_legal": "Note legali",
   "footer_security": "Sicurezza",
   "footer_rights": "Tutti i diritti riservati.",
-  "footer_apple": "Non affiliato con Apple Inc. Mac e macOS sono marchi di Apple Inc.",
   "not_found_t": "Pagina non trovata",
   "not_found_d": "Questa pagina non esiste — MacUp ora è uno strumento gratuito per il Terminale.",
   "not_found_btn": "Vai alla home"

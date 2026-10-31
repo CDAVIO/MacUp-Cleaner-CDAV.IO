@@ -37,7 +37,7 @@
   try { if (location.pathname === "/" && !localStorage.getItem("macup-lang")) { var l = ((navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase().slice(0, 2); if (["ro","de","it","fr","ko","zh"].indexOf(l) > -1) location.replace("/" + l + "/" + location.hash); } } catch (e) {}
 })();
 </script>
-<link rel="stylesheet" href="/assets/style.css?v=32fbc590f5">
+<link rel="stylesheet" href="/assets/style.css?v=eb7e77d258">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "MacUp", "applicationCategory": "UtilitiesApplication", "operatingSystem": "macOS 13 or later", "description": "Free, open-source Terminal tool for macOS: clear the hidden caches behind “System Data”, check SSD, battery, RAM, processor, graphics and security, and see your battery health % in a PDF report. No app, no subscription, Trash only.", "url": "https://macup.cdav.io/", "inLanguage": "en", "license": "https://opensource.org/licenses/MIT", "codeRepository": "https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
 </head>
 <body>
@@ -346,20 +346,19 @@ macup uninstall</code></pre></details>
 
 <footer class="foot">
   <div class="wrap foot-in">
-    <div>
-      <a class="brand" href="/"><img src="/favicon.svg" alt="" width="26" height="26"><span>MacUp</span></a>
-      <p>Free, open-source Mac health in Terminal.</p>
-    </div>
+    <a class="brand" href="/"><img src="/favicon.svg" alt="" width="26" height="26"><span>MacUp</span></a>
     <ul>
       <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO">GitHub</a></li>
       <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/LICENSE">MIT license</a></li>
       <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/SECURITY.md">Security</a></li>
-      <li>No cookies, no trackers.</li>
     </ul>
-    <p class="fine">© 2026 <a href="https://cdav.io">cdav.io</a> · Not affiliated with Apple Inc. Mac and macOS are trademarks of Apple Inc.</p>
+    <div class="fine">
+      <p>Copyright © 2026 <a href="https://cdav.io">CDAV.IO</a>. All rights reserved.</p>
+      <p>Not affiliated with Apple Inc. Mac and macOS are trademarks of Apple Inc.</p>
+    </div>
   </div>
 </footer>
 
-<script src="/assets/app.js?v=32fbc590f5" defer></script>
+<script src="/assets/app.js?v=eb7e77d258" defer></script>
 </body>
 </html>

@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Local tools and state (never published)
+.venv/
+__pycache__/
+.pytest_cache/
+.netlify/
+.claude/
+node_modules/
+_old-app/
+
+# Reports created while testing
+*.pdf
+MacUp-Health-Report-*

@@ -1,0 +1,12 @@
+/install.sh       https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh  200
+/download         /  301
+/download.html    /  301
+/success          /  301
+/success.html     /  301
+/license          /  301
+/license.html     /  301
+/privacy.html     /  301
+/help.html        /#faq  301
+/security.html    https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/SECURITY.md  301
+/version.json     /  301
+/api/*            /  301

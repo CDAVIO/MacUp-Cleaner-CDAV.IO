@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://macup.cdav.io/sitemap.xml

@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MacUp — Controllo salute e pulizia del Mac gratis, nel Terminale</title>
+<meta name="description" content="Strumento gratuito e open source per macOS nel Terminale: elimina le cache nascoste dietro “Dati di sistema”, controlla SSD, batteria, RAM, processore, grafica e sicurezza e ti dà la salute del Mac in % con un report PDF. Nessuna app, nessun abbonamento, solo Cestino.">
+<link rel="canonical" href="https://macup.cdav.io/it/">
+<link rel="alternate" hreflang="en" href="https://macup.cdav.io/">
+<link rel="alternate" hreflang="ro" href="https://macup.cdav.io/ro/">
+<link rel="alternate" hreflang="de" href="https://macup.cdav.io/de/">
+<link rel="alternate" hreflang="it" href="https://macup.cdav.io/it/">
+<link rel="alternate" hreflang="fr" href="https://macup.cdav.io/fr/">
+<link rel="alternate" hreflang="ko" href="https://macup.cdav.io/ko/">
+<link rel="alternate" hreflang="zh-Hans" href="https://macup.cdav.io/zh/">
+<link rel="alternate" hreflang="x-default" href="https://macup.cdav.io/">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f6f6f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacUp">
+<meta property="og:url" content="https://macup.cdav.io/it/">
+<meta property="og:title" content="MacUp — La salute del tuo Mac, direttamente nel Terminale. Gratis.">
+<meta property="og:description" content="Strumento gratuito e open source per macOS nel Terminale: elimina le cache nascoste dietro “Dati di sistema”, controlla SSD, batteria, RAM, processore, grafica e sicurezza e ti dà la salute del Mac in % con un report PDF. Nessuna app, nessun abbonamento, solo Cestino.">
+<meta property="og:image" content="https://macup.cdav.io/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("macup-theme");
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+  
+})();
+</script>
+<link rel="stylesheet" href="/assets/style.css?v=63bb0a6321">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "MacUp", "applicationCategory": "UtilitiesApplication", "operatingSystem": "macOS 13 or later", "description": "Strumento gratuito e open source per macOS nel Terminale: elimina le cache nascoste dietro “Dati di sistema”, controlla SSD, batteria, RAM, processore, grafica e sicurezza e ti dà la salute del Mac in % con un report PDF. Nessuna app, nessun abbonamento, solo Cestino.", "url": "https://macup.cdav.io/it/", "inLanguage": "it", "license": "https://opensource.org/licenses/MIT", "codeRepository": "https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+</head>
+<body>
+<a class="skip" href="#main">Vai al contenuto</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="/it/" aria-label="MacUp">
+      <img src="/favicon.svg" alt="" width="30" height="30"><span>MacUp</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#demo">Guarda</a>
+      <a href="#how">Come funziona</a>
+      <a href="#report">Report salute</a>
+      <a href="#faq">Domande</a>
+    </nav>
+    <div class="tools">
+      <label class="lang">
+        <span class="sr-only">Lingua</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 0c2.5 2.4 3.8 5.4 3.8 9s-1.3 6.6-3.8 9m0-18C9.5 5.4 8.2 8.4 8.2 12s1.3 6.6 3.8 9M3.5 9h17M3.5 15h17"/></svg>
+        <select id="lang" aria-label="Lingua"><option value="en">English</option><option value="ro">Română</option><option value="de">Deutsch</option><option value="it" selected>Italiano</option><option value="fr">Français</option><option value="ko">한국어</option><option value="zh">中文</option></select>
+      </label>
+      <button class="icon-btn" id="theme" type="button" aria-label="Passa a chiaro / scuro" title="Passa a chiaro / scuro">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO" aria-label="GitHub" title="GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.6 9.6 0 0 1 5 0c1.9-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9V21c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">Gratis · Open source · Terminale</p>
+    <h1>La salute del tuo Mac,<br><span class="hl">nel Terminale.</span></h1>
+    <p class="lead">Un solo comando trova le cache nascoste dietro “Dati di sistema”, controlla SSD, batteria, memoria, processore, grafica e sicurezza — e salva un chiaro report PDF in Download.</p>
+    <div class="install" data-copy-box>
+      <span class="prompt" aria-hidden="true">$</span>
+      <code data-copy-text>curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash</code>
+      <button class="copy" type="button" data-copy data-label="Copia" data-done="Copiato">Copia</button>
+    </div>
+    <p class="then">poi scrivi <code class="kbd">macup</code> · <a href="#demo">Guarda la demo di 60 secondi →</a></p>
+    <ul class="badges">
+      <li>Nessuna app · Nessun account · Nessun abbonamento</li>
+      <li>Solo Cestino — niente eliminato per sempre</li>
+      <li>Nessuna password da amministratore</li>
+      <li>macOS 13+ · Apple silicon e Intel</li>
+    </ul>
+  </div>
+</section>
+
+<section id="demo" class="demo">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Guardalo all’opera</p>
+      <h2>Tutte le schermate in 60 secondi</h2>
+      <p class="lead">È esattamente ciò che MacUp mostra nel Terminale. Premi play o scegli un capitolo.</p>
+    </div>
+    <div class="player" id="player" data-play="Riproduci" data-pause="Pausa" data-replay="Riproduci di nuovo">
+      <div class="term">
+        <div class="term-bar"><i></i><i></i><i></i><span>Terminal — macup</span></div>
+        <div class="term-screen" id="screen" aria-live="off"></div>
+        <div class="pdf-stage" id="pdfstage" hidden><div class="paper dark"><div class="pp"><div class="pp-head"><span class="pp-logo">✦ MacUp</span><span>2026-10-31</span></div><h4>Report sulla salute del Mac</h4><p class="pp-sub">MacBook Air · Apple M3 · macOS 15</p><div class="pp-score"><div class="ring" style="--p:89"><div><b>89<i>%</i></b><span>Buona</span></div></div><p>Cache nascoste da pulire in sicurezza: <b class="y">8.6 GB</b></p></div><div class="tiles"><div class="tile"><small>Spazio</small><b>72<i>%</i></b><span class="tb"><span style="--p:72%"></span></span><em>63.2 GB liberi (13%)</em></div><div class="tile"><small>Salute SSD</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>SMART: Verified</em></div><div class="tile"><small>Batteria</small><b>91<i>%</i></b><span class="tb"><span style="--p:91%"></span></span><em>91% salute · 312 cicli</em></div><div class="tile"><small>Memoria (RAM)</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>38% libera · 0.4 GB swap</em></div><div class="tile"><small>Processore</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>18% carico · 3 giorni dal riavvio</em></div><div class="tile"><small>Protezione</small><b>85<i>%</i></b><span class="tb"><span style="--p:85%"></span></span><em>6 di 7 protezioni attive</em></div></div></div></div></div>
+      </div>
+      <div class="ctrl">
+        <button class="play" id="playbtn" type="button" aria-label="Riproduci">
+          <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5Z"/></svg>
+          <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+        </button>
+        <div class="bar" aria-hidden="true"><span id="progress"></span></div>
+      </div>
+      <ol class="chapters" id="chapters">
+        <li><button type="button" data-ch="0"><b>1</b>Smart Clean</button></li>
+        <li><button type="button" data-ch="1"><b>2</b>Questo Mac</button></li>
+        <li><button type="button" data-ch="2"><b>3</b>Protezione</button></li>
+        <li><button type="button" data-ch="3"><b>4</b>Prestazioni</button></li>
+        <li><button type="button" data-ch="4"><b>5</b>Controllo completo</button></li>
+        <li><button type="button" data-ch="5"><b>PDF</b>Report PDF</button></li>
+      </ol>
+      <p class="caption" id="caption"></p>
+      <p class="note">Valori di esempio — il tuo Mac mostra i suoi numeri.</p>
+    </div>
+  </div>
+  <script type="application/json" id="demo-data">{"chapters": [{"cmd": "macup clean", "cap": "Smart Clean mostra ogni cache nascosta con la sua dimensione. Premi Invio e quelle selezionate vanno nel Cestino.", "lines": [{"k": "title", "n": "1", "t": "Smart Clean"}, {"k": "rule"}, {"k": "text", "t": "Le cache nascoste si accumulano — macOS le mostra come “Dati di sistema”.", "c": "dim"}, {"k": "text", "t": "Si ricreano da sole, quindi pulirle è sicuro. Non serve formattare o ripristinare il Mac.", "c": "dim"}, {"k": "blank"}, {"k": "spin", "t": "Scansione (sola lettura)…", "ms": 1300}, {"k": "opt", "n": "1", "on": true, "l": "Cache delle app", "v": "3.1 GB", "x": "si ricrea da sola"}, {"k": "opt", "n": "2", "on": true, "l": "Cache del browser", "v": "2.4 GB", "x": "si ricrea da sola"}, {"k": "opt", "n": "3", "on": true, "l": "Log", "v": "412.6 MB", "x": "sicuro da rimuovere"}, {"k": "opt", "n": "4", "on": true, "l": "Report di crash e diagnostica", "v": "96.3 MB", "x": "sicuro da rimuovere"}, {"k": "opt", "n": "5", "on": false, "l": "Cache per sviluppatori", "v": "2.6 GB", "x": "Xcode, npm, pip, Homebrew…"}, {"k": "opt", "n": "6", "on": false, "l": "Solo cronologia del browser", "v": "58.1 MB", "x": "password e preferiti restano"}, {"k": "opt", "n": "7", "on": false, "l": "Finestre salvate delle app", "v": "12.4 MB", "x": "le app si riaprono senza vecchie finestre"}, {"k": "rule"}, {"k": "text", "t": "Selezionato: 6.0 GB  · tutto va nel Cestino", "c": "b"}, {"k": "blank"}, {"k": "text", "t": "Invio = pulisci · numeri = seleziona/deseleziona (es. 5 6) · p = anteprima · q = annulla", "c": "dim"}, {"k": "input", "t": "⏎"}, {"k": "spin", "t": "Spostamento nel Cestino…", "ms": 1400}, {"k": "row", "i": "✓", "s": "ok", "l": "Cache delle app", "v": "spostato nel Cestino"}, {"k": "row", "i": "✓", "s": "ok", "l": "Cache del browser", "v": "spostato nel Cestino"}, {"k": "row", "i": "✓", "s": "ok", "l": "Log", "v": "spostato nel Cestino"}, {"k": "row", "i": "✓", "s": "ok", "l": "Report di crash e diagnostica", "v": "spostato nel Cestino"}, {"k": "rule"}, {"k": "text", "t": "Spostato nel Cestino: 6.0 GB", "c": "y b"}, {"k": "text", "t": "I file sono al sicuro nel Cestino. Svuotalo quando sei sicuro, per recuperare lo spazio.", "c": "dim"}]}, {"cmd": "macup mac", "cap": "Questo Mac: spazio, salute SSD, salute e cicli della batteria, memoria, processore e grafica in una sola schermata.", "lines": [{"k": "title", "n": "2", "t": "Questo Mac"}, {"k": "rule"}, {"k": "text", "t": "MacBook Air  ·  Apple M3  ·  macOS 15", "c": "b"}, {"k": "blank"}, {"k": "group", "t": "Spazio"}, {"k": "row", "i": "·", "s": "info", "l": "Usato", "v": "431.2 GB / 494.4 GB", "b": 87}, {"k": "row", "i": "!", "s": "warn", "l": "Libero", "v": "63.2 GB  (13%)"}, {"k": "row", "i": "!", "s": "warn", "l": "Cache nascoste da pulire", "v": "8.6 GB"}, {"k": "group", "t": "Salute SSD"}, {"k": "row", "i": "·", "s": "info", "l": "Modello", "v": "APPLE SSD AP0512Z"}, {"k": "row", "i": "✓", "s": "ok", "l": "S.M.A.R.T.", "v": "Verified"}, {"k": "row", "i": "✓", "s": "ok", "l": "Salute (vita residua)", "v": "97% di vita residua"}, {"k": "group", "t": "Batteria"}, {"k": "row", "i": "✓", "s": "ok", "l": "Salute", "v": "91%  Normal", "b": 91}, {"k": "row", "i": "·", "s": "info", "l": "Cicli", "v": "312  (la maggior parte delle batterie Mac è prevista per 1000)"}, {"k": "row", "i": "·", "s": "info", "l": "Carica", "v": "78%  in carica", "b": 78}, {"k": "group", "t": "Memoria (RAM)"}, {"k": "row", "i": "·", "s": "info", "l": "Installata", "v": "16 GB"}, {"k": "row", "i": "✓", "s": "ok", "l": "Memoria libera", "v": "38%", "b": 38}, {"k": "row", "i": "✓", "s": "ok", "l": "Swap usato", "v": "0.4 GB"}, {"k": "group", "t": "Processore"}, {"k": "row", "i": "·", "s": "info", "l": "Chip", "v": "Apple M3"}, {"k": "row", "i": "·", "s": "info", "l": "Core", "v": "8 (4 prestazioni + 4 efficienza)"}, {"k": "row", "i": "✓", "s": "ok", "l": "Carico", "v": "18%", "b": 18}, {"k": "row", "i": "✓", "s": "ok", "l": "Temperatura", "v": "normale — nessun rallentamento"}, {"k": "row", "i": "✓", "s": "ok", "l": "Acceso dall’ultimo riavvio", "v": "3 giorni"}, {"k": "group", "t": "Grafica"}, {"k": "row", "i": "·", "s": "info", "l": "Grafica", "v": "Apple M3 · 10 core"}, {"k": "row", "i": "·", "s": "info", "l": "Schermi", "v": "Color LCD (2560 x 1664 @ 60Hz)"}, {"k": "blank"}, {"k": "text", "t": "Suggerimento: esegui “macup check” per la salute in % e un report PDF.", "c": "dim"}]}, {"cmd": "macup protect", "cap": "Protezione controlla la sicurezza già integrata in macOS — in sola lettura, con dove attivare ciò che manca.", "lines": [{"k": "title", "n": "3", "t": "Protezione"}, {"k": "rule"}, {"k": "text", "t": "Controllo in sola lettura della sicurezza integrata in macOS. MacUp non è un antivirus.", "c": "dim"}, {"k": "blank"}, {"k": "row", "i": "✓", "s": "ok", "l": "Gatekeeper", "v": "Attivo", "x": "controlla le app prima che si aprano"}, {"k": "row", "i": "✓", "s": "ok", "l": "Protezione dell’integrità del sistema", "v": "Attivo", "x": "blocca i file di sistema principali"}, {"k": "row", "i": "✓", "s": "ok", "l": "FileVault", "v": "Attivo", "x": "disco cifrato se perdi il Mac"}, {"k": "row", "i": "!", "s": "warn", "l": "Firewall", "v": "Disattivo", "x": "Impostazioni → Rete → Firewall"}, {"k": "row", "i": "✓", "s": "ok", "l": "XProtect", "v": "Attivo", "x": "protezione malware di Apple · v5368"}, {"k": "row", "i": "✓", "s": "ok", "l": "Risposte di sicurezza", "v": "Attivo", "x": "le correzioni urgenti si installano da sole"}, {"k": "row", "i": "✓", "s": "ok", "l": "Aggiornamenti macOS automatici", "v": "Attivo", "x": "macOS resta aggiornato"}, {"k": "rule"}, {"k": "score", "l": "Protezione", "p": 85, "x": "6/7"}, {"k": "blank"}, {"k": "text", "t": "Alla maggior parte dei Mac non serve un antivirus a pagamento: XProtect, Gatekeeper e gli aggiornamenti automatici sono gratuiti e integrati.", "c": "dim"}, {"k": "text", "t": "I popup “il tuo Mac è infetto” sono truffe. Tieni macOS aggiornato e installa app da fonti affidabili.", "c": "dim"}]}, {"cmd": "macup perf", "cap": "Prestazioni mostra il carico, le app più attive e gli elementi all’avvio lasciati da app eliminate.", "lines": [{"k": "title", "n": "4", "t": "Prestazioni"}, {"k": "rule"}, {"k": "row", "i": "✓", "s": "ok", "l": "Carico", "v": "18%", "b": 18}, {"k": "row", "i": "✓", "s": "ok", "l": "Temperatura", "v": "normale — nessun rallentamento"}, {"k": "row", "i": "✓", "s": "ok", "l": "Acceso dall’ultimo riavvio", "v": "3 giorni"}, {"k": "group", "t": "App più attive (processore)"}, {"k": "proc", "l": "Safari", "v": "12.4%"}, {"k": "proc", "l": "Photos", "v": "6.1%"}, {"k": "proc", "l": "Mail", "v": "2.3%"}, {"k": "group", "t": "App più grandi (memoria)"}, {"k": "proc", "l": "Safari", "v": "1.8 GB"}, {"k": "proc", "l": "Xcode", "v": "1.2 GB"}, {"k": "proc", "l": "Music", "v": "0.6 GB"}, {"k": "blank"}, {"k": "row", "i": "·", "s": "info", "l": "Elementi all’avvio", "v": "9"}, {"k": "row", "i": "!", "s": "warn", "l": "Elementi all’avvio non validi", "v": "2"}, {"k": "text", "t": "Puntano ad app che non esistono più. Innocui, ma puoi rimuoverli.", "c": "dim"}, {"k": "blank"}, {"k": "text", "t": "Suggerimento: chiudi le app che non usi; riavvia se il Mac è acceso da settimane.", "c": "dim"}]}, {"cmd": "macup check", "cap": "Il controllo completo esegue tutto, dà al Mac una salute in % e ti dice cosa fare.", "lines": [{"k": "title", "n": "5", "t": "Controllo completo"}, {"k": "rule"}, {"k": "text", "t": "Esegue tutti i controlli, dà al Mac una salute in % e salva un report PDF in Download.", "c": "dim"}, {"k": "spin", "t": "Controllo del Mac (sola lettura)…", "ms": 1700}, {"k": "big", "l": "Salute del Mac", "p": 89, "g": "Buona"}, {"k": "blank"}, {"k": "score", "l": "Spazio", "p": 72, "x": ""}, {"k": "score", "l": "Salute SSD", "p": 100, "x": ""}, {"k": "score", "l": "Batteria", "p": 91, "x": ""}, {"k": "score", "l": "Memoria (RAM)", "p": 100, "x": ""}, {"k": "score", "l": "Processore", "p": 100, "x": ""}, {"k": "score", "l": "Protezione", "p": 85, "x": ""}, {"k": "score", "l": "Cache nascoste", "p": 85, "x": ""}, {"k": "blank"}, {"k": "group", "t": "→  Cosa fare"}, {"k": "rec", "i": "✕", "s": "bad", "t": "Poco spazio su disco (13% libero)", "d": "Sotto il 15% libero macOS rallenta. Pulisci prima le cache nascoste, poi svuota il Cestino.", "c": "$ macup clean"}, {"k": "rec", "i": "!", "s": "warn", "t": "8.6 GB di cache nascoste da eliminare", "d": "Le app ricreano questi file da sole. Smart Clean li sposta nel Cestino — non serve formattare o ripristinare il Mac.", "c": "$ macup clean"}, {"k": "rec", "i": "!", "s": "warn", "t": "Attiva il firewall", "d": "Impostazioni → Rete → Firewall. Blocca solo le connessioni in entrata indesiderate.", "c": ""}, {"k": "rule"}, {"k": "spin", "t": "Salvataggio del report PDF…", "ms": 1200}, {"k": "saved", "t": "Report PDF salvato:", "p": "~/Downloads/MacUp-Health-Report-2026-10-31-1720.pdf"}]}, {"cmd": "", "cap": "…e salva un report PDF di tre pagine nella cartella Download.", "pdf": true, "lines": []}]}</script>
+</section>
+
+<section id="how" class="how">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Pronto in 30 secondi</p>
+      <h2>Tre passaggi. Nessuna pagina di download.</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="n">1</span><h3>Apri il Terminale</h3><p>Premi ⌘ Spazio, scrivi “Terminale” e premi Invio.</p><div class="keys"><kbd>⌘</kbd><kbd>Space</kbd><span>Terminal</span><kbd>↩</kbd></div></li>
+      <li><span class="n">2</span><h3>Incolla il comando</h3><p>Installa MacUp nella tua cartella Inizio. Nessuna password, niente in background.</p>
+        <div class="install small" data-copy-box><code data-copy-text>curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash</code><button class="copy" type="button" data-copy data-label="Copia" data-done="Copiato">Copia</button></div></li>
+      <li><span class="n">3</span><h3>Scrivi macup</h3><p>Scegli 1–5, premi q per uscire. Rimuovilo quando vuoi con macup uninstall.</p><div class="mini-term"><span class="p">$</span> macup<br><span class="d">Scegli 1–5 (q per uscire):</span> <span class="y">5</span></div></li>
+    </ol>
+
+    <div class="head head-gap">
+      <p class="eyebrow">Cosa fa</p>
+      <h2>Cinque strumenti, un comando</h2>
+    </div>
+    <div class="features">
+      <article class="feat"><span class="num">1</span><h3>Smart Clean</h3><p>Trova cache delle app e dei browser, log, report di crash e oltre 30 cache per sviluppatori. Prima mostra le dimensioni, poi sposta nel Cestino ciò che scegli.</p><code>macup clean</code></article>
+      <article class="feat"><span class="num">2</span><h3>Questo Mac</h3><p>Spazio usato e libero, modello SSD e stato S.M.A.R.T., salute della batteria in %, cicli e carica, RAM e swap, core, carico e temperatura del processore, grafica e schermi.</p><code>macup mac</code></article>
+      <article class="feat"><span class="num">3</span><h3>Protezione</h3><p>Gatekeeper, Protezione dell’integrità del sistema, FileVault, firewall, XProtect, risposte di sicurezza e aggiornamenti automatici — attivi o no.</p><code>macup protect</code></article>
+      <article class="feat"><span class="num">4</span><h3>Prestazioni</h3><p>Carico, le app più attive per processore e memoria, gli elementi all’avvio e quelli non validi lasciati da app eliminate.</p><code>macup perf</code></article>
+      <article class="feat star"><span class="num">5</span><span class="tag">Il più usato</span><h3>Controllo completo</h3><p>Tutto quanto sopra, una salute del Mac in % e un report PDF di tre pagine salvato in Download.</p><code>macup check</code></article>
+    </div>
+  </div>
+</section>
+
+<section class="ghost">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Il fantasma nei “Dati di sistema”</p>
+      <h2>Cache nascoste — non un Mac guasto</h2>
+      <p class="lead">macOS tiene cache, log e report di crash in cartelle nascoste. In pochi mesi crescono fino a molti gigabyte e compaiono nelle Impostazioni come “Dati di sistema”. Le app le ricreano da sole, quindi eliminarle è sicuro.</p>
+    </div>
+    <div class="disk">
+      <div class="disk-row">
+        <span class="disk-label">Prima</span>
+        <div class="disk-bar"><i class="s-sys" style="--w:9%"></i><i class="s-apps" style="--w:24%"></i><i class="s-docs" style="--w:54%"></i><i class="s-cache" style="--w:4.5%"></i><i class="s-free" style="--w:8.5%"></i></div>
+        <span class="disk-val">42 GB liberi</span>
+      </div>
+      <div class="disk-row">
+        <span class="disk-label">Dopo Smart Clean</span>
+        <div class="disk-bar"><i class="s-sys" style="--w:9%"></i><i class="s-apps" style="--w:24%"></i><i class="s-docs" style="--w:54%"></i><i class="s-cache" style="--w:.5%"></i><i class="s-free grow" style="--w:12.5%"></i></div>
+        <span class="disk-val hl-text">62 GB liberi</span>
+      </div>
+      <ul class="legend">
+        <li><i class="s-sys"></i>macOS</li>
+        <li><i class="s-apps"></i>App</li>
+        <li><i class="s-docs"></i>Documenti</li>
+        <li><i class="s-cache"></i>Cache nascoste</li>
+        <li><i class="s-free"></i>liberi</li>
+      </ul>
+    </div>
+    <div class="ghost-grid">
+      <div class="card">
+        <h3>Dove si nascondono</h3>
+        <ul class="paths">
+          <li><code>~/Library/Caches</code><span>Cache delle app</span></li>
+          <li><code>~/Library/Caches/Google · Firefox · Safari</code><span>Cache del browser</span></li>
+          <li><code>~/Library/Logs</code><span>Log</span></li>
+          <li><code>~/Library/Logs/DiagnosticReports</code><span>Report di crash e diagnostica</span></li>
+          <li><code>~/Library/Developer/Xcode/DerivedData</code><span>Cache per sviluppatori</span></li>
+          <li><code>~/.npm · ~/Library/Caches/pip · Homebrew</code><span>Cache per sviluppatori</span></li>
+        </ul>
+      </div>
+      <div class="card accent">
+        <div class="big-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M24 6c-8 0-14 6-14 14v20l5-4 4.5 4L24 36l4.5 4 4.5-4 5 4V20c0-8-6-14-14-14Z"/><circle cx="18.5" cy="21" r="2.6"/><circle cx="29.5" cy="21" r="2.6"/></svg>
+        </div>
+        <h3>Non serve formattare o ripristinare il Mac</h3>
+        <p>Inizializzare il Mac per recuperare spazio richiede ore e devi ripristinare tutto. Pulire le cache richiede un minuto — e tutto va prima nel Cestino, così puoi recuperarlo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="report" class="report">
+  <div class="wrap report-in">
+    <div class="report-text">
+      <p class="eyebrow">Controllo completo</p>
+      <h2>La salute del Mac in %, in PDF</h2>
+      <p class="lead">macup check dà al tuo Mac un punteggio su 100 e salva un PDF di tre pagine in Download — facile da conservare, stampare o condividere.</p>
+      <h3 class="sub">Come si calcola il punteggio</h3>
+      <ul class="weights"><li><span>Spazio</span><span class="wb"><span style="--p:100%"></span></span><b>20%</b></li><li><span>Salute SSD</span><span class="wb"><span style="--p:75%"></span></span><b>15%</b></li><li><span>Batteria</span><span class="wb"><span style="--p:75%"></span></span><b>15%</b></li><li><span>Memoria (RAM)</span><span class="wb"><span style="--p:75%"></span></span><b>15%</b></li><li><span>Protezione</span><span class="wb"><span style="--p:75%"></span></span><b>15%</b></li><li><span>Processore</span><span class="wb"><span style="--p:50%"></span></span><b>10%</b></li><li><span>Cache nascoste</span><span class="wb"><span style="--p:50%"></span></span><b>10%</b></li></ul>
+      <p class="small-note">Le parti che il tuo Mac non ha — come la batteria su un iMac — non vengono contate.</p>
+      <p class="grades"><b>90%+</b> Eccellente · <b>75%+</b> Buona · <b>55%+</b> Sufficiente · <b>&lt;55%</b> Richiede attenzione</p>
+      <div class="hw">
+        <h3>Controllati in ogni report</h3>
+        <p>RAM, SSD, batteria, grafica e processore — con uno stato chiaro e, se qualcosa non va, la soluzione o il comando esatto.</p>
+        <ul class="chips"><li>RAM</li><li>SSD</li><li>Batteria</li><li>Grafica</li><li>Processore</li></ul>
+      </div>
+    </div>
+    <div class="report-visual">
+      <div class="pages">
+        <figure class="pg pg1"><div class="paper dark"><div class="pp"><div class="pp-head"><span class="pp-logo">✦ MacUp</span><span>2026-10-31</span></div><h4>Report sulla salute del Mac</h4><p class="pp-sub">MacBook Air · Apple M3 · macOS 15</p><div class="pp-score"><div class="ring" style="--p:89"><div><b>89<i>%</i></b><span>Buona</span></div></div><p>Cache nascoste da pulire in sicurezza: <b class="y">8.6 GB</b></p></div><div class="tiles"><div class="tile"><small>Spazio</small><b>72<i>%</i></b><span class="tb"><span style="--p:72%"></span></span><em>63.2 GB liberi (13%)</em></div><div class="tile"><small>Salute SSD</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>SMART: Verified</em></div><div class="tile"><small>Batteria</small><b>91<i>%</i></b><span class="tb"><span style="--p:91%"></span></span><em>91% salute · 312 cicli</em></div><div class="tile"><small>Memoria (RAM)</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>38% libera · 0.4 GB swap</em></div><div class="tile"><small>Processore</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>18% carico · 3 giorni dal riavvio</em></div><div class="tile"><small>Protezione</small><b>85<i>%</i></b><span class="tb"><span style="--p:85%"></span></span><em>6 di 7 protezioni attive</em></div></div></div></div><figcaption>1 · Punteggio e sei riquadri</figcaption></figure>
+        <figure class="pg pg2" aria-hidden="true"><div class="paper light"><div class="pp"><b>Dettagli</b><span class="dl"><em>Spazio</em><span class="tb"><span style="--p:87%"></span></span></span><span class="dl"><em>Batteria</em><span class="tb"><span style="--p:91%"></span></span></span><span class="dl"><em>Memoria (RAM)</em><span class="tb"><span style="--p:62%"></span></span></span><span class="dl"><em>Processore</em><span class="tb"><span style="--p:18%"></span></span></span><span class="dl"><em>SSD</em><span class="tb"><span style="--p:100%"></span></span></span><span class="dl"><em>Grafica</em><span class="tb"><span style="--p:100%"></span></span></span></div></div><figcaption>2 · Tutti i dettagli</figcaption></figure>
+        <figure class="pg pg3" aria-hidden="true"><div class="paper light"><div class="pp"><b>Cosa fare</b><span class="ri"><i>1</i>Poco spazio su disco (13% libero)</span><span class="ri"><i>2</i>8.6 GB di cache nascoste da eliminare</span><span class="ri"><i>3</i>Attiva il firewall</span><span class="good-box">Buono a sapersi</span></div></div><figcaption>3 · Cosa fare, passo per passo</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="av">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Una risposta onesta</p>
+      <h2>Un Mac ha bisogno di un antivirus a pagamento?</h2>
+      <p class="lead">Per la maggior parte delle persone, no. Ogni Mac include già una protezione gratuita, aggiornata automaticamente da Apple. Un abbonamento annuale “pulisci virus” non la rende più forte.</p>
+    </div>
+    <div class="av-grid">
+      <div class="card">
+        <h3>Già integrato nel tuo Mac — gratis</h3>
+        <ul class="shield">
+          <li><b>XProtect</b><span>Lo scanner malware di Apple, aggiornato in background</span></li>
+          <li><b>Gatekeeper</b><span>Controlla le app prima che si aprano</span></li>
+          <li><b>Protezione dell’integrità del sistema</b><span>Blocca i file principali del sistema</span></li>
+          <li><b>FileVault</b><span>Cifra il disco se perdi il Mac</span></li>
+          <li><b>Firewall</b><span>Blocca le connessioni in entrata indesiderate</span></li>
+          <li><b>Risposte di sicurezza</b><span>Le correzioni di sicurezza urgenti si installano da sole</span></li>
+        </ul>
+      </div>
+      <div class="av-side">
+        <div class="card scam">
+          <div class="fake-popup" aria-hidden="true"><b>⚠︎ VIRUS DETECTED!</b><span>Your Mac is infected (3)</span><i>Clean now — $69/yr</i></div>
+          <h3>I popup “Il tuo Mac è infetto!” sono truffe</h3>
+          <p>Chiudi la scheda. Non chiamare il numero, non installare ciò che offrono, non pagare.</p>
+        </div>
+        <div class="card">
+          <h3>Cosa protegge davvero un Mac</h3>
+          <ul class="ticks"><li>Tieni macOS aggiornato</li><li>Installa app dall’App Store o da sviluppatori affidabili</li><li>Tieni attivi FileVault e il firewall — macup protect li mostra entrambi</li></ul>
+        </div>
+      </div>
+    </div>
+    <p class="center-note">MacUp non è un antivirus. Mostra se la protezione già presente in macOS è attiva.</p>
+  </div>
+</section>
+
+<section class="compare">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Confronto</p>
+      <h2>Perché pagare ogni anno?</h2>
+    </div>
+    <div class="table-scroll" tabindex="0">
+      <table class="cmp">
+        <thead><tr><th scope="col">Funzione</th><th scope="col" class="me">MacUp</th><th scope="col">App di pulizia in abbonamento</th><th scope="col">Abbonamenti “antivirus per Mac”</th><th scope="col">A mano</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Prezzo</th><td class="me">Gratis, open source</td><td>Abbonamento annuale</td><td>Abbonamento annuale</td><td>Gratis</td></tr>
+          <tr><th scope="row">Aggiornamenti inclusi</th><td class="me">Sì, per sempre</td><td>Finché paghi</td><td>Finché paghi</td><td>—</td></tr>
+          <tr><th scope="row">Account obbligatorio</th><td class="me">No</td><td>Di solito</td><td>Di solito</td><td>No</td></tr>
+          <tr><th scope="row">Mostra tutto prima di rimuovere</th><td class="me">Sì — dimensioni + anteprima</td><td>Dipende</td><td>—</td><td>Decidi tu</td></tr>
+          <tr><th scope="row">Sposta nel Cestino (annullabile)</th><td class="me">Sempre</td><td>Dipende</td><td>—</td><td>Facile eliminare per sempre per errore</td></tr>
+          <tr><th scope="row">Cache per sviluppatori (Xcode, npm, Cargo…)</th><td class="me">Oltre 30 strumenti</td><td>In parte</td><td>No</td><td>Difficili da trovare</td></tr>
+          <tr><th scope="row">Report salute (SSD, batteria, RAM, CPU, GPU)</th><td class="me">Sì + PDF</td><td>Dipende</td><td>No</td><td>In tanti posti diversi</td></tr>
+          <tr><th scope="row">Funziona offline, nessuna telemetria</th><td class="me">Sì</td><td>Dipende</td><td>No — scansione nel cloud</td><td>Sì</td></tr>
+          <tr><th scope="row">Scansione malware</th><td class="me">No — lo fa macOS (XProtect)</td><td>In parte</td><td>Sì</td><td>No</td></tr>
+          <tr><th scope="row">Usa tattiche allarmistiche</th><td class="me">Mai</td><td>A volte</td><td>A volte</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="center-note">Un confronto generale tra tipi di prodotto, non tra aziende specifiche.</p>
+  </div>
+</section>
+
+<section class="safe">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Prima la sicurezza</p>
+      <h2>Fatto perché tu non perda file</h2>
+    </div>
+    <div class="safe-grid">
+      <div class="card"><span class="ico">🗑</span><h3>Solo Cestino</h3><p>La pulizia sposta i file nel Cestino. MacUp non lo svuota mai e non elimina nulla per sempre.</p></div>
+      <div class="card"><span class="ico">♻︎</span><h3>Solo cache che si ricreano</h3><p>La pulizia per sviluppatori usa un elenco fisso. Modelli AI scaricati, archivi Xcode e tutto ciò che elimina per sempre non vengono mai proposti.</p></div>
+      <div class="card"><span class="ico">👁</span><h3>Controlli in sola lettura</h3><p>Questo Mac, Protezione, Prestazioni e il controllo completo leggono soltanto. Non cambiano impostazioni.</p></div>
+      <div class="card"><span class="ico">🔒</span><h3>Nessuna password, niente in background</h3><p>Gira come te, solo mentre lo usi. Nessuna password da amministratore, nessun elemento di login, nessuna telemetria.</p></div>
+      <div class="card"><span class="ico">⏸</span><h3>Salta i file in uso</h3><p>Se un’app sta usando un file proprio ora, MacUp non lo tocca.</p></div>
+      <div class="card"><span class="ico">{ }</span><h3>Open source</h3><p>Ogni riga è su GitHub. Leggi install.sh prima di eseguirlo — è breve.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="faq">
+  <div class="wrap faq-in">
+    <h2>Domande</h2>
+    <div class="qa">
+      <details><summary>MacUp è davvero gratis?</summary><p>Sì. È open source con licenza MIT — nessuna prova, nessun abbonamento, nessun account, nessuna pubblicità.</p></details>
+      <details><summary>Perché il Terminale e non un’app?</summary><p>Uno strumento da Terminale è piccolo e trasparente: nessun installer, nessuna password da amministratore, nessun processo in background. Puoi leggere ogni riga che esegue.</p></details>
+      <details><summary>È sicuro eliminare le cache?</summary><p>Sì. Le cache sono copie che le app ricreano da sole. MacUp le sposta nel Cestino, quindi non perdi nulla finché non lo svuoti, e i file in uso vengono saltati.</p></details>
+      <details><summary>Perderò password, preferiti o documenti?</summary><p>No. MacUp non tocca documenti, foto, password o preferiti. “Solo cronologia del browser” è facoltativo e disattivato di base.</p></details>
+      <details><summary>Perché non vedo la % di vita dell’SSD?</summary><p>macOS indica solo S.M.A.R.T. Verificato o Errore. Installa una volta lo strumento gratuito smartmontools e MacUp mostrerà la vita residua in %:</p><pre><code>brew install smartmontools</code></pre></details>
+      <details><summary>Funziona sui Mac Intel?</summary><p>Sì — macOS 13 Ventura o successivo, su Apple silicon e Intel.</p></details>
+      <details><summary>Come lo aggiorno o lo rimuovo?</summary><p>macup update installa l’ultima versione. macup uninstall lo rimuove del tutto; i report PDF restano in Download.</p><pre><code>macup update
+macup uninstall</code></pre></details>
+      <details><summary>MacUp invia dati?</summary><p>No. Funziona offline e non ha telemetria. Questo sito non usa cookie né tracker.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap cta-in">
+    <h2>Fai un check-up al tuo Mac</h2>
+    <p class="lead">Gratis, per sempre. Incolla una riga nel Terminale.</p>
+    <div class="install" data-copy-box>
+      <span class="prompt" aria-hidden="true">$</span>
+      <code data-copy-text>curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash</code>
+      <button class="copy" type="button" data-copy data-label="Copia" data-done="Copiato">Copia</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>
+      <a class="brand" href="/it/"><img src="/favicon.svg" alt="" width="26" height="26"><span>MacUp</span></a>
+      <p>Salute del Mac nel Terminale, gratis e open source.</p>
+    </div>
+    <ul>
+      <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO">GitHub</a></li>
+      <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/LICENSE">Licenza MIT</a></li>
+      <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/SECURITY.md">Security</a></li>
+      <li>Nessun cookie, nessun tracker.</li>
+    </ul>
+    <p class="fine">© 2026 <a href="https://cdav.io">cdav.io</a> · Non affiliato con Apple Inc. Mac e macOS sono marchi di Apple Inc.</p>
+  </div>
+</footer>
+
+<script src="/assets/app.js?v=63bb0a6321" defer></script>
+</body>
+</html>

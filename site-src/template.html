@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="{{html_lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{meta_title}}</title>
+<meta name="description" content="{{meta_desc}}">
+<link rel="canonical" href="{{canonical}}">
+{{alternates}}
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f6f6f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacUp">
+<meta property="og:url" content="{{canonical}}">
+<meta property="og:title" content="{{og_title}}">
+<meta property="og:description" content="{{meta_desc}}">
+<meta property="og:image" content="https://macup.cdav.io/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("macup-theme");
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+  {{lang_redirect}}
+})();
+</script>
+<link rel="stylesheet" href="/assets/style.css?v={{asset_v}}">
+<script type="application/ld+json">{{ld_json}}</script>
+</head>
+<body>
+<a class="skip" href="#main">{{skip}}</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="{{home}}" aria-label="MacUp">
+      <img src="/favicon.svg" alt="" width="30" height="30"><span>MacUp</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#demo">{{nav_demo}}</a>
+      <a href="#how">{{nav_how}}</a>
+      <a href="#report">{{nav_report}}</a>
+      <a href="#faq">{{nav_faq}}</a>
+    </nav>
+    <div class="tools">
+      <label class="lang">
+        <span class="sr-only">{{lang_label}}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 0c2.5 2.4 3.8 5.4 3.8 9s-1.3 6.6-3.8 9m0-18C9.5 5.4 8.2 8.4 8.2 12s1.3 6.6 3.8 9M3.5 9h17M3.5 15h17"/></svg>
+        <select id="lang" aria-label="{{lang_label}}">{{lang_options}}</select>
+      </label>
+      <button class="icon-btn" id="theme" type="button" aria-label="{{theme_label}}" title="{{theme_label}}">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO" aria-label="GitHub" title="GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.6 9.6 0 0 1 5 0c1.9-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9V21c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">{{hero_eyebrow}}</p>
+    <h1>{{hero_title_1}}<br><span class="hl">{{hero_title_2}}</span></h1>
+    <p class="lead">{{hero_lead}}</p>
+    <div class="install" data-copy-box>
+      <span class="prompt" aria-hidden="true">$</span>
+      <code data-copy-text>{{install_cmd}}</code>
+      <button class="copy" type="button" data-copy data-label="{{copy}}" data-done="{{copied}}">{{copy}}</button>
+    </div>
+    <p class="then">{{hero_then}} <code class="kbd">macup</code> · <a href="#demo">{{hero_watch}} →</a></p>
+    <ul class="badges">
+      <li>{{badge_free}}</li>
+      <li>{{badge_trash}}</li>
+      <li>{{badge_pass}}</li>
+      <li>{{badge_mac}}</li>
+    </ul>
+  </div>
+</section>
+
+<section id="demo" class="demo">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">{{demo_eyebrow}}</p>
+      <h2>{{demo_title}}</h2>
+      <p class="lead">{{demo_lead}}</p>
+    </div>
+    <div class="player" id="player" data-play="{{demo_play}}" data-pause="{{demo_pause}}" data-replay="{{demo_replay}}">
+      <div class="term">
+        <div class="term-bar"><i></i><i></i><i></i><span>Terminal — macup</span></div>
+        <div class="term-screen" id="screen" aria-live="off"></div>
+        <div class="pdf-stage" id="pdfstage" hidden>{{pdf_mock}}</div>
+      </div>
+      <div class="ctrl">
+        <button class="play" id="playbtn" type="button" aria-label="{{demo_play}}">
+          <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5Z"/></svg>
+          <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+        </button>
+        <div class="bar" aria-hidden="true"><span id="progress"></span></div>
+      </div>
+      <ol class="chapters" id="chapters">
+        <li><button type="button" data-ch="0"><b>1</b>{{cli.clean_title}}</button></li>
+        <li><button type="button" data-ch="1"><b>2</b>{{cli.mac_title}}</button></li>
+        <li><button type="button" data-ch="2"><b>3</b>{{cli.protection_title}}</button></li>
+        <li><button type="button" data-ch="3"><b>4</b>{{cli.performance_title}}</button></li>
+        <li><button type="button" data-ch="4"><b>5</b>{{cli.check_title}}</button></li>
+        <li><button type="button" data-ch="5"><b>PDF</b>{{demo_pdf_chapter}}</button></li>
+      </ol>
+      <p class="caption" id="caption"></p>
+      <p class="note">{{demo_note}}</p>
+    </div>
+  </div>
+  <script type="application/json" id="demo-data">{{demo_json}}</script>
+</section>
+
+<section id="how" class="how">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">{{start_eyebrow}}</p>
+      <h2>{{start_title}}</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="n">1</span><h3>{{step1_t}}</h3><p>{{step1_d}}</p><div class="keys"><kbd>⌘</kbd><kbd>Space</kbd><span>Terminal</span><kbd>↩</kbd></div></li>
+      <li><span class="n">2</span><h3>{{step2_t}}</h3><p>{{step2_d}}</p>
+        <div class="install small" data-copy-box><code data-copy-text>{{install_cmd}}</code><button class="copy" type="button" data-copy data-label="{{copy}}" data-done="{{copied}}">{{copy}}</button></div></li>
+      <li><span class="n">3</span><h3>{{step3_t}}</h3><p>{{step3_d}}</p><div class="mini-term"><span class="p">$</span> macup<br><span class="d">{{cli.choose}}</span> <span class="y">5</span></div></li>
+    </ol>
+
+    <div class="head head-gap">
+      <p class="eyebrow">{{feat_eyebrow}}</p>
+      <h2>{{feat_title}}</h2>
+    </div>
+    <div class="features">
+      <article class="feat"><span class="num">1</span><h3>{{cli.clean_title}}</h3><p>{{f1_d}}</p><code>macup clean</code></article>
+      <article class="feat"><span class="num">2</span><h3>{{cli.mac_title}}</h3><p>{{f2_d}}</p><code>macup mac</code></article>
+      <article class="feat"><span class="num">3</span><h3>{{cli.protection_title}}</h3><p>{{f3_d}}</p><code>macup protect</code></article>
+      <article class="feat"><span class="num">4</span><h3>{{cli.performance_title}}</h3><p>{{f4_d}}</p><code>macup perf</code></article>
+      <article class="feat star"><span class="num">5</span><span class="tag">{{f_check_tag}}</span><h3>{{cli.check_title}}</h3><p>{{f5_d}}</p><code>macup check</code></article>
+    </div>
+  </div>
+</section>
+
+<section class="ghost">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">{{ghost_eyebrow}}</p>
+      <h2>{{ghost_title}}</h2>
+      <p class="lead">{{ghost_lead}}</p>
+    </div>
+    <div class="disk">
+      <div class="disk-row">
+        <span class="disk-label">{{ghost_before}}</span>
+        <div class="disk-bar"><i class="s-sys" style="--w:9%"></i><i class="s-apps" style="--w:24%"></i><i class="s-docs" style="--w:54%"></i><i class="s-cache" style="--w:4.5%"></i><i class="s-free" style="--w:8.5%"></i></div>
+        <span class="disk-val">42 GB {{seg_free}}</span>
+      </div>
+      <div class="disk-row">
+        <span class="disk-label">{{ghost_after}}</span>
+        <div class="disk-bar"><i class="s-sys" style="--w:9%"></i><i class="s-apps" style="--w:24%"></i><i class="s-docs" style="--w:54%"></i><i class="s-cache" style="--w:.5%"></i><i class="s-free grow" style="--w:12.5%"></i></div>
+        <span class="disk-val hl-text">62 GB {{seg_free}}</span>
+      </div>
+      <ul class="legend">
+        <li><i class="s-sys"></i>{{seg_system}}</li>
+        <li><i class="s-apps"></i>{{seg_apps}}</li>
+        <li><i class="s-docs"></i>{{seg_docs}}</li>
+        <li><i class="s-cache"></i>{{seg_cache}}</li>
+        <li><i class="s-free"></i>{{seg_free}}</li>
+      </ul>
+    </div>
+    <div class="ghost-grid">
+      <div class="card">
+        <h3>{{ghost_where}}</h3>
+        <ul class="paths">
+          <li><code>~/Library/Caches</code><span>{{cli.cat_app_caches}}</span></li>
+          <li><code>~/Library/Caches/Google · Firefox · Safari</code><span>{{cli.cat_browser_caches}}</span></li>
+          <li><code>~/Library/Logs</code><span>{{cli.cat_logs}}</span></li>
+          <li><code>~/Library/Logs/DiagnosticReports</code><span>{{cli.cat_reports}}</span></li>
+          <li><code>~/Library/Developer/Xcode/DerivedData</code><span>{{cli.cat_developer}}</span></li>
+          <li><code>~/.npm · ~/Library/Caches/pip · Homebrew</code><span>{{cli.cat_developer}}</span></li>
+        </ul>
+      </div>
+      <div class="card accent">
+        <div class="big-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M24 6c-8 0-14 6-14 14v20l5-4 4.5 4L24 36l4.5 4 4.5-4 5 4V20c0-8-6-14-14-14Z"/><circle cx="18.5" cy="21" r="2.6"/><circle cx="29.5" cy="21" r="2.6"/></svg>
+        </div>
+        <h3>{{ghost_no_reset_t}}</h3>
+        <p>{{ghost_no_reset_d}}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="report" class="report">
+  <div class="wrap report-in">
+    <div class="report-text">
+      <p class="eyebrow">{{report_eyebrow}}</p>
+      <h2>{{report_title}}</h2>
+      <p class="lead">{{report_lead}}</p>
+      <h3 class="sub">{{report_weights}}</h3>
+      <ul class="weights">{{weights}}</ul>
+      <p class="small-note">{{report_weights_note}}</p>
+      <p class="grades">{{grades}}</p>
+      <div class="hw">
+        <h3>{{report_hw_t}}</h3>
+        <p>{{report_hw_d}}</p>
+        <ul class="chips"><li>RAM</li><li>SSD</li><li>{{cli.part_battery}}</li><li>{{cli.part_gpu}}</li><li>{{cli.part_cpu}}</li></ul>
+      </div>
+    </div>
+    <div class="report-visual">
+      <div class="pages">
+        <figure class="pg pg1">{{pdf_mock}}<figcaption>1 · {{report_p1}}</figcaption></figure>
+        <figure class="pg pg2" aria-hidden="true"><div class="paper light"><div class="pp"><b>{{cli.report_details}}</b>{{details_mock}}</div></div><figcaption>2 · {{report_p2}}</figcaption></figure>
+        <figure class="pg pg3" aria-hidden="true"><div class="paper light"><div class="pp"><b>{{cli.report_recs}}</b>{{recs_mock}}</div></div><figcaption>3 · {{report_p3}}</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="av">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">{{av_eyebrow}}</p>
+      <h2>{{av_title}}</h2>
+      <p class="lead">{{av_lead}}</p>
+    </div>
+    <div class="av-grid">
+      <div class="card">
+        <h3>{{av_builtin_t}}</h3>
+        <ul class="shield">
+          <li><b>XProtect</b><span>{{av_xprotect}}</span></li>
+          <li><b>Gatekeeper</b><span>{{av_gatekeeper}}</span></li>
+          <li><b>{{cli.p_sip}}</b><span>{{av_sip}}</span></li>
+          <li><b>FileVault</b><span>{{av_filevault}}</span></li>
+          <li><b>{{cli.p_firewall}}</b><span>{{av_firewall}}</span></li>
+          <li><b>{{cli.p_responses}}</b><span>{{av_responses}}</span></li>
+        </ul>
+      </div>
+      <div class="av-side">
+        <div class="card scam">
+          <div class="fake-popup" aria-hidden="true"><b>⚠︎ VIRUS DETECTED!</b><span>Your Mac is infected (3)</span><i>Clean now — $69/yr</i></div>
+          <h3>{{av_scam_t}}</h3>
+          <p>{{av_scam_d}}</p>
+        </div>
+        <div class="card">
+          <h3>{{av_helps_t}}</h3>
+          <ul class="ticks"><li>{{av_help_1}}</li><li>{{av_help_2}}</li><li>{{av_help_3}}</li></ul>
+        </div>
+      </div>
+    </div>
+    <p class="center-note">{{av_note}}</p>
+  </div>
+</section>
+
+<section class="compare">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">{{cmp_eyebrow}}</p>
+      <h2>{{cmp_title}}</h2>
+    </div>
+    <div class="table-scroll" tabindex="0">
+      <table class="cmp">
+        <thead><tr><th scope="col">{{cmp_feature}}</th><th scope="col" class="me">MacUp</th><th scope="col">{{cmp_h_cleaners}}</th><th scope="col">{{cmp_h_av}}</th><th scope="col">{{cmp_h_hand}}</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">{{cmp_r_price}}</th><td class="me">{{v_free_os}}</td><td>{{v_yearly}}</td><td>{{v_yearly}}</td><td>{{v_free}}</td></tr>
+          <tr><th scope="row">{{cmp_r_updates}}</th><td class="me">{{v_forever}}</td><td>{{v_while_pay}}</td><td>{{v_while_pay}}</td><td>—</td></tr>
+          <tr><th scope="row">{{cmp_r_account}}</th><td class="me">{{v_no}}</td><td>{{v_usually}}</td><td>{{v_usually}}</td><td>{{v_no}}</td></tr>
+          <tr><th scope="row">{{cmp_r_shows}}</th><td class="me">{{v_yes_preview}}</td><td>{{v_varies}}</td><td>—</td><td>{{v_you_decide}}</td></tr>
+          <tr><th scope="row">{{cmp_r_trash}}</th><td class="me">{{v_always}}</td><td>{{v_varies}}</td><td>—</td><td>{{v_easy_delete}}</td></tr>
+          <tr><th scope="row">{{cmp_r_dev}}</th><td class="me">{{v_tools}}</td><td>{{v_some}}</td><td>{{v_no}}</td><td>{{v_hard}}</td></tr>
+          <tr><th scope="row">{{cmp_r_report}}</th><td class="me">{{v_yes_pdf}}</td><td>{{v_varies}}</td><td>{{v_no}}</td><td>{{v_many_places}}</td></tr>
+          <tr><th scope="row">{{cmp_r_offline}}</th><td class="me">{{v_yes}}</td><td>{{v_varies}}</td><td>{{v_cloud}}</td><td>{{v_yes}}</td></tr>
+          <tr><th scope="row">{{cmp_r_malware}}</th><td class="me">{{v_macos_does}}</td><td>{{v_some}}</td><td>{{v_yes}}</td><td>{{v_no}}</td></tr>
+          <tr><th scope="row">{{cmp_r_scare}}</th><td class="me">{{v_never}}</td><td>{{v_sometimes}}</td><td>{{v_sometimes}}</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="center-note">{{cmp_note}}</p>
+  </div>
+</section>
+
+<section class="safe">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">{{safe_eyebrow}}</p>
+      <h2>{{safe_title}}</h2>
+    </div>
+    <div class="safe-grid">
+      <div class="card"><span class="ico">🗑</span><h3>{{s1_t}}</h3><p>{{s1_d}}</p></div>
+      <div class="card"><span class="ico">♻︎</span><h3>{{s2_t}}</h3><p>{{s2_d}}</p></div>
+      <div class="card"><span class="ico">👁</span><h3>{{s3_t}}</h3><p>{{s3_d}}</p></div>
+      <div class="card"><span class="ico">🔒</span><h3>{{s4_t}}</h3><p>{{s4_d}}</p></div>
+      <div class="card"><span class="ico">⏸</span><h3>{{s5_t}}</h3><p>{{s5_d}}</p></div>
+      <div class="card"><span class="ico">{ }</span><h3>{{s6_t}}</h3><p>{{s6_d}}</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="faq">
+  <div class="wrap faq-in">
+    <h2>{{faq_title}}</h2>
+    <div class="qa">
+      <details><summary>{{q1}}</summary><p>{{a1}}</p></details>
+      <details><summary>{{q2}}</summary><p>{{a2}}</p></details>
+      <details><summary>{{q3}}</summary><p>{{a3}}</p></details>
+      <details><summary>{{q4}}</summary><p>{{a4}}</p></details>
+      <details><summary>{{q5}}</summary><p>{{a5}}</p><pre><code>brew install smartmontools</code></pre></details>
+      <details><summary>{{q6}}</summary><p>{{a6}}</p></details>
+      <details><summary>{{q7}}</summary><p>{{a7}}</p><pre><code>macup update
+macup uninstall</code></pre></details>
+      <details><summary>{{q8}}</summary><p>{{a8}}</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap cta-in">
+    <h2>{{cta_title}}</h2>
+    <p class="lead">{{cta_lead}}</p>
+    <div class="install" data-copy-box>
+      <span class="prompt" aria-hidden="true">$</span>
+      <code data-copy-text>{{install_cmd}}</code>
+      <button class="copy" type="button" data-copy data-label="{{copy}}" data-done="{{copied}}">{{copy}}</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>
+      <a class="brand" href="{{home}}"><img src="/favicon.svg" alt="" width="26" height="26"><span>MacUp</span></a>
+      <p>{{footer_tag}}</p>
+    </div>
+    <ul>
+      <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO">GitHub</a></li>
+      <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/LICENSE">{{footer_license}}</a></li>
+      <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/SECURITY.md">Security</a></li>
+      <li>{{footer_privacy}}</li>
+    </ul>
+    <p class="fine">© 2026 <a href="https://cdav.io">cdav.io</a> · {{footer_apple}}</p>
+  </div>
+</footer>
+
+<script src="/assets/app.js?v={{asset_v}}" defer></script>
+</body>
+</html>

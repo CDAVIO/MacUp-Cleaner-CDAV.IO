@@ -1,0 +1,145 @@
+#!/bin/bash
+# MacUp — keep your Mac healthy from the Terminal.
+# Free and open source (MIT) · https://macup.cdav.io
+#
+#   macup            menu
+#   macup clean      1  Smart Clean (moves hidden caches to the Trash)
+#   macup mac        2  This Mac (storage, SSD, battery, memory, processor, graphics)
+#   macup protect    3  Protection (built-in macOS security, read-only)
+#   macup perf       4  Performance (load, busiest apps, startup items)
+#   macup check      5  Complete check + PDF report in ~/Downloads
+# shellcheck disable=SC2059,SC2034  # colours in printf formats; H_* results are read by other files
+set -uo pipefail
+
+# Follow symlinks (e.g. /usr/local/bin/macup → ~/.macup/macup).
+src="${BASH_SOURCE[0]}"
+while [ -L "$src" ]; do
+  dir=$(cd -P "$(dirname "$src")" && pwd)
+  src=$(readlink "$src")
+  case "$src" in /*) ;; *) src="$dir/$src" ;; esac
+done
+MACUP_ROOT=$(cd -P "$(dirname "$src")" && pwd)
+MACUP_VERSION=$(cat "$MACUP_ROOT/VERSION" 2>/dev/null || echo "0")
+MACUP_REPO="CDAVIO/MacUp-Cleaner-CDAV.IO"
+export MACUP_ROOT
+
+# Character counting and wide-text alignment need a UTF-8 locale.
+case "$(locale charmap 2>/dev/null)" in UTF-8) ;; *) export LC_ALL=en_US.UTF-8 ;; esac
+
+# shellcheck source=lib/ui.sh
+. "$MACUP_ROOT/lib/ui.sh"
+# shellcheck source=lib/i18n.sh
+. "$MACUP_ROOT/lib/i18n.sh"
+# shellcheck source=lib/checks.sh
+. "$MACUP_ROOT/lib/checks.sh"
+# shellcheck source=lib/clean.sh
+. "$MACUP_ROOT/lib/clean.sh"
+# shellcheck source=lib/views.sh
+. "$MACUP_ROOT/lib/views.sh"
+# shellcheck source=lib/report.sh
+. "$MACUP_ROOT/lib/report.sh"
+
+cmd=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --lang) shift; MACUP_LANG="${1:-en}" ;;
+    --lang=*) MACUP_LANG="${1#--lang=}" ;;
+    --yes|-y) MACUP_YES=1 ;;
+    --no-color) C_Y=""; C_B=""; C_D=""; C_R="" ;;
+    -h|--help) cmd="help" ;;
+    -v|--version) cmd="version" ;;
+    *) [ -z "$cmd" ] && cmd="$1" ;;
+  esac
+  shift
+done
+i18n_load "$(i18n_detect)"
+
+if [ "$(uname -s)" != "Darwin" ]; then
+  echo "MacUp runs on macOS only." >&2; exit 1
+fi
+macos_major=$(sw_vers -productVersion 2>/dev/null | cut -d. -f1)
+if [ "${macos_major:-0}" -lt 13 ]; then
+  t needs_macos13 >&2; echo >&2; exit 1
+fi
+
+cmd_help() {
+  ui_logo "$(t tagline)"
+  printf "  ${C_B}macup${C_R}            %s\n" "$(t help_menu)"
+  printf "  ${C_B}macup clean${C_R}      %s\n" "$(t help_clean)"
+  printf "  ${C_B}macup mac${C_R}        %s\n" "$(t help_mac)"
+  printf "  ${C_B}macup protect${C_R}    %s\n" "$(t help_protect)"
+  printf "  ${C_B}macup perf${C_R}       %s\n" "$(t help_perf)"
+  printf "  ${C_B}macup check${C_R}      %s\n" "$(t help_check)"
+  printf "  ${C_B}macup update${C_R}     %s\n" "$(t help_update)"
+  printf "  ${C_B}macup uninstall${C_R}  %s\n" "$(t help_uninstall)"
+  echo
+  printf "  ${C_D}--lang en|ro|de|it|fr|ko|zh   --yes   --no-color   --version${C_R}\n\n"
+}
+
+cmd_update() {
+  ui_title "$(t update_title)" "↻"
+  local latest
+  latest=$(curl -fsSL -m 8 "https://raw.githubusercontent.com/$MACUP_REPO/main/VERSION" 2>/dev/null | tr -d '[:space:]')
+  if [ -z "$latest" ]; then ui_row "$(t update_title)" "$(t update_offline)" warn; return 1; fi
+  if [ "$latest" = "$MACUP_VERSION" ]; then ui_row "MacUp $MACUP_VERSION" "$(t up_to_date)" ok; return 0; fi
+  ui_row "MacUp $MACUP_VERSION → $latest" "$(t updating)" info
+  curl -fsSL "https://raw.githubusercontent.com/$MACUP_REPO/main/install.sh" | bash
+}
+
+cmd_uninstall() {
+  ui_title "$(t uninstall_title)" "✕"
+  ui_note "$(t uninstall_note)"
+  ui_yes "$(t uninstall_q)" n || { ui_note "$(t cancelled)"; return 0; }
+  local link
+  for link in /usr/local/bin/macup /opt/homebrew/bin/macup "$HOME/.local/bin/macup"; do
+    if [ -L "$link" ] && [ "$(readlink "$link")" = "$HOME/.macup/macup" ]; then rm -f "$link"; fi
+  done
+  # Remove only the PATH line our installer added (it carries a marker comment).
+  local rc
+  for rc in "$HOME/.zprofile" "$HOME/.bash_profile"; do
+    [ -f "$rc" ] && grep -q "# added by MacUp" "$rc" && sed -i '' '/# added by MacUp/d' "$rc"
+  done
+  [ -d "$HOME/.macup" ] && [ "$MACUP_ROOT" = "$HOME/.macup" ] && rm -rf "$HOME/.macup"
+  ui_row "MacUp" "$(t uninstalled)" ok
+}
+
+menu() {
+  local first=1
+  while :; do
+    [ "$first" = "1" ] || clear
+    first=0
+    ui_logo "$(t tagline)"
+    printf "  ${C_Y}1${C_R}  ${C_B}%s${C_R}\n     ${C_D}%s${C_R}\n" "$(t clean_title)" "$(t menu_clean)"
+    printf "  ${C_Y}2${C_R}  ${C_B}%s${C_R}\n     ${C_D}%s${C_R}\n" "$(t mac_title)" "$(t menu_mac)"
+    printf "  ${C_Y}3${C_R}  ${C_B}%s${C_R}\n     ${C_D}%s${C_R}\n" "$(t protection_title)" "$(t menu_protect)"
+    printf "  ${C_Y}4${C_R}  ${C_B}%s${C_R}\n     ${C_D}%s${C_R}\n" "$(t performance_title)" "$(t menu_perf)"
+    printf "  ${C_Y}5${C_R}  ${C_B}%s${C_R}\n     ${C_D}%s${C_R}\n" "$(t check_title)" "$(t menu_check)"
+    printf "  ${C_D}q  %s${C_R}\n" "$(t quit)"
+    ui_ask "$(t choose)" "q"
+    case "$REPLY" in
+      1) cmd_clean ;;
+      2) cmd_mac ;;
+      3) cmd_protection ;;
+      4) cmd_performance ;;
+      5) cmd_check ;;
+      q|Q|"") echo; return 0 ;;
+      *) continue ;;
+    esac
+    ui_pause "$(t press_enter)"
+    [ -t 0 ] || return 0
+  done
+}
+
+case "$cmd" in
+  ""|menu) menu ;;
+  1|clean) cmd_clean ;;
+  2|mac|this-mac) cmd_mac ;;
+  3|protect|protection) cmd_protection ;;
+  4|perf|performance) cmd_performance ;;
+  5|check|complete|report) cmd_check ;;
+  update) cmd_update ;;
+  uninstall) cmd_uninstall ;;
+  version) echo "MacUp $MACUP_VERSION" ;;
+  help) cmd_help ;;
+  *) t unknown_command "$cmd" >&2; echo >&2; cmd_help; exit 2 ;;
+esac

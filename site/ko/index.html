@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MacUp — 터미널에서 하는 무료 Mac 상태 점검 및 정리</title>
+<meta name="description" content="macOS용 무료 오픈 소스 터미널 도구: “시스템 데이터” 뒤에 숨은 캐시를 정리하고 SSD, 배터리, RAM, 프로세서, 그래픽, 보안을 확인한 뒤 Mac 상태 %와 PDF 보고서를 제공합니다. 앱 없음, 구독 없음, 휴지통으로만 이동.">
+<link rel="canonical" href="https://macup.cdav.io/ko/">
+<link rel="alternate" hreflang="en" href="https://macup.cdav.io/">
+<link rel="alternate" hreflang="ro" href="https://macup.cdav.io/ro/">
+<link rel="alternate" hreflang="de" href="https://macup.cdav.io/de/">
+<link rel="alternate" hreflang="it" href="https://macup.cdav.io/it/">
+<link rel="alternate" hreflang="fr" href="https://macup.cdav.io/fr/">
+<link rel="alternate" hreflang="ko" href="https://macup.cdav.io/ko/">
+<link rel="alternate" hreflang="zh-Hans" href="https://macup.cdav.io/zh/">
+<link rel="alternate" hreflang="x-default" href="https://macup.cdav.io/">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f6f6f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacUp">
+<meta property="og:url" content="https://macup.cdav.io/ko/">
+<meta property="og:title" content="MacUp — Mac 상태를 터미널에서 바로. 무료.">
+<meta property="og:description" content="macOS용 무료 오픈 소스 터미널 도구: “시스템 데이터” 뒤에 숨은 캐시를 정리하고 SSD, 배터리, RAM, 프로세서, 그래픽, 보안을 확인한 뒤 Mac 상태 %와 PDF 보고서를 제공합니다. 앱 없음, 구독 없음, 휴지통으로만 이동.">
+<meta property="og:image" content="https://macup.cdav.io/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("macup-theme");
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+  
+})();
+</script>
+<link rel="stylesheet" href="/assets/style.css?v=63bb0a6321">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "MacUp", "applicationCategory": "UtilitiesApplication", "operatingSystem": "macOS 13 or later", "description": "macOS용 무료 오픈 소스 터미널 도구: “시스템 데이터” 뒤에 숨은 캐시를 정리하고 SSD, 배터리, RAM, 프로세서, 그래픽, 보안을 확인한 뒤 Mac 상태 %와 PDF 보고서를 제공합니다. 앱 없음, 구독 없음, 휴지통으로만 이동.", "url": "https://macup.cdav.io/ko/", "inLanguage": "ko", "license": "https://opensource.org/licenses/MIT", "codeRepository": "https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="/ko/" aria-label="MacUp">
+      <img src="/favicon.svg" alt="" width="30" height="30"><span>MacUp</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#demo">데모</a>
+      <a href="#how">사용 방법</a>
+      <a href="#report">상태 보고서</a>
+      <a href="#faq">자주 묻는 질문</a>
+    </nav>
+    <div class="tools">
+      <label class="lang">
+        <span class="sr-only">언어</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 0c2.5 2.4 3.8 5.4 3.8 9s-1.3 6.6-3.8 9m0-18C9.5 5.4 8.2 8.4 8.2 12s1.3 6.6 3.8 9M3.5 9h17M3.5 15h17"/></svg>
+        <select id="lang" aria-label="언어"><option value="en">English</option><option value="ro">Română</option><option value="de">Deutsch</option><option value="it">Italiano</option><option value="fr">Français</option><option value="ko" selected>한국어</option><option value="zh">中文</option></select>
+      </label>
+      <button class="icon-btn" id="theme" type="button" aria-label="라이트 / 다크 전환" title="라이트 / 다크 전환">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO" aria-label="GitHub" title="GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.6 9.6 0 0 1 5 0c1.9-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9V21c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">무료 · 오픈 소스 · 터미널</p>
+    <h1>Mac의 상태를<br><span class="hl">터미널에서 바로.</span></h1>
+    <p class="lead">명령어 하나로 “시스템 데이터” 뒤에 숨은 캐시를 찾고, SSD·배터리·메모리·프로세서·그래픽·보안을 확인한 뒤 알기 쉬운 PDF 상태 보고서를 다운로드 폴더에 저장합니다.</p>
+    <div class="install" data-copy-box>
+      <span class="prompt" aria-hidden="true">$</span>
+      <code data-copy-text>curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash</code>
+      <button class="copy" type="button" data-copy data-label="복사" data-done="복사됨">복사</button>
+    </div>
+    <p class="then">그다음 입력 <code class="kbd">macup</code> · <a href="#demo">60초 데모 보기 →</a></p>
+    <ul class="badges">
+      <li>앱 없음 · 계정 없음 · 구독 없음</li>
+      <li>휴지통으로만 — 영구 삭제 없음</li>
+      <li>관리자 암호 불필요</li>
+      <li>macOS 13+ · Apple 실리콘 및 Intel</li>
+    </ul>
+  </div>
+</section>
+
+<section id="demo" class="demo">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">실행 화면 보기</p>
+      <h2>60초 안에 모든 화면을</h2>
+      <p class="lead">MacUp이 터미널에 보여 주는 화면 그대로입니다. 재생을 누르거나 챕터를 고르세요.</p>
+    </div>
+    <div class="player" id="player" data-play="재생" data-pause="일시 정지" data-replay="다시 재생">
+      <div class="term">
+        <div class="term-bar"><i></i><i></i><i></i><span>Terminal — macup</span></div>
+        <div class="term-screen" id="screen" aria-live="off"></div>
+        <div class="pdf-stage" id="pdfstage" hidden><div class="paper dark"><div class="pp"><div class="pp-head"><span class="pp-logo">✦ MacUp</span><span>2026-10-31</span></div><h4>Mac 상태 보고서</h4><p class="pp-sub">MacBook Air · Apple M3 · macOS 15</p><div class="pp-score"><div class="ring" style="--p:89"><div><b>89<i>%</i></b><span>좋음</span></div></div><p>안전하게 지울 수 있는 숨은 캐시: <b class="y">8.6 GB</b></p></div><div class="tiles"><div class="tile"><small>저장 공간</small><b>72<i>%</i></b><span class="tb"><span style="--p:72%"></span></span><em>63.2 GB 여유 (13%)</em></div><div class="tile"><small>SSD 상태</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>SMART: Verified</em></div><div class="tile"><small>배터리</small><b>91<i>%</i></b><span class="tb"><span style="--p:91%"></span></span><em>상태 91% · 312회 충전</em></div><div class="tile"><small>메모리 (RAM)</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>38% 여유 · 스왑 0.4 GB</em></div><div class="tile"><small>프로세서</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>부하 18% · 재시동 후 3일</em></div><div class="tile"><small>보호</small><b>85<i>%</i></b><span class="tb"><span style="--p:85%"></span></span><em>7개 중 6개 보호 켜짐</em></div></div></div></div></div>
+      </div>
+      <div class="ctrl">
+        <button class="play" id="playbtn" type="button" aria-label="재생">
+          <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5Z"/></svg>
+          <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+        </button>
+        <div class="bar" aria-hidden="true"><span id="progress"></span></div>
+      </div>
+      <ol class="chapters" id="chapters">
+        <li><button type="button" data-ch="0"><b>1</b>스마트 정리</button></li>
+        <li><button type="button" data-ch="1"><b>2</b>이 Mac</button></li>
+        <li><button type="button" data-ch="2"><b>3</b>보호</button></li>
+        <li><button type="button" data-ch="3"><b>4</b>성능</button></li>
+        <li><button type="button" data-ch="4"><b>5</b>전체 검사</button></li>
+        <li><button type="button" data-ch="5"><b>PDF</b>PDF 보고서</button></li>
+      </ol>
+      <p class="caption" id="caption"></p>
+      <p class="note">예시 값입니다 — 실제 Mac에서는 그 Mac의 수치가 표시됩니다.</p>
+    </div>
+  </div>
+  <script type="application/json" id="demo-data">{"chapters": [{"cmd": "macup clean", "cap": "스마트 정리는 숨은 캐시를 크기와 함께 모두 보여 줍니다. Enter를 누르면 선택한 항목이 휴지통으로 이동합니다.", "lines": [{"k": "title", "n": "1", "t": "스마트 정리"}, {"k": "rule"}, {"k": "text", "t": "숨은 캐시는 계속 쌓입니다 — macOS는 이를 “시스템 데이터”로 표시합니다.", "c": "dim"}, {"k": "text", "t": "캐시는 자동으로 다시 만들어지므로 지워도 안전합니다. Mac을 포맷하거나 초기화할 필요가 없습니다.", "c": "dim"}, {"k": "blank"}, {"k": "spin", "t": "검사 중 (읽기 전용)…", "ms": 1300}, {"k": "opt", "n": "1", "on": true, "l": "앱 캐시", "v": "3.1 GB", "x": "자동으로 다시 생성됨"}, {"k": "opt", "n": "2", "on": true, "l": "브라우저 캐시", "v": "2.4 GB", "x": "자동으로 다시 생성됨"}, {"k": "opt", "n": "3", "on": true, "l": "로그", "v": "412.6 MB", "x": "제거해도 안전함"}, {"k": "opt", "n": "4", "on": true, "l": "충돌 및 진단 보고서", "v": "96.3 MB", "x": "제거해도 안전함"}, {"k": "opt", "n": "5", "on": false, "l": "개발자 캐시", "v": "2.6 GB", "x": "Xcode, npm, pip, Homebrew…"}, {"k": "opt", "n": "6", "on": false, "l": "브라우저 방문 기록만", "v": "58.1 MB", "x": "암호와 북마크는 유지됨"}, {"k": "opt", "n": "7", "on": false, "l": "저장된 앱 윈도우", "v": "12.4 MB", "x": "앱이 이전 윈도우 없이 열림"}, {"k": "rule"}, {"k": "text", "t": "선택됨: 6.0 GB  · 모두 휴지통으로 이동", "c": "b"}, {"k": "blank"}, {"k": "text", "t": "Enter = 정리 · 숫자 = 선택/해제 (예: 5 6) · p = 미리 보기 · q = 취소", "c": "dim"}, {"k": "input", "t": "⏎"}, {"k": "spin", "t": "휴지통으로 이동 중…", "ms": 1400}, {"k": "row", "i": "✓", "s": "ok", "l": "앱 캐시", "v": "휴지통으로 이동함"}, {"k": "row", "i": "✓", "s": "ok", "l": "브라우저 캐시", "v": "휴지통으로 이동함"}, {"k": "row", "i": "✓", "s": "ok", "l": "로그", "v": "휴지통으로 이동함"}, {"k": "row", "i": "✓", "s": "ok", "l": "충돌 및 진단 보고서", "v": "휴지통으로 이동함"}, {"k": "rule"}, {"k": "text", "t": "휴지통으로 이동함: 6.0 GB", "c": "y b"}, {"k": "text", "t": "파일은 휴지통에 안전하게 있습니다. 확실할 때 휴지통을 비워 공간을 되찾으세요.", "c": "dim"}]}, {"cmd": "macup mac", "cap": "이 Mac: 저장 공간, SSD 상태, 배터리 상태와 충전 횟수, 메모리, 프로세서, 그래픽을 한 화면에.", "lines": [{"k": "title", "n": "2", "t": "이 Mac"}, {"k": "rule"}, {"k": "text", "t": "MacBook Air  ·  Apple M3  ·  macOS 15", "c": "b"}, {"k": "blank"}, {"k": "group", "t": "저장 공간"}, {"k": "row", "i": "·", "s": "info", "l": "사용됨", "v": "431.2 GB / 494.4 GB", "b": 87}, {"k": "row", "i": "!", "s": "warn", "l": "여유", "v": "63.2 GB  (13%)"}, {"k": "row", "i": "!", "s": "warn", "l": "지울 수 있는 숨은 캐시", "v": "8.6 GB"}, {"k": "group", "t": "SSD 상태"}, {"k": "row", "i": "·", "s": "info", "l": "모델", "v": "APPLE SSD AP0512Z"}, {"k": "row", "i": "✓", "s": "ok", "l": "S.M.A.R.T.", "v": "Verified"}, {"k": "row", "i": "✓", "s": "ok", "l": "상태 (남은 수명)", "v": "수명 97% 남음"}, {"k": "group", "t": "배터리"}, {"k": "row", "i": "✓", "s": "ok", "l": "상태", "v": "91%  Normal", "b": 91}, {"k": "row", "i": "·", "s": "info", "l": "충전 횟수", "v": "312  (대부분의 Mac 배터리는 1000회 기준)"}, {"k": "row", "i": "·", "s": "info", "l": "충전량", "v": "78%  충전 중", "b": 78}, {"k": "group", "t": "메모리 (RAM)"}, {"k": "row", "i": "·", "s": "info", "l": "설치됨", "v": "16 GB"}, {"k": "row", "i": "✓", "s": "ok", "l": "여유 메모리", "v": "38%", "b": 38}, {"k": "row", "i": "✓", "s": "ok", "l": "사용 중인 스왑", "v": "0.4 GB"}, {"k": "group", "t": "프로세서"}, {"k": "row", "i": "·", "s": "info", "l": "칩", "v": "Apple M3"}, {"k": "row", "i": "·", "s": "info", "l": "코어", "v": "8개 (성능 4 + 효율 4)"}, {"k": "row", "i": "✓", "s": "ok", "l": "부하", "v": "18%", "b": 18}, {"k": "row", "i": "✓", "s": "ok", "l": "온도", "v": "정상 — 속도 저하 없음"}, {"k": "row", "i": "✓", "s": "ok", "l": "재시동 후 실행 시간", "v": "3일"}, {"k": "group", "t": "그래픽"}, {"k": "row", "i": "·", "s": "info", "l": "그래픽", "v": "Apple M3 · 10코어"}, {"k": "row", "i": "·", "s": "info", "l": "디스플레이", "v": "Color LCD (2560 x 1664 @ 60Hz)"}, {"k": "blank"}, {"k": "text", "t": "팁: 전체 상태 %와 PDF 보고서를 보려면 “macup check”를 실행하세요.", "c": "dim"}]}, {"cmd": "macup protect", "cap": "보호는 macOS에 이미 내장된 보안을 읽기 전용으로 확인하고, 켜는 위치까지 알려 줍니다.", "lines": [{"k": "title", "n": "3", "t": "보호"}, {"k": "rule"}, {"k": "text", "t": "macOS에 기본 내장된 보안을 읽기 전용으로 확인합니다. MacUp은 백신 프로그램이 아닙니다.", "c": "dim"}, {"k": "blank"}, {"k": "row", "i": "✓", "s": "ok", "l": "Gatekeeper", "v": "켬", "x": "앱이 열리기 전에 확인"}, {"k": "row", "i": "✓", "s": "ok", "l": "시스템 무결성 보호", "v": "켬", "x": "핵심 시스템 파일 잠금"}, {"k": "row", "i": "✓", "s": "ok", "l": "FileVault", "v": "켬", "x": "Mac 분실 시 디스크 암호화"}, {"k": "row", "i": "!", "s": "warn", "l": "방화벽", "v": "끔", "x": "설정 → 네트워크 → 방화벽"}, {"k": "row", "i": "✓", "s": "ok", "l": "XProtect", "v": "켬", "x": "Apple 악성 코드 보호 · v5368"}, {"k": "row", "i": "✓", "s": "ok", "l": "보안 대응", "v": "켬", "x": "긴급 보안 수정이 자동 설치됨"}, {"k": "row", "i": "✓", "s": "ok", "l": "macOS 자동 업데이트", "v": "켬", "x": "macOS를 최신 상태로 유지"}, {"k": "rule"}, {"k": "score", "l": "보호", "p": 85, "x": "6/7"}, {"k": "blank"}, {"k": "text", "t": "대부분의 Mac에는 유료 백신이 필요 없습니다: XProtect, Gatekeeper, 자동 업데이트가 무료로 내장되어 있습니다.", "c": "dim"}, {"k": "text", "t": "“Mac이 감염되었습니다” 팝업은 사기입니다. macOS를 최신으로 유지하고 신뢰할 수 있는 곳에서 앱을 설치하세요.", "c": "dim"}]}, {"cmd": "macup perf", "cap": "성능은 부하, 가장 바쁜 앱, 삭제된 앱이 남긴 시작 항목을 보여 줍니다.", "lines": [{"k": "title", "n": "4", "t": "성능"}, {"k": "rule"}, {"k": "row", "i": "✓", "s": "ok", "l": "부하", "v": "18%", "b": 18}, {"k": "row", "i": "✓", "s": "ok", "l": "온도", "v": "정상 — 속도 저하 없음"}, {"k": "row", "i": "✓", "s": "ok", "l": "재시동 후 실행 시간", "v": "3일"}, {"k": "group", "t": "가장 바쁜 앱 (프로세서)"}, {"k": "proc", "l": "Safari", "v": "12.4%"}, {"k": "proc", "l": "Photos", "v": "6.1%"}, {"k": "proc", "l": "Mail", "v": "2.3%"}, {"k": "group", "t": "가장 큰 앱 (메모리)"}, {"k": "proc", "l": "Safari", "v": "1.8 GB"}, {"k": "proc", "l": "Xcode", "v": "1.2 GB"}, {"k": "proc", "l": "Music", "v": "0.6 GB"}, {"k": "blank"}, {"k": "row", "i": "·", "s": "info", "l": "시작 항목", "v": "9"}, {"k": "row", "i": "!", "s": "warn", "l": "손상된 시작 항목", "v": "2"}, {"k": "text", "t": "더 이상 없는 앱을 가리킵니다. 무해하지만 제거할 수 있습니다.", "c": "dim"}, {"k": "blank"}, {"k": "text", "t": "팁: 쓰지 않는 앱은 종료하고, 몇 주째 켜져 있다면 재시동하세요.", "c": "dim"}]}, {"cmd": "macup check", "cap": "전체 검사는 모든 항목을 확인해 Mac 상태 %를 매기고 해야 할 일을 알려 줍니다.", "lines": [{"k": "title", "n": "5", "t": "전체 검사"}, {"k": "rule"}, {"k": "text", "t": "모든 검사를 실행하고 Mac 상태 %를 매긴 뒤 다운로드에 PDF 보고서를 저장합니다.", "c": "dim"}, {"k": "spin", "t": "Mac 확인 중 (읽기 전용)…", "ms": 1700}, {"k": "big", "l": "Mac 상태", "p": 89, "g": "좋음"}, {"k": "blank"}, {"k": "score", "l": "저장 공간", "p": 72, "x": ""}, {"k": "score", "l": "SSD 상태", "p": 100, "x": ""}, {"k": "score", "l": "배터리", "p": 91, "x": ""}, {"k": "score", "l": "메모리 (RAM)", "p": 100, "x": ""}, {"k": "score", "l": "프로세서", "p": 100, "x": ""}, {"k": "score", "l": "보호", "p": 85, "x": ""}, {"k": "score", "l": "숨은 캐시", "p": 85, "x": ""}, {"k": "blank"}, {"k": "group", "t": "→  해야 할 일"}, {"k": "rec", "i": "✕", "s": "bad", "t": "디스크 공간 부족 (13% 여유)", "d": "여유 공간이 15% 미만이면 macOS가 느려집니다. 먼저 숨은 캐시를 지우고 휴지통을 비우세요.", "c": "$ macup clean"}, {"k": "rec", "i": "!", "s": "warn", "t": "숨은 캐시 8.6 GB 정리 가능", "d": "앱이 이 파일을 자동으로 다시 만듭니다. 스마트 정리가 휴지통으로 옮깁니다 — Mac을 포맷하거나 초기화할 필요가 없습니다.", "c": "$ macup clean"}, {"k": "rec", "i": "!", "s": "warn", "t": "방화벽을 켜세요", "d": "설정 → 네트워크 → 방화벽. 원치 않는 수신 연결만 차단합니다.", "c": ""}, {"k": "rule"}, {"k": "spin", "t": "PDF 보고서 저장 중…", "ms": 1200}, {"k": "saved", "t": "PDF 보고서 저장됨:", "p": "~/Downloads/MacUp-Health-Report-2026-10-31-1720.pdf"}]}, {"cmd": "", "cap": "…그리고 3페이지 PDF 보고서를 다운로드 폴더에 저장합니다.", "pdf": true, "lines": []}]}</script>
+</section>
+
+<section id="how" class="how">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">30초면 시작</p>
+      <h2>세 단계면 끝. 다운로드 페이지 없음.</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="n">1</span><h3>터미널 열기</h3><p>⌘ Space를 누르고 “터미널”을 입력한 뒤 Enter를 누르세요.</p><div class="keys"><kbd>⌘</kbd><kbd>Space</kbd><span>Terminal</span><kbd>↩</kbd></div></li>
+      <li><span class="n">2</span><h3>명령어 붙여넣기</h3><p>홈 폴더에 MacUp을 설치합니다. 암호 불필요, 백그라운드 실행 없음.</p>
+        <div class="install small" data-copy-box><code data-copy-text>curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash</code><button class="copy" type="button" data-copy data-label="복사" data-done="복사됨">복사</button></div></li>
+      <li><span class="n">3</span><h3>macup 입력</h3><p>1–5를 고르고 q로 종료하세요. 언제든 macup uninstall로 제거할 수 있습니다.</p><div class="mini-term"><span class="p">$</span> macup<br><span class="d">1–5 선택 (종료는 q):</span> <span class="y">5</span></div></li>
+    </ol>
+
+    <div class="head head-gap">
+      <p class="eyebrow">기능</p>
+      <h2>명령어 하나에 다섯 가지 도구</h2>
+    </div>
+    <div class="features">
+      <article class="feat"><span class="num">1</span><h3>스마트 정리</h3><p>앱 캐시, 브라우저 캐시, 로그, 충돌 보고서와 30가지 이상의 개발자 캐시를 찾습니다. 먼저 크기를 보여 주고, 고른 항목만 휴지통으로 옮깁니다.</p><code>macup clean</code></article>
+      <article class="feat"><span class="num">2</span><h3>이 Mac</h3><p>사용 및 여유 공간, SSD 모델과 S.M.A.R.T. 상태, 배터리 상태 %, 충전 횟수와 충전량, RAM과 스왑, 프로세서 코어·부하·온도, 그래픽과 디스플레이.</p><code>macup mac</code></article>
+      <article class="feat"><span class="num">3</span><h3>보호</h3><p>Gatekeeper, 시스템 무결성 보호, FileVault, 방화벽, XProtect, 보안 대응, 자동 업데이트 — 켜짐 또는 꺼짐.</p><code>macup protect</code></article>
+      <article class="feat"><span class="num">4</span><h3>성능</h3><p>부하, 프로세서와 메모리 기준 가장 바쁜 앱, 시작 항목, 삭제된 앱이 남긴 손상된 시작 항목.</p><code>macup perf</code></article>
+      <article class="feat star"><span class="num">5</span><span class="tag">가장 인기</span><h3>전체 검사</h3><p>위의 모든 것, 하나의 Mac 상태 %, 다운로드 폴더에 저장되는 3페이지 PDF 보고서.</p><code>macup check</code></article>
+    </div>
+  </div>
+</section>
+
+<section class="ghost">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">“시스템 데이터” 속 유령</p>
+      <h2>숨은 캐시일 뿐 — 고장 난 Mac이 아닙니다</h2>
+      <p class="lead">macOS는 캐시, 로그, 충돌 보고서를 숨은 폴더에 보관합니다. 몇 달이면 수 기가바이트로 늘어나 설정에서 “시스템 데이터”로 보입니다. 앱이 스스로 다시 만들기 때문에 지워도 안전합니다.</p>
+    </div>
+    <div class="disk">
+      <div class="disk-row">
+        <span class="disk-label">정리 전</span>
+        <div class="disk-bar"><i class="s-sys" style="--w:9%"></i><i class="s-apps" style="--w:24%"></i><i class="s-docs" style="--w:54%"></i><i class="s-cache" style="--w:4.5%"></i><i class="s-free" style="--w:8.5%"></i></div>
+        <span class="disk-val">42 GB 여유</span>
+      </div>
+      <div class="disk-row">
+        <span class="disk-label">스마트 정리 후</span>
+        <div class="disk-bar"><i class="s-sys" style="--w:9%"></i><i class="s-apps" style="--w:24%"></i><i class="s-docs" style="--w:54%"></i><i class="s-cache" style="--w:.5%"></i><i class="s-free grow" style="--w:12.5%"></i></div>
+        <span class="disk-val hl-text">62 GB 여유</span>
+      </div>
+      <ul class="legend">
+        <li><i class="s-sys"></i>macOS</li>
+        <li><i class="s-apps"></i>앱</li>
+        <li><i class="s-docs"></i>문서</li>
+        <li><i class="s-cache"></i>숨은 캐시</li>
+        <li><i class="s-free"></i>여유</li>
+      </ul>
+    </div>
+    <div class="ghost-grid">
+      <div class="card">
+        <h3>숨어 있는 곳</h3>
+        <ul class="paths">
+          <li><code>~/Library/Caches</code><span>앱 캐시</span></li>
+          <li><code>~/Library/Caches/Google · Firefox · Safari</code><span>브라우저 캐시</span></li>
+          <li><code>~/Library/Logs</code><span>로그</span></li>
+          <li><code>~/Library/Logs/DiagnosticReports</code><span>충돌 및 진단 보고서</span></li>
+          <li><code>~/Library/Developer/Xcode/DerivedData</code><span>개발자 캐시</span></li>
+          <li><code>~/.npm · ~/Library/Caches/pip · Homebrew</code><span>개발자 캐시</span></li>
+        </ul>
+      </div>
+      <div class="card accent">
+        <div class="big-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M24 6c-8 0-14 6-14 14v20l5-4 4.5 4L24 36l4.5 4 4.5-4 5 4V20c0-8-6-14-14-14Z"/><circle cx="18.5" cy="21" r="2.6"/><circle cx="29.5" cy="21" r="2.6"/></svg>
+        </div>
+        <h3>Mac을 포맷하거나 초기화할 필요가 없습니다</h3>
+        <p>공간을 되찾으려고 Mac을 지우면 몇 시간이 걸리고 모든 것을 복원해야 합니다. 캐시 정리는 1분이면 되고 — 모두 먼저 휴지통으로 가므로 되돌릴 수 있습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="report" class="report">
+  <div class="wrap report-in">
+    <div class="report-text">
+      <p class="eyebrow">전체 검사</p>
+      <h2>Mac 상태 %를 PDF로</h2>
+      <p class="lead">macup check는 Mac에 100점 만점의 점수를 매기고 3페이지 PDF를 다운로드 폴더에 저장합니다 — 보관, 인쇄, 공유가 쉽습니다.</p>
+      <h3 class="sub">점수 계산 방법</h3>
+      <ul class="weights"><li><span>저장 공간</span><span class="wb"><span style="--p:100%"></span></span><b>20%</b></li><li><span>SSD 상태</span><span class="wb"><span style="--p:75%"></span></span><b>15%</b></li><li><span>배터리</span><span class="wb"><span style="--p:75%"></span></span><b>15%</b></li><li><span>메모리 (RAM)</span><span class="wb"><span style="--p:75%"></span></span><b>15%</b></li><li><span>보호</span><span class="wb"><span style="--p:75%"></span></span><b>15%</b></li><li><span>프로세서</span><span class="wb"><span style="--p:50%"></span></span><b>10%</b></li><li><span>숨은 캐시</span><span class="wb"><span style="--p:50%"></span></span><b>10%</b></li></ul>
+      <p class="small-note">iMac의 배터리처럼 Mac에 없는 부품은 계산에서 빠집니다.</p>
+      <p class="grades"><b>90%+</b> 매우 좋음 · <b>75%+</b> 좋음 · <b>55%+</b> 보통 · <b>&lt;55%</b> 점검 필요</p>
+      <div class="hw">
+        <h3>모든 보고서에서 확인</h3>
+        <p>RAM, SSD, 배터리, 그래픽, 프로세서 — 상태를 명확히 보여 주고, 문제가 있으면 정확한 해결 방법이나 명령어를 알려 줍니다.</p>
+        <ul class="chips"><li>RAM</li><li>SSD</li><li>배터리</li><li>그래픽</li><li>프로세서</li></ul>
+      </div>
+    </div>
+    <div class="report-visual">
+      <div class="pages">
+        <figure class="pg pg1"><div class="paper dark"><div class="pp"><div class="pp-head"><span class="pp-logo">✦ MacUp</span><span>2026-10-31</span></div><h4>Mac 상태 보고서</h4><p class="pp-sub">MacBook Air · Apple M3 · macOS 15</p><div class="pp-score"><div class="ring" style="--p:89"><div><b>89<i>%</i></b><span>좋음</span></div></div><p>안전하게 지울 수 있는 숨은 캐시: <b class="y">8.6 GB</b></p></div><div class="tiles"><div class="tile"><small>저장 공간</small><b>72<i>%</i></b><span class="tb"><span style="--p:72%"></span></span><em>63.2 GB 여유 (13%)</em></div><div class="tile"><small>SSD 상태</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>SMART: Verified</em></div><div class="tile"><small>배터리</small><b>91<i>%</i></b><span class="tb"><span style="--p:91%"></span></span><em>상태 91% · 312회 충전</em></div><div class="tile"><small>메모리 (RAM)</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>38% 여유 · 스왑 0.4 GB</em></div><div class="tile"><small>프로세서</small><b>100<i>%</i></b><span class="tb"><span style="--p:100%"></span></span><em>부하 18% · 재시동 후 3일</em></div><div class="tile"><small>보호</small><b>85<i>%</i></b><span class="tb"><span style="--p:85%"></span></span><em>7개 중 6개 보호 켜짐</em></div></div></div></div><figcaption>1 · 점수와 여섯 개의 타일</figcaption></figure>
+        <figure class="pg pg2" aria-hidden="true"><div class="paper light"><div class="pp"><b>세부 정보</b><span class="dl"><em>저장 공간</em><span class="tb"><span style="--p:87%"></span></span></span><span class="dl"><em>배터리</em><span class="tb"><span style="--p:91%"></span></span></span><span class="dl"><em>메모리 (RAM)</em><span class="tb"><span style="--p:62%"></span></span></span><span class="dl"><em>프로세서</em><span class="tb"><span style="--p:18%"></span></span></span><span class="dl"><em>SSD</em><span class="tb"><span style="--p:100%"></span></span></span><span class="dl"><em>그래픽</em><span class="tb"><span style="--p:100%"></span></span></span></div></div><figcaption>2 · 모든 세부 정보</figcaption></figure>
+        <figure class="pg pg3" aria-hidden="true"><div class="paper light"><div class="pp"><b>해야 할 일</b><span class="ri"><i>1</i>디스크 공간 부족 (13% 여유)</span><span class="ri"><i>2</i>숨은 캐시 8.6 GB 정리 가능</span><span class="ri"><i>3</i>방화벽을 켜세요</span><span class="good-box">알아 두면 좋은 점</span></div></div><figcaption>3 · 해야 할 일, 단계별로</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="av">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">솔직한 답변</p>
+      <h2>Mac에 유료 백신이 필요할까요?</h2>
+      <p class="lead">대부분의 사람에게는 필요 없습니다. 모든 Mac에는 Apple이 자동으로 업데이트하는 무료 보호 기능이 이미 들어 있습니다. 연간 “바이러스 정리” 구독이 이를 더 강하게 만들지는 않습니다.</p>
+    </div>
+    <div class="av-grid">
+      <div class="card">
+        <h3>이미 Mac에 내장 — 무료</h3>
+        <ul class="shield">
+          <li><b>XProtect</b><span>백그라운드에서 업데이트되는 Apple의 악성 코드 스캐너</span></li>
+          <li><b>Gatekeeper</b><span>앱이 열리기 전에 확인</span></li>
+          <li><b>시스템 무결성 보호</b><span>핵심 시스템 파일 잠금</span></li>
+          <li><b>FileVault</b><span>Mac 분실 시 디스크 암호화</span></li>
+          <li><b>방화벽</b><span>원치 않는 수신 연결 차단</span></li>
+          <li><b>보안 대응</b><span>긴급 보안 수정이 자동으로 설치</span></li>
+        </ul>
+      </div>
+      <div class="av-side">
+        <div class="card scam">
+          <div class="fake-popup" aria-hidden="true"><b>⚠︎ VIRUS DETECTED!</b><span>Your Mac is infected (3)</span><i>Clean now — $69/yr</i></div>
+          <h3>“Mac이 감염되었습니다!” 팝업은 사기입니다</h3>
+          <p>탭을 닫으세요. 번호로 전화하지 말고, 권하는 것을 설치하지 말고, 결제하지 마세요.</p>
+        </div>
+        <div class="card">
+          <h3>Mac을 정말로 안전하게 하는 것</h3>
+          <ul class="ticks"><li>macOS를 최신 상태로 유지</li><li>App Store나 신뢰할 수 있는 개발자의 앱만 설치</li><li>FileVault와 방화벽을 켜 두기 — macup protect가 둘 다 보여 줍니다</li></ul>
+        </div>
+      </div>
+    </div>
+    <p class="center-note">MacUp은 백신이 아닙니다. macOS에 이미 있는 보호 기능이 켜져 있는지 보여 줍니다.</p>
+  </div>
+</section>
+
+<section class="compare">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">비교</p>
+      <h2>왜 매년 돈을 내나요?</h2>
+    </div>
+    <div class="table-scroll" tabindex="0">
+      <table class="cmp">
+        <thead><tr><th scope="col">기능</th><th scope="col" class="me">MacUp</th><th scope="col">구독형 클리너 앱</th><th scope="col">“Mac 백신” 구독</th><th scope="col">직접 정리</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">가격</th><td class="me">무료, 오픈 소스</td><td>연간 구독</td><td>연간 구독</td><td>무료</td></tr>
+          <tr><th scope="row">업데이트 포함</th><td class="me">예, 평생</td><td>결제하는 동안만</td><td>결제하는 동안만</td><td>—</td></tr>
+          <tr><th scope="row">계정 필요</th><td class="me">아니요</td><td>대개 필요</td><td>대개 필요</td><td>아니요</td></tr>
+          <tr><th scope="row">제거 전에 모두 보여 줌</th><td class="me">예 — 크기 + 미리 보기</td><td>제품마다 다름</td><td>—</td><td>직접 결정</td></tr>
+          <tr><th scope="row">휴지통으로 이동 (되돌리기)</th><td class="me">항상</td><td>제품마다 다름</td><td>—</td><td>실수로 영구 삭제하기 쉬움</td></tr>
+          <tr><th scope="row">개발자 캐시 (Xcode, npm, Cargo…)</th><td class="me">30가지 이상</td><td>일부</td><td>아니요</td><td>찾기 어려움</td></tr>
+          <tr><th scope="row">상태 보고서 (SSD, 배터리, RAM, CPU, GPU)</th><td class="me">예 + PDF</td><td>제품마다 다름</td><td>아니요</td><td>여러 곳에 흩어져 있음</td></tr>
+          <tr><th scope="row">오프라인 작동, 원격 측정 없음</th><td class="me">예</td><td>제품마다 다름</td><td>아니요 — 클라우드 검사</td><td>예</td></tr>
+          <tr><th scope="row">악성 코드 검사</th><td class="me">아니요 — macOS가 담당 (XProtect)</td><td>일부</td><td>예</td><td>아니요</td></tr>
+          <tr><th scope="row">공포 마케팅</th><td class="me">절대 없음</td><td>가끔</td><td>가끔</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="center-note">특정 회사가 아닌 제품 유형 간의 일반적인 비교입니다.</p>
+  </div>
+</section>
+
+<section class="safe">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">안전이 먼저</p>
+      <h2>파일을 잃을 수 없도록 설계</h2>
+    </div>
+    <div class="safe-grid">
+      <div class="card"><span class="ico">🗑</span><h3>휴지통으로만</h3><p>정리하면 파일이 휴지통으로 이동합니다. MacUp은 휴지통을 비우거나 영구 삭제하지 않습니다.</p></div>
+      <div class="card"><span class="ico">♻︎</span><h3>다시 만들어지는 캐시만</h3><p>개발자 정리는 정해진 목록만 사용합니다. 내려받은 AI 모델, Xcode 아카이브, 영구 삭제하는 작업은 절대 제안하지 않습니다.</p></div>
+      <div class="card"><span class="ico">👁</span><h3>읽기 전용 검사</h3><p>이 Mac, 보호, 성능, 전체 검사는 읽기만 합니다. 설정을 바꾸지 않습니다.</p></div>
+      <div class="card"><span class="ico">🔒</span><h3>암호 없음, 백그라운드 없음</h3><p>사용하는 동안에만 사용자 권한으로 실행됩니다. 관리자 암호, 로그인 항목, 원격 측정이 없습니다.</p></div>
+      <div class="card"><span class="ico">⏸</span><h3>사용 중인 파일은 건너뜀</h3><p>앱이 지금 사용 중인 파일은 MacUp이 건드리지 않습니다.</p></div>
+      <div class="card"><span class="ico">{ }</span><h3>오픈 소스</h3><p>모든 코드가 GitHub에 있습니다. 실행하기 전에 install.sh를 읽어 보세요 — 짧습니다.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="faq">
+  <div class="wrap faq-in">
+    <h2>자주 묻는 질문</h2>
+    <div class="qa">
+      <details><summary>MacUp은 정말 무료인가요?</summary><p>예. MIT 라이선스의 오픈 소스입니다 — 체험판, 구독, 계정, 광고가 없습니다.</p></details>
+      <details><summary>왜 앱이 아니라 터미널인가요?</summary><p>터미널 도구는 작고 투명합니다: 설치 프로그램, 관리자 암호, 백그라운드 프로세스가 없습니다. 실행되는 모든 줄을 직접 읽을 수 있습니다.</p></details>
+      <details><summary>캐시를 지워도 안전한가요?</summary><p>예. 캐시는 앱이 스스로 다시 만드는 복사본입니다. MacUp은 이를 휴지통으로 옮기므로 휴지통을 비우기 전까지 잃는 것이 없고, 사용 중인 파일은 건너뜁니다.</p></details>
+      <details><summary>암호, 북마크, 문서를 잃게 되나요?</summary><p>아니요. MacUp은 문서, 사진, 암호, 북마크를 건드리지 않습니다. “브라우저 방문 기록만”은 선택 사항이며 기본적으로 꺼져 있습니다.</p></details>
+      <details><summary>SSD 수명 %가 왜 보이지 않나요?</summary><p>macOS는 S.M.A.R.T. 확인됨 또는 실패만 알려 줍니다. 무료 smartmontools를 한 번 설치하면 MacUp이 남은 수명 %를 보여 줍니다:</p><pre><code>brew install smartmontools</code></pre></details>
+      <details><summary>Intel Mac에서도 작동하나요?</summary><p>예 — macOS 13 Ventura 이상, Apple 실리콘과 Intel 모두 지원합니다.</p></details>
+      <details><summary>어떻게 업데이트하거나 제거하나요?</summary><p>macup update는 최신 버전을 설치합니다. macup uninstall은 완전히 제거하며, PDF 보고서는 다운로드 폴더에 남습니다.</p><pre><code>macup update
+macup uninstall</code></pre></details>
+      <details><summary>MacUp이 데이터를 보내나요?</summary><p>아니요. 오프라인으로 작동하며 원격 측정이 없습니다. 이 웹사이트는 쿠키나 추적기를 사용하지 않습니다.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap cta-in">
+    <h2>Mac 건강 검진을 받아 보세요</h2>
+    <p class="lead">평생 무료. 터미널에 한 줄만 붙여 넣으세요.</p>
+    <div class="install" data-copy-box>
+      <span class="prompt" aria-hidden="true">$</span>
+      <code data-copy-text>curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash</code>
+      <button class="copy" type="button" data-copy data-label="복사" data-done="복사됨">복사</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>
+      <a class="brand" href="/ko/"><img src="/favicon.svg" alt="" width="26" height="26"><span>MacUp</span></a>
+      <p>터미널에서 확인하는 무료 오픈 소스 Mac 상태.</p>
+    </div>
+    <ul>
+      <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO">GitHub</a></li>
+      <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/LICENSE">MIT 라이선스</a></li>
+      <li><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/SECURITY.md">Security</a></li>
+      <li>쿠키 없음, 추적기 없음.</li>
+    </ul>
+    <p class="fine">© 2026 <a href="https://cdav.io">cdav.io</a> · Apple Inc.와 제휴하지 않았습니다. Mac 및 macOS는 Apple Inc.의 상표입니다.</p>
+  </div>
+</footer>
+
+<script src="/assets/app.js?v=63bb0a6321" defer></script>
+</body>
+</html>

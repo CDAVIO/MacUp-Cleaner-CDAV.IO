@@ -37,7 +37,7 @@
   try { if (location.pathname === "/" && !localStorage.getItem("macup-lang")) { var l = ((navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase().slice(0, 2); if (["ro","de","it","fr","ko","zh"].indexOf(l) > -1) location.replace("/" + l + "/" + location.hash); } } catch (e) {}
 })();
 </script>
-<link rel="stylesheet" href="/assets/style.css?v=5529e1fb9c">
+<link rel="stylesheet" href="/assets/style.css?v=32fbc590f5">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "MacUp", "applicationCategory": "UtilitiesApplication", "operatingSystem": "macOS 13 or later", "description": "Free, open-source Terminal tool for macOS: clear the hidden caches behind “System Data”, check SSD, battery, RAM, processor, graphics and security, and see your battery health % in a PDF report. No app, no subscription, Trash only.", "url": "https://macup.cdav.io/", "inLanguage": "en", "license": "https://opensource.org/licenses/MIT", "codeRepository": "https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
 </head>
 <body>
@@ -142,12 +142,12 @@
       <li><span class="n">1</span><h3>Open Terminal</h3><p>Press ⌘ Space, type “Terminal” and press Enter.</p><div class="keys"><kbd>⌘</kbd><kbd>Space</kbd><span>Terminal</span><kbd>↩</kbd></div></li>
       <li><span class="n">2</span><h3>Paste the command</h3><p>It installs MacUp in your home folder. No password, nothing runs in the background.</p>
         <div class="install small" data-copy-box><code data-copy-text>curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash</code><button class="copy" type="button" data-copy data-label="Copy" data-done="Copied">Copy</button></div></li>
-      <li><span class="n">3</span><h3>Type macup</h3><p>Choose 1–5, press q to quit. Remove it any time with macup uninstall.</p><div class="mini-term"><span class="p">$</span> macup<br><span class="d">Choose 1–5 (q to quit):</span> <span class="y">5</span></div></li>
+      <li><span class="n">3</span><h3>Type macup</h3><p>Choose 1–5, press q to quit. Remove it any time with macup uninstall.</p><div class="mini-term"><span class="p">$</span> macup<br><span class="d">Choose 1–6 (q to quit):</span> <span class="y">5</span></div></li>
     </ol>
 
     <div class="head head-gap">
       <p class="eyebrow">What it does</p>
-      <h2>Five tools, one command</h2>
+      <h2>Six tools, one command</h2>
     </div>
     <div class="features">
       <article class="feat"><span class="num">1</span><h3>Smart Clean</h3><p>Finds app caches, browser caches, logs, crash reports and 30+ developer caches. Shows sizes first, then moves your choice to the Trash.</p><code>macup clean</code></article>
@@ -155,6 +155,7 @@
       <article class="feat"><span class="num">3</span><h3>Protection</h3><p>Gatekeeper, System Integrity Protection, FileVault, firewall, XProtect, security responses and automatic updates — on or off.</p><code>macup protect</code></article>
       <article class="feat"><span class="num">4</span><h3>Performance</h3><p>Load, the busiest apps by processor and memory, startup items, and broken startup items left by deleted apps.</p><code>macup perf</code></article>
       <article class="feat star"><span class="num">5</span><span class="tag">Most popular</span><h3>Complete check</h3><p>Everything above: your battery health %, Good or Needs attention for each part, and a three-page PDF report in Downloads.</p><code>macup check</code></article>
+      <article class="feat"><span class="num">6</span><h3>Clear Recent Items</h3><p>Empties Apple menu → Recent Items (apps, documents, servers) — the same as Clear Menu. Your files and apps stay where they are.</p><code>macup recent</code></article>
     </div>
   </div>
 </section>
@@ -359,6 +360,6 @@ macup uninstall</code></pre></details>
   </div>
 </footer>
 
-<script src="/assets/app.js?v=5529e1fb9c" defer></script>
+<script src="/assets/app.js?v=32fbc590f5" defer></script>
 </body>
 </html>

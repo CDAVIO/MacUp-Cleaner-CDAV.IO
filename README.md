@@ -43,6 +43,7 @@ you like; it is short.
    3  Protection       Is macOS’s built-in security switched on?
    4  Performance      Load, busiest apps, startup items
    5  Complete check   Everything + battery health % + PDF report in Downloads
+   6  Recent Items     Empty the Apple menu’s Recent Items list
 ```
 
 | # | Command | What you get |
@@ -52,6 +53,7 @@ you like; it is short.
 | 3 | `macup protect` | Gatekeeper, System Integrity Protection, FileVault, Firewall, XProtect, security responses and automatic updates — on or off, and where to switch them on. |
 | 4 | `macup perf` | Load, busiest apps (processor and memory), startup items and broken startup items. |
 | 5 | `macup check` | Runs everything (read-only), shows your **battery health %**, marks every part **✓ Good** or **! Needs attention**, and saves `MacUp-Health-Report-….pdf` in **Downloads**. |
+| 6 | `macup recent` | Empties Apple menu → Recent Items (applications, documents, servers) — the same as **Clear Menu**. Asks first; files and apps are never touched. |
 
 Other commands: `macup update`, `macup uninstall`, `macup --lang ro|de|it|fr|ko|zh`,
 `macup --help`. The language follows your Mac automatically.
@@ -169,7 +171,8 @@ lib/             ui.sh · i18n.sh · checks.sh · clean.sh · views.sh · report
 lib/lang/        en ro de it fr ko zh (English is the fallback for any missing text)
 engine/          cleanup engine (clean_mac.sh + lib/), used in Trash-only mode
 pdf/             MacUpPDF.swift — turns the HTML report into a PDF (WebKit + PDFKit)
-bin/macup-pdf    universal build of pdf/ (pdf/build.sh rebuilds it)
+recent/          MacUpRecent.swift — counts / clears Apple menu → Recent Items
+bin/             universal builds of pdf/ and recent/ (each build.sh rebuilds them)
 tests/           pytest suite
 install.sh       installer
 ```

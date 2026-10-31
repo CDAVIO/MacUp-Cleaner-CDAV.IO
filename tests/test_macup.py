@@ -213,6 +213,7 @@ def test_install_update_and_uninstall(tmp_path):
     assert sorted(p.name for p in dest.iterdir()) == sorted(
         ["macup", "VERSION", "LICENSE", "THIRD_PARTY_NOTICES.md", "lib", "engine", "bin"]
     )
+    assert sorted(p.name for p in (dest / "bin").iterdir()) == ["macup-pdf", "macup-recent"]
     link = tmp_path / ".local" / "bin" / "macup"
     assert link.is_symlink() and os.readlink(link) == str(dest / "macup")
     zshrc = (tmp_path / ".zshrc").read_text()
@@ -477,3 +478,59 @@ def test_tty_complete_check_in_other_languages(tmp_path, code):
         assert bad not in text, bad
     assert lang_strings(code)["S_battery_health"] in text or lang_strings(code)["S_part_ssd"] in text
     assert list((tmp_path / "Downloads").glob("MacUp-Health-Report-*.pdf"))
+
+
+# ── 6 · Recent Items ─────────────────────────────────────────────────────
+
+def test_recent_helper_is_universal_signed_and_counts():
+    helper = ROOT / "bin" / "macup-recent"
+    archs = subprocess.run(["lipo", "-archs", str(helper)], capture_output=True, text=True).stdout.split()
+    assert sorted(archs) == ["arm64", "x86_64"]
+    sig = subprocess.run(["codesign", "-dv", str(helper)], capture_output=True, text=True).stderr
+    assert "Signature=adhoc" in sig
+    out = subprocess.run([str(helper), "count"], capture_output=True, text=True, timeout=30)
+    assert out.returncode == 0
+    assert re.fullmatch(r"\d+ \d+ \d+", out.stdout.strip())  # read-only call
+
+
+def fake_recent_tree(tmp_path):
+    """A copy of MacUp whose Recent Items helper only pretends (never touches the real list)."""
+    import shutil
+    tree = tmp_path / "macup-copy"
+    tree.mkdir()
+    for part in ["macup", "VERSION", "lib", "engine"]:
+        src = ROOT / part
+        (shutil.copytree if src.is_dir() else shutil.copy2)(src, tree / part)
+    (tree / "bin").mkdir()
+    state = tmp_path / "recent-state"
+    state.write_text("4 2 1")
+    (tree / "bin" / "macup-recent").write_text(
+        f'#!/bin/bash\ncase "$1" in count) cat "{state}" ;; clear) echo "0 0 0" > "{state}"; cat "{state}" ;; esac\n')
+    (tree / "bin" / "macup-recent").chmod(0o755)
+    return tree, state
+
+
+def test_recent_items_cleared_only_after_yes(tmp_path):
+    tree, state = fake_recent_tree(tmp_path)
+    home = tmp_path / "home"
+    home.mkdir()
+    global MACUP
+    real = MACUP
+    MACUP = tree / "macup"
+    try:
+        text = run_tty(home, ["--no-color", "recent"], ["n"])
+        assert "Cancelled" in text and state.read_text().strip() == "4 2 1"
+        text = run_tty(home, ["--no-color", "recent"], ["y"])
+    finally:
+        MACUP = real
+    for bad in BAD_OUTPUT:
+        assert bad not in text, bad
+    assert "Applications" in text and "Recent Items cleared" in text
+    assert state.read_text().strip() == "0 0 0"
+
+
+def test_recent_items_never_cleared_without_a_terminal(tmp_path):
+    tree, state = fake_recent_tree(tmp_path)
+    out = run([str(tree / "macup"), "--no-color", "recent"], tmp_path)
+    assert out.returncode == 0, out.stderr
+    assert state.read_text().strip() == "4 2 1"

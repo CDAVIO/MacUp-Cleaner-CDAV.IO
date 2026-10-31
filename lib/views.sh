@@ -123,3 +123,32 @@ collect_mac_quiet() {
   local v
   for v in $(compgen -v | grep -E '^H_'); do printf '%s=%q\n' "$v" "${!v}"; done > "$MACUP_TMP/collected.sh"
 }
+
+# 6 · Recent Items — the list in Apple menu → Recent Items (apps, documents,
+# servers). Same as "Clear Menu": only the list is emptied, never the files.
+cmd_recent() {
+  local helper="$MACUP_ROOT/bin/macup-recent" counts apps docs servers after
+  ui_title "$(t recent_title)" "6"
+  ui_note "$(t recent_intro)"
+  echo
+  if [ ! -x "$helper" ] || ! counts=$("$helper" count 2>/dev/null); then
+    ui_row "$(t recent_title)" "$(t recent_failed)" warn
+    return 0
+  fi
+  read -r apps docs servers <<< "$counts"
+  ui_row "$(t recent_apps)" "${apps:-0}" info
+  ui_row "$(t recent_docs)" "${docs:-0}" info
+  ui_row "$(t recent_servers)" "${servers:-0}" info
+  if [ "$(( ${apps:-0} + ${docs:-0} + ${servers:-0} ))" -eq 0 ]; then
+    echo; ui_row "$(t recent_title)" "$(t recent_empty)" ok
+    return 0
+  fi
+  ui_yes "$(t recent_clear_q)" n || { echo; ui_note "$(t cancelled)"; return 0; }
+  after=$("$helper" clear 2>/dev/null) || after=""
+  echo
+  if [ "$after" = "0 0 0" ]; then
+    ui_row "$(t recent_title)" "$(t recent_cleared)" ok
+  else
+    ui_row "$(t recent_title)" "$(t recent_failed)" warn
+  fi
+}

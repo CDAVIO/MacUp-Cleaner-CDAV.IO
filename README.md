@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/banner.png" alt="MacUp — your Mac’s health, right in Terminal. Free, open source, no subscription." width="100%">
+</p>
+
 # ✦ MacUp
 
 **Mac health from the Terminal — free & open source.**
@@ -8,7 +12,7 @@ like on iPhone — with a PDF report saved in Downloads.
 No app to download, no account, no subscription, no admin password.
 MacUp **never deletes anything for good** — everything it cleans goes to the Trash.
 
-🌐 [macup.cdav.io](https://macup.cdav.io) · English · Română · Deutsch · Italiano · Français · 한국어 · 中文
+🌐 [Website](https://macup-cdav.netlify.app) · English · Română · Deutsch · Italiano · Français · 한국어 · 中文
 
 ---
 
@@ -34,6 +38,10 @@ you like; it is short.
 ---
 
 ## What it does
+
+<p align="center">
+  <img src="docs/images/terminal.svg" alt="Animated Terminal: macup shows its menu, then the complete check with battery health, a status for every part and a saved PDF report" width="100%">
+</p>
 
 ```
   ✦ MacUp  Mac health from the Terminal · free & open source
@@ -85,6 +93,11 @@ Other commands: `macup update`, `macup uninstall`, `macup --lang ro|de|it|fr|ko|
 The PDF has three A4 pages: battery health with six cards (each marked
 **Good** or **Needs attention**), every detail (storage, SSD, battery, memory,
 processor, graphics, security), and a numbered “What to do” list.
+
+<p align="center">
+  <img src="docs/images/report.png" alt="Example MacUp PDF report: battery health 91% with six cards, and a numbered What to do page" width="100%">
+</p>
+<p align="center"><sub>Example report — values are examples, not a real Mac.</sub></p>
 
 **The big number is your battery health** — the same value Apple shows in
 System Settings → Battery. Macs without a battery (iMac, Mac mini, Mac Studio,
@@ -174,6 +187,7 @@ pdf/             MacUpPDF.swift — turns the HTML report into a PDF (WebKit + P
 recent/          MacUpRecent.swift — counts / clears Apple menu → Recent Items
 bin/             universal builds of pdf/ and recent/ (each build.sh rebuilds them)
 tests/           pytest suite
+docs/images/     README images (sources in docs/images/src/: banner.html, terminal_svg.py, report_example.sh)
 install.sh       installer
 ```
 

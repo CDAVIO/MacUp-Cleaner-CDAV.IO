@@ -88,7 +88,6 @@
   "av_responses": "Urgent security fixes install by themselves",
   "av_scam_t": "“Your Mac is infected!” pop-ups are scams",
   "av_scam_d": "Close the tab. Don’t call the number, don’t install what it offers, don’t pay.",
-  "av_scam_stamp": "Scam",
   "av_spot_t": "How to spot it",
   "av_sign_1": "It’s a web page — look at the address bar. macOS never shows virus alerts inside a browser.",
   "av_sign_2": "Red alarms, countdowns and “infected” — made to scare you into acting fast.",

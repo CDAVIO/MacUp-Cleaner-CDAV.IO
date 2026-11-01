@@ -318,13 +318,11 @@ section { padding: clamp(68px, 9vw, 120px) 0; }
 .fw-bar > i { width: 9px; height: 9px; border-radius: 50%; background: #c8c8c8; flex: none; }
 .fw-url { display: flex; align-items: center; gap: 6px; margin-left: 8px; flex: 1; min-width: 0; padding: 3px 8px; border-radius: 6px; background: #fff; color: #555; font: 12px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fw-body { display: grid; gap: 4px; padding: 14px 16px 16px; background: #fff5f4; }
-.fw-body > strong, .fw-body > span:not(.fw-act) { padding-right: 128px; }
 .fw-body strong { display: flex; align-items: center; gap: 6px; color: #e0261b; font-size: 15px; letter-spacing: .02em; }
 .fw-timer { color: #e0261b; font-weight: 700; }
 .fw-act { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
 .fw-act em { font-style: normal; font-weight: 700; font-size: 12px; padding: 5px 10px; border-radius: 6px; border: 1.5px solid #e0261b; color: #e0261b; background: #fff; }
 .fw-act em.pay { background: #e0261b; color: #fff; }
-.stamp { position: absolute; right: 10px; top: 52px; transform: rotate(-9deg); padding: 3px 9px; border: 3px solid #e0261b; border-radius: 8px; color: #e0261b; background: rgba(255,255,255,.95); font-weight: 900; font-size: 13px; letter-spacing: .04em; line-height: 1.2; white-space: nowrap; text-transform: uppercase; box-shadow: 0 4px 14px -6px rgba(0,0,0,.35); }
 .mk { display: inline-grid; place-items: center; width: 18px; height: 18px; flex: none; border-radius: 50%; background: var(--accent); color: #111; font: 800 11px var(--font); font-style: normal; }
 .spot-t { margin-top: 16px !important; font-weight: 700; color: var(--text) !important; font-size: 15px; }
 .spot { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 8px; }

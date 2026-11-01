@@ -37,7 +37,7 @@
   try { if (location.pathname === "/" && !localStorage.getItem("macup-lang")) { var l = ((navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase().slice(0, 2); if (["ro","de","it","fr","ko","zh"].indexOf(l) > -1) location.replace("/" + l + "/" + location.hash); } } catch (e) {}
 })();
 </script>
-<link rel="stylesheet" href="/assets/style.css?v=4fa9829a6b">
+<link rel="stylesheet" href="/assets/style.css?v=414cb65342">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "MacUp", "applicationCategory": "UtilitiesApplication", "operatingSystem": "macOS 13 or later", "description": "Free, open-source Terminal tool for macOS: clear the hidden caches behind “System Data”, check SSD, battery, RAM, processor, graphics and security, and see your battery health % in a PDF report. No app, no subscription, Trash only.", "url": "https://macup.cdav.io/", "inLanguage": "en", "license": "https://opensource.org/licenses/MIT", "codeRepository": "https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
 </head>
 <body>
@@ -255,9 +255,24 @@
       </div>
       <div class="av-side">
         <div class="card scam">
-          <div class="fake-popup" aria-hidden="true"><b>⚠︎ VIRUS DETECTED!</b><span>Your Mac is infected (3)</span><i>Clean now — $69/yr</i></div>
+          <figure class="fake-win" aria-hidden="true">
+            <div class="fw-bar"><i></i><i></i><i></i><span class="fw-url"><b class="mk">1</b>mac-virus-alert.example</span></div>
+            <div class="fw-body">
+              <strong><b class="mk">2</b>⚠︎ VIRUS DETECTED!</strong>
+              <span>Your Mac is infected with 3 viruses.</span>
+              <span class="fw-timer">Act now — 04:59</span>
+              <span class="fw-act"><b class="mk">3</b><em>☎ 1-800-000-0000</em><em class="pay">Clean now — $69/yr</em></span>
+            </div>
+            <span class="stamp">Scam</span>
+          </figure>
           <h3>“Your Mac is infected!” pop-ups are scams</h3>
           <p>Close the tab. Don’t call the number, don’t install what it offers, don’t pay.</p>
+          <p class="spot-t">How to spot it</p>
+          <ol class="spot">
+            <li><b class="mk">1</b><span>It’s a web page — look at the address bar. macOS never shows virus alerts inside a browser.</span></li>
+            <li><b class="mk">2</b><span>Red alarms, countdowns and “infected” — made to scare you into acting fast.</span></li>
+            <li><b class="mk">3</b><span>A phone number or a paid “cleaner” — that’s what they really want.</span></li>
+          </ol>
         </div>
         <div class="card">
           <h3>What really keeps a Mac safe</h3>
@@ -355,6 +370,6 @@ macup uninstall</code></pre></details>
   </div>
 </footer>
 
-<script src="/assets/app.js?v=4fa9829a6b" defer></script>
+<script src="/assets/app.js?v=414cb65342" defer></script>
 </body>
 </html>

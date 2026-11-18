@@ -1,6 +1,6 @@
 #!/bin/bash
 # MacUp — keep your Mac healthy from the Terminal.
-# Free and open source (MIT) · https://macup.cdav.io
+# Free and open source (MIT) · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
 #
 #   macup            menu
 #   macup clean      1  Smart Clean (moves hidden caches to the Trash)

@@ -12,7 +12,7 @@ like on iPhone — with a PDF report saved in Downloads.
 No app to download, no account, no subscription, no admin password.
 MacUp **never deletes anything for good** — everything it cleans goes to the Trash.
 
-🌐 [Website](https://macup-cdav.netlify.app) · English · Română · Deutsch · Italiano · Français · 한국어 · 中文
+🌐 English · Română · Deutsch · Italiano · Français · 한국어 · 中文
 
 ---
 

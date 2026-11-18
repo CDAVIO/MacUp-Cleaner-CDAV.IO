@@ -78,7 +78,7 @@ final class Renderer: NSObject, WKNavigationDelegate {
     func finish() {
         document.documentAttributes = [
             PDFDocumentAttribute.titleAttribute: "MacUp — Mac Health Report",
-            PDFDocumentAttribute.creatorAttribute: "MacUp (macup.cdav.io)",
+            PDFDocumentAttribute.creatorAttribute: "MacUp (github.com/CDAVIO/MacUp-Cleaner-CDAV.IO)",
         ]
         guard document.write(to: output) else { fail("could not write \(output.path)") }
         exit(0)

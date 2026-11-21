@@ -203,7 +203,7 @@ MACUP_ROOT="{ROOT}"
 i18n_load en
 MACUP_TMP="{tmp_path}"
 HOME="{tmp_path}"
-WIFI_DIR="{tmp_path}/state"; WIFI_BEFORE="{tmp_path}/state/wifi-before.txt"
+WIFI_DIR="{tmp_path}/state"; WIFI_BEFORE="{tmp_path}/state/wifi-before.txt"; WIFI_LAST="{tmp_path}/state/wifi-last.txt"
 {fake_plutil}
 {body}
 '''
@@ -356,3 +356,56 @@ def test_never_writes_settings_by_itself():
     code = "\n".join(line.split("#", 1)[0] for line in (ROOT / "lib" / "wifi.sh").read_text().splitlines())
     assert "defaults write" not in code and "defaults -currentHost write" not in code
     assert "networksetup -set" not in code and "killall" not in code and "sudo" not in code
+
+
+TPLINK_PAGE = ("HTTP/1.1 200 OK\r\nServer: lighttpd\r\n\r\n<html><head><title>Opening...</title>"
+               "<script src=\"/js/tplink.js\"></script></head><body></body></html>")
+ZTE_PAGE = ("HTTP/1.1 200 OK\r\n\r\n<html><head><title>F618</title></head>"
+            "<body>©2008-2020 ZTE Corporation. All rights reserved.</body></html>")
+
+
+def test_routers_are_named_and_the_second_router_is_suggested(tmp_path):
+    (tmp_path / "tplink.html").write_text(TPLINK_PAGE)
+    (tmp_path / "zte.html").write_text(ZTE_PAGE)
+    body = f'''
+ping() {{ :; }}
+ipconfig() {{ echo 255.255.255.0; }}
+arp() {{ printf '? (192.168.1.1) at 24:58:6e:d7:c8:d1 on en0 ifscope [ethernet]\\n? (192.168.1.5) at e:4a:6d:b8:ee:c on en0 ifscope permanent [ethernet]\\n? (192.168.1.8) at 98:da:c4:b8:e:8e on en0 ifscope [ethernet]\\n? (192.168.1.9) at 86:1e:f6:66:12:7 on en0 ifscope [ethernet]\\n? (192.168.1.255) at ff:ff:ff:ff:ff:ff on en0 ifscope [ethernet]\\n'; }}
+curl() {{ local u; for u; do :; done; case "$u" in http://192.168.1.1/) cat "{tmp_path}/zte.html" ;; http://192.168.1.8/) cat "{tmp_path}/tplink.html" ;; *) return 7 ;; esac; }}
+wifi_reset; W_DEV=en0; W_IP=192.168.1.5; W_ROUTER=192.168.1.1
+wifi_pick_router
+echo "PICK=$REPLY"
+cat "$MACUP_TMP/wifi.routers"
+'''
+    out = run_bash(tmp_path, body)
+    assert "192.168.1.1" in out and "ZTE · F618 · main router" in out
+    assert "TP-Link · Opening..." in out
+    assert "PICK=192.168.1.8" in out          # the TP-Link behind the provider's box
+    assert "192.168.1.9" not in out.split("PICK=")[1]  # a phone has no web page
+
+
+def test_verdict_says_if_the_speed_went_up(tmp_path):
+    out = run_bash(tmp_path, '''wifi_verdict_line 470 560; wifi_verdict_line 470 480; wifi_verdict_line 470 400''')
+    assert out.splitlines() == ["ok\tFaster: 470 → 560 Mbps (+19%)", "info\tAbout the same: 470 → 480 Mbps",
+                                "warn\tSlower: 470 → 400 Mbps (-15%)"]
+    body = '''wifi_reset; W_DL=480; W_R_MAX=20; W_R_JIT=3; W_GEN=5
+wifi_before_after 470 85 17'''
+    out = run_bash(tmp_path, body)
+    assert "≈  About the same: 470 → 480 Mbps" in out
+    assert "✓  Steadier: worst ping 85 → 20 ms" in out
+    assert "router’s limit" in out
+
+
+def test_each_check_is_compared_with_the_last_one(tmp_path):
+    (tmp_path / "state").mkdir()
+    (tmp_path / "state" / "wifi-last.txt").write_text("date=2026-11-21 21:40\ndl=470\nrmax=85\nrjit=17\nchannel=36\n")
+    body = '''wifi_reset; wifi_read_last; W_DL=560; W_UL=240; W_R_MED=4; W_R_MAX=9; W_R_JIT=1; W_I_MED=6; W_I_MAX=8; W_I_JIT=1
+wifi_show_speed'''
+    out = run_bash(tmp_path, body)
+    assert "Since your last check" in out and "Faster: 470 → 560 Mbps (+19%)" in out and "2026-11-21 21:40" in out
+
+
+def test_unreadable_setting_says_where_to_look(tmp_path):
+    out = run_bash(tmp_path, '''wifi_reset; W_AIRDROP=everyone; W_HANDOFF=off; W_AIRPLAY=""; wifi_show_mac''')
+    assert "AirPlay Receiver             check in System Settings" in out
+    assert "·  AirPlay Receiver" in out

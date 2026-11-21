@@ -14,6 +14,7 @@
 
 WIFI_DIR="$HOME/Library/Application Support/MacUp"
 WIFI_BEFORE="$WIFI_DIR/wifi-before.txt"
+WIFI_LAST="$WIFI_DIR/wifi-last.txt"
 WIFI_PANE_AIRDROP="x-apple.systempreferences:com.apple.AirDrop-Handoff-Settings.extension"
 WIFI_PANE_BATTERY="x-apple.systempreferences:com.apple.Battery-Settings.extension"
 WIFI_PING_COUNT="${WIFI_PING_COUNT:-20}"
@@ -411,8 +412,16 @@ wifi_word() { # on/off/everyone/contacts/"" → translated word
   case "$1" in
     on) t on ;; off) t off ;;
     everyone) t wifi_airdrop_everyone ;; contacts) t wifi_airdrop_contacts ;;
-    *) printf '—' ;;
+    *) t wifi_unknown ;;
   esac
+}
+
+# wifi_mark VALUE BAD… → ok, warn (VALUE is one of BAD) or info (macOS did not say)
+wifi_mark() {
+  local v="$1" b; shift
+  [ -z "$v" ] && { echo info; return; }
+  for b; do [ "$v" = "$b" ] && { echo warn; return; }; done
+  echo ok
 }
 
 wifi_airdrop_word() { if [ "$1" = "off" ]; then t wifi_airdrop_off; else wifi_word "$1"; fi; }
@@ -439,6 +448,11 @@ wifi_show_speed() {
     ui_row "$(t k_ping_net)" "$(t wifi_no_reply)" warn
   fi
   if wifi_has_jumps; then ui_note "     $(t wifi_jumps_note "$W_R_SPIKES")"; fi
+  if [ -n "${L_DL:-}" ] && [ -n "$W_DL" ]; then
+    local mark text
+    IFS=$'\t' read -r mark text <<< "$(wifi_verdict_line "$L_DL" "$W_DL")"
+    [ -n "$text" ] && ui_row "$(t k_since_last)" "$text  ${C_D}· ${L_DATE}${C_R}" "$mark"
+  fi
   return 0
 }
 
@@ -480,14 +494,106 @@ wifi_show_mac() {
   elif [ "$W_PROXY" = "1" ]; then ui_row "$(t k_vpn)" "$(t wifi_proxy_on)" warn
   else ui_row "$(t k_vpn)" "$(t off)" ok; fi
   ui_row "$(t k_lowpower)" "$( [ "$W_LOWPOWER" = "1" ] && t on || t off)" "$( [ "$W_LOWPOWER" = "1" ] && echo warn || echo ok)"
-  ui_row "AirDrop" "$(wifi_airdrop_word "$W_AIRDROP")" "$( [ "$W_AIRDROP" = "everyone" ] || [ "$W_AIRDROP" = "contacts" ] && echo warn || echo ok)"
-  ui_row "Handoff" "$(wifi_word "$W_HANDOFF")" "$( [ "$W_HANDOFF" = "on" ] && echo warn || echo ok)"
-  ui_row "$(t k_airplay)" "$(wifi_word "$W_AIRPLAY")" "$( [ "$W_AIRPLAY" = "on" ] && echo warn || echo ok)"
+  ui_row "AirDrop" "$(wifi_airdrop_word "$W_AIRDROP")" "$(wifi_mark "$W_AIRDROP" everyone contacts)"
+  ui_row "Handoff" "$(wifi_word "$W_HANDOFF")" "$(wifi_mark "$W_HANDOFF" on)"
+  ui_row "$(t k_airplay)" "$(wifi_word "$W_AIRPLAY")" "$(wifi_mark "$W_AIRPLAY" on)"
   if [ -n "$W_APPS" ]; then
     ui_row "$(t k_busy_apps "$WIFI_APPS_SECONDS")" "$W_APPS" "$(awk -v m="$W_APPS_TOTAL" 'BEGIN { print (m >= 5 ? "warn" : "info") }')"
   else
     ui_row "$(t k_busy_apps "$WIFI_APPS_SECONDS")" "$(t wifi_apps_quiet)" ok
   fi
+}
+
+# The router that gives your Wi-Fi is not always the main router: a second
+# router, mesh or access point can hang behind it (e.g. a TP-Link on the
+# provider's box). After you say yes to the fix, MacUp pings each address of
+# your network once and opens the start page of the devices that answer, the
+# same as a browser would (no login, nothing is changed), to name them.
+wifi_web_label() { # IP → "label<TAB>1 if a router brand was recognised"
+  local raw low brand="" title realm label
+  raw=$(curl -s -k -m 2 --noproxy '*' -L --max-redirs 2 -D - "http://$1/" 2>/dev/null | head -c 40000 | tr '\r\n\t' '   ') || raw=""
+  [ -z "$raw" ] && return 0
+  low=$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]')
+  case "$low" in
+    *tp-link*|*tplink*|*archer*) brand="TP-Link" ;;
+    *zxhn*|*"zte corporation"*) brand="ZTE" ;;
+    *fritz*) brand="FRITZ!Box" ;;
+    *asuswrt*|*"asus router"*) brand="ASUS" ;;
+    *netgear*) brand="NETGEAR" ;;
+    *huawei*) brand="Huawei" ;;
+    *mikrotik*|*routeros*) brand="MikroTik" ;;
+    *unifi*|*ubiquiti*) brand="Ubiquiti" ;;
+    *mercusys*) brand="Mercusys" ;;
+    *tenda*) brand="Tenda" ;;
+    *miwifi*) brand="Xiaomi" ;;
+    *linksys*) brand="Linksys" ;;
+    *keenetic*) brand="Keenetic" ;;
+    *openwrt*) brand="OpenWrt" ;;
+    *fiberhome*) brand="FiberHome" ;;
+    *zyxel*) brand="Zyxel" ;;
+    *d-link*|*dlink*) brand="D-Link" ;;
+    *sagemcom*) brand="Sagemcom" ;;
+    *technicolor*) brand="Technicolor" ;;
+  esac
+  title=$(printf '%s' "$raw" | sed -n 's/.*<[Tt][Ii][Tt][Ll][Ee][^>]*>\([^<]*\)<\/[Tt][Ii][Tt][Ll][Ee]>.*/\1/p' | head -1 | sed 's/^ *//; s/ *$//')
+  realm=$(printf '%s' "$raw" | sed -n 's/.*[Rr]ealm="\([^"]*\)".*/\1/p' | head -1)
+  label="${title:-$realm}"
+  label="${label:0:40}"
+  if [ -n "$brand" ]; then
+    case "$label" in "") label="$brand" ;; *"$brand"*) ;; *) label="$brand · $label" ;; esac
+    printf '%s\t1\n' "$label"
+  else
+    printf '%s\t0\n' "${label:-web page}"
+  fi
+}
+
+wifi_find_routers() { # → $MACUP_TMP/wifi.routers: "ip<TAB>label<TAB>brand"
+  local net="${W_ROUTER%.*}" mask ip i
+  : > "$MACUP_TMP/wifi.routers"
+  [ -n "$W_ROUTER" ] || return 0
+  mask=$(ipconfig getoption "$W_DEV" subnet_mask 2>/dev/null) || mask=""
+  if [ "$mask" = "255.255.255.0" ]; then
+    for ((i = 1; i < 255; i++)); do ping -c1 -W 300 "$net.$i" >/dev/null 2>&1 & done
+    wait
+  fi
+  arp -an 2>/dev/null | awk -v net="$net." '{
+      ip = $2; gsub(/[()]/, "", ip)
+      if (index(ip, net) == 1 && $4 ~ /:/ && $4 != "ff:ff:ff:ff:ff:ff") print ip }' |
+    sort -u -t. -k4,4n > "$MACUP_TMP/wifi.lan"
+  grep -qx "$W_ROUTER" "$MACUP_TMP/wifi.lan" || printf '%s\n' "$W_ROUTER" >> "$MACUP_TMP/wifi.lan"
+  while read -r ip; do
+    [ "$ip" = "$W_IP" ] && continue
+    ( wifi_web_label "$ip" > "$MACUP_TMP/web.$ip" ) &
+  done < "$MACUP_TMP/wifi.lan"
+  wait
+  sort -u -t. -k4,4n "$MACUP_TMP/wifi.lan" | while read -r ip; do
+    [ -s "$MACUP_TMP/web.$ip" ] && printf '%s\t%s\n' "$ip" "$(cat "$MACUP_TMP/web.$ip")"
+  done > "$MACUP_TMP/wifi.routers"
+  return 0
+}
+
+# Lists the routers found and asks which one gives the Wi-Fi → address in $REPLY.
+wifi_pick_router() {
+  local n=0 def="" gw_n=1 ip label brand pick
+  ui_spin "$(t wifi_router_finding)" wifi_find_routers
+  if [ ! -s "$MACUP_TMP/wifi.routers" ]; then REPLY="$W_ROUTER"; return 0; fi
+  ui_note "     $(t wifi_router_list_note)"
+  while IFS=$'\t' read -r ip label brand; do
+    n=$((n + 1))
+    if [ "$ip" = "$W_ROUTER" ]; then gw_n=$n; label="$label · $(t wifi_router_main)"; fi
+    # A second router (not the main one) is the likely source of the Wi-Fi.
+    [ -z "$def" ] && [ "$ip" != "$W_ROUTER" ] && [ "$brand" = "1" ] && def=$n
+    printf "     ${C_Y}%s${C_R}  %s  ${C_D}%s${C_R}\n" "$n" "$(ui_pad "$ip" 15)" "$label"
+  done < "$MACUP_TMP/wifi.routers"
+  [ -z "$def" ] && def=$gw_n
+  pick=$def
+  if [ "$n" -gt 1 ]; then
+    ui_ask "$(t wifi_router_pick)" "$def"
+    case "$REPLY" in ''|*[!0-9]*) ;; *) [ "$REPLY" -ge 1 ] && [ "$REPLY" -le "$n" ] && pick=$REPLY ;; esac
+  fi
+  REPLY=$(sed -n "${pick}p" "$MACUP_TMP/wifi.routers" | cut -f1)
+  [ -z "$REPLY" ] && REPLY="$W_ROUTER"
+  return 0
 }
 
 # The settings MacUp may ask you to change, written down before anything changes.
@@ -508,6 +614,40 @@ wifi_write_before() {
   } > "$WIFI_BEFORE"
 }
 
+# wifi_verdict BEFORE AFTER → "up|same|down<TAB>percent" (10% either way counts)
+wifi_verdict() {
+  awk -v a="${1:-0}" -v b="${2:-}" 'BEGIN {
+    if (a <= 0 || b == "") exit
+    d = (b - a) * 100 / a
+    printf "%s\t%.0f\n", (d >= 10 ? "up" : (d <= -10 ? "down" : "same")), d }'
+}
+
+# wifi_verdict_line BEFORE AFTER → "mark<TAB>text", e.g. "ok	Faster: 470 → 560 Mbps (+19%)"
+wifi_verdict_line() {
+  local kind pct
+  IFS=$'\t' read -r kind pct <<< "$(wifi_verdict "$1" "$2")"
+  case "$kind" in
+    up)   printf 'ok\t%s\n' "$(t wifi_verdict_up "$1" "$2" "$pct")" ;;
+    down) printf 'warn\t%s\n' "$(t wifi_verdict_down "$1" "$2" "$pct")" ;;
+    same) printf 'info\t%s\n' "$(t wifi_verdict_same "$1" "$2")" ;;
+  esac
+}
+
+wifi_read_last() {
+  L_DATE=""; L_DL=""; L_RMAX=""
+  [ -f "$WIFI_LAST" ] || return 0
+  L_DATE=$(awk -F= '$1 == "date" { print substr($0, 6); exit }' "$WIFI_LAST")
+  L_DL=$(awk -F= '$1 == "dl" && $2 ~ /^[0-9]+$/ { print $2; exit }' "$WIFI_LAST")
+  L_RMAX=$(awk -F= '$1 == "rmax" && $2 ~ /^[0-9]+$/ { print $2; exit }' "$WIFI_LAST")
+  return 0
+}
+
+wifi_write_last() {
+  [ -n "$W_DL" ] || return 0
+  mkdir -p "$WIFI_DIR" 2>/dev/null || return 0
+  printf 'date=%s\ndl=%s\nrmax=%s\nrjit=%s\nchannel=%s\n' "$(date '+%Y-%m-%d %H:%M')" "$W_DL" "${W_R_MAX:-}" "${W_R_JIT:-}" "${W_CH:-}" > "$WIFI_LAST" 2>/dev/null || true
+}
+
 wifi_before_after() { # B_DL B_RMAX B_RJIT
   local up=""
   [ -n "$1" ] && [ -n "$W_DL" ] && [ "$1" -gt 0 ] && up=$(awk -v a="$1" -v b="$W_DL" 'BEGIN { d = (b - a) * 100 / a; printf "%s%.0f%%", (d >= 0 ? "▲ +" : "▼ "), d }')
@@ -515,6 +655,20 @@ wifi_before_after() { # B_DL B_RMAX B_RJIT
   printf "  %s %s ${C_B}%s${C_R}  ${C_Y}%s${C_R}\n" "$(ui_pad "$(t k_download)" 22)" "$(ui_pad "${1:-—} Mbps" 14)" "${W_DL:-—} Mbps" "$up"
   printf "  %s %s ${C_B}%s${C_R}\n" "$(ui_pad "$(t wifi_ping_worst)" 22)" "$(ui_pad "${2:-—} ms" 14)" "${W_R_MAX:-—} ms"
   printf "  %s %s ${C_B}%s${C_R}\n" "$(ui_pad "$(t wifi_jitter)" 22)" "$(ui_pad "${3:-—} ms" 14)" "${W_R_JIT:-—} ms"
+  # The answer in one line: did the speed go up or not — and what is next.
+  local mark text
+  IFS=$'\t' read -r mark text <<< "$(wifi_verdict_line "$1" "$W_DL")"
+  echo
+  case "$mark" in
+    ok)   printf "  ${C_B}✓  %s${C_R}\n" "$text" ;;
+    warn) printf "  ${C_Y}▼  %s${C_R}\n" "$text"; ui_note "     $(t wifi_verdict_undo)" ;;
+    info) printf "  ${C_B}≈  %s${C_R}\n" "$text" ;;
+  esac
+  if [ -n "$2" ] && [ -n "$W_R_MAX" ] && [ "$2" -ge 20 ] && [ "$W_R_MAX" -le $(( $2 * 7 / 10 )) ]; then
+    printf "  ${C_B}✓  %s${C_R}\n" "$(t wifi_verdict_steadier "$2" "$W_R_MAX")"
+  fi
+  case "$W_GEN" in 4|5) [ "$mark" = "ok" ] || ui_note "     $(t wifi_verdict_router)" ;; esac
+  return 0
 }
 
 wifi_fix() {
@@ -532,19 +686,21 @@ wifi_fix() {
       open "$WIFI_PANE_AIRDROP" 2>/dev/null || open -b com.apple.systempreferences 2>/dev/null || true
       ui_pause "$(t wifi_done_enter)"
       wifi_read_continuity
-      ui_row "AirDrop" "$(wifi_airdrop_word "$W_AIRDROP")" "$( [ "$W_AIRDROP" = "off" ] && echo ok || echo warn)"
-      ui_row "Handoff" "$(wifi_word "$W_HANDOFF")" "$( [ "$W_HANDOFF" = "on" ] && echo warn || echo ok)"
-      ui_row "$(t k_airplay)" "$(wifi_word "$W_AIRPLAY")" "$( [ "$W_AIRPLAY" = "on" ] && echo warn || echo ok)"
+      ui_row "AirDrop" "$(wifi_airdrop_word "$W_AIRDROP")" "$(wifi_mark "$W_AIRDROP" everyone contacts)"
+      ui_row "Handoff" "$(wifi_word "$W_HANDOFF")" "$(wifi_mark "$W_HANDOFF" on)"
+      ui_row "$(t k_airplay)" "$(wifi_word "$W_AIRPLAY")" "$(wifi_mark "$W_AIRPLAY" on)"
       changed=1
     fi
   fi
   if wifi_channel_fix; then
     echo
     printf "  ${C_Y}2${C_R}  ${C_B}%s${C_R}\n" "$(t wifi_rec_channel "$W_BEST" "$W_WIDTH")"
-    ui_note "     $(t wifi_router_steps "${W_ROUTER:-192.168.1.1}" "$W_BEST" "$W_WIDTH")"
+    local wifi_router=""
+    wifi_pick_router; wifi_router="$REPLY"
+    ui_note "     $(t wifi_router_steps "${wifi_router:-192.168.1.1}" "$W_BEST" "$W_WIDTH")"
     wifi_is_dfs "$W_BEST" && ui_note "     $(t wifi_rec_dfs)"
-    if [ -n "$W_ROUTER" ] && ui_yes "$(t wifi_open_router_q)" y; then
-      open "http://$W_ROUTER" 2>/dev/null || true
+    if [ -n "$wifi_router" ] && ui_yes "$(t wifi_open_router_q)" y; then
+      open "http://$wifi_router" 2>/dev/null || true
       ui_pause "$(t wifi_done_enter)"
       changed=1
     fi
@@ -558,12 +714,15 @@ wifi_fix() {
       changed=1
     fi
   fi
-  [ "$changed" = "1" ] || return 0
+  # Offer the test whenever a step was shown: some changes (like the router's
+  # channel) are often made by hand in the browser.
+  [ "$changed" = "1" ] || wifi_continuity_busy || wifi_channel_fix || [ "$W_LOWPOWER" = "1" ] || return 0
   if ui_yes "$(t wifi_retest_q)" y; then
     echo
     ui_spin "$(t wifi_checking)" wifi_measure_quiet
     wifi_load_state
     wifi_before_after "$b_dl" "$b_rmax" "$b_rjit"
+    wifi_write_last
     {
       printf '\n%s (%s)\n' "$(t wifi_after)" "$(date '+%Y-%m-%d %H:%M')"
       printf '%s: %s Mbps\n' "$(t k_download)" "${W_DL:-—}"
@@ -595,6 +754,8 @@ cmd_wifi() {
   echo
   ui_spin "$(t wifi_checking)" wifi_collect_quiet
   wifi_load_state
+  wifi_read_last
+  [ -t 0 ] && wifi_write_last
   wifi_show_speed
   wifi_show_radio
   wifi_show_mac

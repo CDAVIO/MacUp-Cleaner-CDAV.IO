@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/macup-4k.png" alt="MacUp — your Mac’s health, right in Terminal. Terminal window with the MacUp menu, options 1 to 7, including Wi-Fi Check. Free forever, open source, no account, no admin password. Works on every Mac, Intel and Apple silicon." width="100%">
+  <img src="docs/images/macup-4k.jpg" alt="MacUp — Something is hiding on your Mac. A detective-style desk at night: a laptop’s yellow scan beam catches little ghosts (hidden files) and drops them in a glowing trash bin. MacUp tracks down the hidden caches behind System Data, checks SSD, battery and security, and finds out why your Wi-Fi is slow. Free forever, open source, no account, no admin password. Works on every Mac: Intel, M1, M2, M3, M4, M5 and every new chip." width="100%">
 </p>
 
 # ✦ MacUp
@@ -28,7 +28,7 @@ fix it.
 | | |
 |---|---|
 | **Macs** | MacBook Air · MacBook Pro · iMac · Mac mini · Mac Studio · Mac Pro |
-| **Chips** | Intel and Apple silicon — M1, M2, M3, M4 and newer |
+| **Chips** | Intel · Apple M1 · M2 · M3 · M4 · M5 — and every new chip, with free updates |
 | **macOS** | 13 Ventura or newer, including the latest version |
 | **Updates** | Free updates with one command: `macup update` |
 
@@ -40,7 +40,7 @@ battery; desktop Macs (iMac, Mac mini, Mac Studio, Mac Pro) show the SSD instead
 ## Install — 3 steps, about 1 minute
 
 <p align="center">
-  <img src="docs/images/macup-start.gif" alt="Visual tutorial in 3 steps: 1 open Terminal, 2 paste the install line, 3 type macup and pick a number from 1 to 7" width="100%">
+  <img src="docs/images/macup-tutorial.gif" alt="5-second animated tutorial: 1 Open Terminal (Command+Space, type Terminal, Return). 2 Paste one line, only once, no password. 3 Type macup and pick a number, 7 checks your Wi-Fi. In the background a laptop’s yellow scan beam drops little ghosts (hidden files) into a trash bin." width="100%">
 </p>
 
 1. **Open Terminal.** Press **⌘ Space**, type **Terminal**, press **Return**.
@@ -385,8 +385,8 @@ pdf/             MacUpPDF.swift — turns the HTML report into a PDF (WebKit + P
 recent/          MacUpRecent.swift — counts / clears Apple menu → Recent Items
 bin/             universal builds of pdf/ and recent/ (each build.sh rebuilds them)
 tests/           pytest suite
-docs/images/     README images (sources in docs/images/src/: hero_4k.py, terminal_svg.py, start_gif.py,
-                 wifi_gif.py, banner.html, report_example.sh)
+docs/images/     README images (sources in docs/images/src/: macup-4k.html, macup-tutorial.html,
+                 terminal_svg.py, start_gif.py, wifi_gif.py, banner.html, report_example.sh)
 install.sh       installer
 ```
 

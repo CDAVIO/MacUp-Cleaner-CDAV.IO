@@ -1,51 +1,83 @@
 <p align="center">
-  <img src="docs/images/banner.png" alt="MacUp — your Mac’s health, right in Terminal. Free, open source, no subscription." width="100%">
+  <img src="docs/images/macup-4k.png" alt="MacUp — your Mac’s health, right in Terminal. Terminal window with the MacUp menu, options 1 to 7, including Wi-Fi Check. Free forever, open source, no account, no admin password. Works on every Mac, Intel and Apple silicon." width="100%">
 </p>
 
 # ✦ MacUp
 
-**Mac health from the Terminal — free & open source.**
-Find the hidden caches behind “System Data”, check your SSD, battery, memory,
-processor, graphics and built-in security, and see your **battery health %** —
-like on iPhone — with a PDF report saved in Downloads. And **`macup wifi`**
-checks your Wi-Fi: it tells you if everything is fine — or what slows it down,
-and how to fix it.
+**Your Mac’s health, right in Terminal. Free, forever.**
 
-**100% free — forever.** No price, no trial, no “Pro” version, no subscription,
-no ads, no account, no admin password. MacUp **never deletes anything for good** —
-everything it cleans goes to the Trash.
+MacUp finds the hidden caches behind “System Data”, checks your SSD, battery,
+memory, processor, graphics and built-in security, shows your **battery
+health %** (like on iPhone) and saves a clear PDF report. **Wi-Fi Check** tells
+you whether your Wi-Fi is fine — and if it isn’t, what slows it down and how to
+fix it.
+
+| | |
+|---|---|
+| **Free forever** | No price, no trial, no “Pro” version, no subscription, no ads, no account. |
+| **Safe** | Nothing is deleted for good — everything MacUp cleans goes to the Trash. |
+| **Private** | No admin password, no background process, no tracking. |
+| **Every Mac** | Intel and Apple silicon, macOS 13 or newer, in 7 languages. |
 
 🌐 English · Română · Deutsch · Italiano · Français · 한국어 · 中文
 
 ---
 
-## Install (one line)
+## Works on
 
-Open **Terminal** (⌘ Space → type “Terminal” → Enter) and paste:
+| | |
+|---|---|
+| **Macs** | MacBook Air · MacBook Pro · iMac · Mac mini · Mac Studio · Mac Pro |
+| **Chips** | Intel and Apple silicon — M1, M2, M3, M4 and newer |
+| **macOS** | 13 Ventura or newer, including the latest version |
+| **Updates** | Free updates with one command: `macup update` |
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash
-```
+Wi-Fi Check needs a Mac with Wi-Fi. Battery health appears on Macs with a
+battery; desktop Macs (iMac, Mac mini, Mac Studio, Mac Pro) show the SSD instead.
 
-Then type:
+---
 
-```bash
-macup
-```
-
-Needs macOS 13 Ventura or newer (Apple silicon or Intel). The installer copies
-MacUp into `~/.macup` and adds the `macup` command — nothing runs in the
-background and nothing is sent anywhere. Read [`install.sh`](install.sh) first if
-you like; it is short.
+## Install — 3 steps, about 1 minute
 
 <p align="center">
   <img src="docs/images/macup-start.gif" alt="Visual tutorial in 3 steps: 1 open Terminal, 2 paste the install line, 3 type macup and pick a number from 1 to 7" width="100%">
 </p>
-<p align="center"><sub>Three steps: open Terminal · paste the line once · type <code>macup</code> and pick a number.</sub></p>
+
+1. **Open Terminal.** Press **⌘ Space**, type **Terminal**, press **Return**.
+2. **Paste this line and press Return.** You only do this once.
+
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash
+   ```
+
+3. **Type `macup` and press Return.** Choose a number from the menu.
+
+The installer copies MacUp into `~/.macup` and adds the `macup` command. It
+needs no admin password, runs nothing in the background and sends nothing
+anywhere. You can read [`install.sh`](install.sh) first — it is short.
+
+### New to Terminal?
+
+Terminal is an app that comes with every Mac (**Applications → Utilities →
+Terminal**). Instead of clicking buttons, you type a short command and press
+**Return**. With MacUp, that is all you need to know:
+
+| You want to… | Do this |
+|---|---|
+| Open MacUp | Type `macup` and press **Return** |
+| Choose an option | Type its number (for example `7`) and press **Return** |
+| Answer a question | Press **Return** for the suggested answer, or type `y` (yes) / `n` (no) |
+| Go back to the menu | Press **Return** when a screen is finished |
+| Quit MacUp | Type `q` at the menu and press **Return** |
+| Copy or paste | **⌘ C** and **⌘ V**, like everywhere else |
+| Close Terminal | **⌘ Q** — MacUp stops with it; nothing keeps running |
+
+Every option also has its own short command, so you can skip the menu — for
+example `macup wifi` or `macup check` (full list below).
 
 ---
 
-## What it does
+## What MacUp does
 
 <p align="center">
   <img src="docs/images/terminal.svg" alt="Animated Terminal: macup shows its menu, then the complete check with battery health, a status for every part and a saved PDF report" width="100%">
@@ -127,7 +159,7 @@ Mac Pro) show the SSD instead. There is no made-up overall score.
 </p>
 <p align="center"><sub>Example values — not a real network.</sub></p>
 
-You pay for 1000 Mbps, but the speed test shows 350? Before you call your
+Paying for 1000 Mbps but seeing 350 in a speed test? Before you call your
 provider, run:
 
 ```bash
@@ -232,7 +264,7 @@ generation has its own limit. As a rough guide for a Mac like a MacBook:
 So if `macup wifi` shows a **Wi-Fi 5 router** and nothing else is wrong, the
 router is the limit: many providers swap it for a Wi-Fi 6 model on request.
 
-### Words, simply
+### Key terms
 
 - **Ping** — how fast your connection answers, in milliseconds. Lower is better.
 - **Jitter** — how much the ping jumps around. Under 10 ms is good for calls and games.
@@ -346,7 +378,8 @@ pdf/             MacUpPDF.swift — turns the HTML report into a PDF (WebKit + P
 recent/          MacUpRecent.swift — counts / clears Apple menu → Recent Items
 bin/             universal builds of pdf/ and recent/ (each build.sh rebuilds them)
 tests/           pytest suite
-docs/images/     README images (sources in docs/images/src/: banner.html, terminal_svg.py, wifi_gif.py, report_example.sh)
+docs/images/     README images (sources in docs/images/src/: hero_4k.py, terminal_svg.py, start_gif.py,
+                 wifi_gif.py, banner.html, report_example.sh)
 install.sh       installer
 ```
 

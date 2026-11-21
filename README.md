@@ -40,7 +40,7 @@ battery; desktop Macs (iMac, Mac mini, Mac Studio, Mac Pro) show the SSD instead
 ## Install — 3 steps, about 1 minute
 
 <p align="center">
-  <img src="docs/images/macup-start.gif" alt="Visual tutorial in 3 steps: 1 open Terminal, 2 paste the install line, 3 type macup and pick a number from 1 to 7" width="100%">
+  <img src="docs/images/macup-tutorial.gif" alt="5-second animated tutorial: 1 Open Terminal (Command+Space, type Terminal, Return). 2 Paste one line, only once, no password. 3 Type macup and pick a number, 7 checks your Wi-Fi. In the background a laptop’s yellow scan beam drops little ghosts (hidden files) into a trash bin." width="100%">
 </p>
 
 1. **Open Terminal.** Press **⌘ Space**, type **Terminal**, press **Return**.
@@ -385,8 +385,8 @@ pdf/             MacUpPDF.swift — turns the HTML report into a PDF (WebKit + P
 recent/          MacUpRecent.swift — counts / clears Apple menu → Recent Items
 bin/             universal builds of pdf/ and recent/ (each build.sh rebuilds them)
 tests/           pytest suite
-docs/images/     README images (sources in docs/images/src/: macup-4k.html, terminal_svg.py, start_gif.py,
-                 wifi_gif.py, banner.html, report_example.sh)
+docs/images/     README images (sources in docs/images/src/: macup-4k.html, macup-tutorial.html,
+                 terminal_svg.py, start_gif.py, wifi_gif.py, banner.html, report_example.sh)
 install.sh       installer
 ```
 

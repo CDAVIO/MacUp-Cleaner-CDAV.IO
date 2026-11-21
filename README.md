@@ -195,14 +195,19 @@ MacUp shows a short **What to do** list, then asks **Fix it now?**
    busy, and Wi-Fi pauses about once a second — that is the ping jump. MacUp
    opens the right page in System Settings, tells you which three switches to
    flip, and checks afterwards that they changed.
-3. **Crowded channel** — MacUp names the emptiest channel for your width and
-   opens your router’s page, with the exact steps. (Channels 52–144 check for
-   radar first, so Wi-Fi is back after about a minute.) If your Wi-Fi comes
-   from a second router or a mesh, change it there.
+3. **Crowded channel** — MacUp names the emptiest channel for your width, then
+   **finds the routers on your network** — including a second router, mesh or
+   access point behind your provider’s box — asks which one gives your Wi-Fi,
+   and opens its page with the exact steps. (Channels 52–144 check for radar
+   first, so Wi-Fi is back after about a minute.)
 4. **Low Power Mode, VPN, a busy app, weak signal, 2.4 GHz** — each gets its own
    plain-words step.
-5. **Test again and compare** — the same test runs again and shows before and
-   after side by side.
+5. **Test again and compare** — the same test runs again, shows before and
+   after side by side, and answers the real question in one line:
+   *“✓ Faster: 470 → 560 Mbps (+19%)”*, *“≈ About the same”* (then the router
+   is the limit) or *“▼ Slower”* (with the way back).
+6. **Every check is remembered** — the next `macup wifi` shows *“Since your last
+   check”*, so you can see what a change did, even days later.
 
 MacUp never changes a setting on its own and never needs an admin password:
 you flip the switch, MacUp checks it.
@@ -345,7 +350,9 @@ official copy is this repository, installed with the one line above.
 - **No admin password, no background process, no network** — except
   `macup update` (downloads from this GitHub repo) and `macup wifi`, which runs
   Apple’s built-in speed test (`networkQuality`, Apple’s test servers) and pings
-  your router and 1.1.1.1. Nothing about you is sent anywhere.
+  your router and 1.1.1.1. Only if you say yes to the fix does it look for
+  router pages on your own network (like opening them in a browser, no login).
+  Nothing about you is sent anywhere.
 - **Skips files in use.** Files an app is using right now are left alone.
 - See [SECURITY.md](SECURITY.md) to report a problem.
 

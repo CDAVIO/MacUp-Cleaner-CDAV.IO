@@ -305,7 +305,7 @@ def test_recommendations_for_the_slow_wifi_above(tmp_path):
 def test_healthy_wifi_gets_no_fixes(tmp_path):
     out = recs(tmp_path, CH="149", BAND="5", WIDTH="80", SIGNAL="-52", GEN="6", PHY="802.11ax", SHARE="0",
                BEST="149", R_SPIKES="0", R_JIT="1", AIRDROP="contacts", HANDOFF="on", AIRPLAY="on", AWDL="0")
-    assert out.strip().splitlines() == ["ok|Your Wi-Fi looks healthy|Good signal, steady ping and a free channel. Run macup wifi again if it feels slow.|"]
+    assert out.strip().splitlines() == ["ok|Your Wi-Fi looks healthy|Good signal, steady ping and a free channel. Run macup wifi again if it feels slow.||mac"]
 
 
 def test_whole_screen_with_recorded_mac_output(tmp_path):
@@ -326,6 +326,9 @@ pmset() {{ printf ' powermode            0\\n'; }}
 defaults() {{ case "$*" in *DiscoverableMode*) echo Everyone ;; *ActivityAdvertisingAllowed*) echo 1 ;; *Airplay*) echo 1 ;; *) return 1 ;; esac; }}
 ifconfig() {{ printf 'awdl0: flags=8863<UP>\\n\\tstatus: active\\n'; }}
 sleep() {{ :; }}
+arp() {{ printf '? (192.168.1.1) at 24:58:6e:d7:c8:d1 on en0 ifscope [ethernet]\\n? (192.168.1.9) at 6a:1e:f6:66:12:7 on en0 ifscope [ethernet]\\n'; }}
+dig() {{ echo ';; connection timed out; no servers could be reached'; }}
+curl() {{ return 7; }}
 W_PLAN=1000
 cmd_wifi
 '''
@@ -334,7 +337,8 @@ cmd_wifi
                  "5 GHz · channel 36 · 80 MHz", "Wi-Fi 5 (802.11ac)", "-49 dBm · excellent (noise -94 dBm)",
                  "5 nearby networks use your channel", "Emptiest channel: 100 (0 networks)",
                  "1.1.1.1, 8.8.8.8", "Everyone", "Turn off AirDrop, Handoff and AirPlay Receiver",
-                 "move Wi-Fi to channel 100 (80 MHz)"]:
+                 "move Wi-Fi to channel 100 (80 MHz)", "Devices found", "2 · 1 without a name",
+                 "What to fix · 4 in all", "On this Mac (1)", "On your router (2)", "Devices on your Wi-Fi (1)"]:
         assert text in out, text
     # Not an interactive Terminal: nothing is changed and nothing is saved.
     assert not (tmp_path / "state").exists()
@@ -425,3 +429,84 @@ echo "PICK=$REPLY"
 '''
     out = run_bash(tmp_path, body)
     assert "PICK=192.168.1.8" in out and "second router" in out
+
+
+LAN_ARP = ("? (192.168.1.1) at 24:58:6e:d7:c8:d1 on en0 ifscope [ethernet]\n"
+           "? (192.168.1.5) at e:4a:6d:b8:ee:c on en0 ifscope permanent [ethernet]\n"
+           "? (192.168.1.8) at 98:da:c4:b8:e:8e on en0 ifscope [ethernet]\n"
+           "? (192.168.1.9) at 86:1e:f6:66:12:7 on en0 ifscope [ethernet]\n"
+           "? (192.168.1.12) at 6a:22:33:44:55:66 on en0 ifscope [ethernet]\n"
+           "? (192.168.1.14) at 40:5e:f6:12:34:56 on en0 ifscope [ethernet]\n"
+           "? (192.168.1.20) at (incomplete) on en0 ifscope [ethernet]\n"
+           "? (192.168.1.255) at ff:ff:ff:ff:ff:ff on en0 ifscope [ethernet]\n")
+
+
+def lan_body(tmp_path, then):
+    (tmp_path / "tplink.html").write_text(TPLINK_PAGE)
+    (tmp_path / "zte.html").write_text(ZTE_PAGE)
+    (tmp_path / "arp.txt").write_text(LAN_ARP)
+    return f"""
+ping() {{ :; }}
+ipconfig() {{ echo 255.255.255.0; }}
+arp() {{ cat "{tmp_path}/arp.txt"; }}
+scutil() {{ echo "MacBook Pro"; }}
+dig() {{ case "$*" in
+  *192.168.1.9*224.0.0.251*) echo 'iPhone.local.' ;;
+  *192.168.1.14*@192.168.1.1*) echo 'Galaxy-S24.lan.' ;;
+  *) echo ';; connection timed out; no servers could be reached' ;; esac; }}
+curl() {{ local u; for u; do :; done; case "$u" in http://192.168.1.1/) cat "{tmp_path}/zte.html" ;; http://192.168.1.8/) cat "{tmp_path}/tplink.html" ;; *) return 7 ;; esac; }}
+wifi_reset; W_DEV=en0; W_IP=192.168.1.5; W_ROUTER=192.168.1.1
+{then}
+"""
+
+
+def test_devices_on_the_network_are_listed_and_unknown_ones_marked(tmp_path):
+    out = run_bash(tmp_path, lan_body(tmp_path, 'wifi_devices; echo "N=$W_LAN_N U=$W_UNKNOWN"; wifi_show_devices; cat "$MACUP_TMP/wifi.devices"'))
+    assert "N=6 U=1" in out
+    rows = [line for line in out.splitlines() if line.count("\t") == 4]
+    assert rows == [
+        "192.168.1.1\tZTE · F618\trouter\tZTE\tgw",
+        "192.168.1.5\tMacBook Pro\tthismac\tApple\tme",
+        "192.168.1.8\tTP-Link · Opening...\trouter\tTP-Link\tknown",
+        "192.168.1.9\tiPhone\tphone\tApple\tknown",
+        "192.168.1.12\t-\tunknown\tprivate address\tunknown",
+        "192.168.1.14\tGalaxy-S24\tphone\tSamsung\tknown",
+    ]
+    for text in ["Devices on your network", "6 · 1 without a name", "Address", "Maker",
+                 "ZTE · main router", "this Mac", "phones often hide behind a private address"]:
+        assert text in out, text
+    assert any(line.lstrip().startswith("?  192.168.1.12") for line in out.splitlines())
+    # The router finder reuses the same sweep and pages: it still suggests the TP-Link.
+    out = run_bash(tmp_path, lan_body(tmp_path, 'wifi_devices; wifi_pick_router; echo "PICK=$REPLY"'))
+    assert "PICK=192.168.1.8" in out
+
+
+def test_private_wifi_addresses_are_recognised(tmp_path):
+    out = run_bash(tmp_path, 'for m in e:4a:6d:b8:ee:c 6a:22:33:44:55:66 98:da:c4:b8:e:8e 24:58:6e:d7:c8:d1 2:0:0:0:0:1; do wifi_mac_private $m && echo P || echo -; done')
+    assert out.split() == ["P", "P", "-", "-", "P"]
+
+
+def test_fixes_are_grouped_with_a_count_and_three_choices(tmp_path):
+    body = """wifi_reset; W_CH=36; W_BAND=5; W_WIDTH=80; W_SIGNAL=-49; W_GEN=5; W_PHY=802.11ac; W_SHARE=5; W_SAME=2
+W_BEST=100; W_BEST_N=0; W_R_SPIKES=7; W_R_JIT=19; W_AIRDROP=everyone; W_HANDOFF=on; W_AIRPLAY=on; W_AWDL=1
+W_DL=350; W_PLAN=1000; W_LOWPOWER=1; W_UNKNOWN=2
+wifi_recommendations; wifi_show_fixes; wifi_choose; echo "CHOICE=$REPLY"
+"""
+    out = run_bash(tmp_path, body)
+    for text in ["What to fix · 5 in all", "On this Mac (2)", "On your router (2)", "Devices on your Wi-Fi (1)",
+                 "Devices without a name: 2", "Yes, all of them", "Let me choose", "Not now", "CHOICE=1"]:
+        assert text in out, text
+    mac = out.index("On this Mac (2)"); router = out.index("On your router (2)"); dev = out.index("Devices on your Wi-Fi (1)")
+    assert mac < out.index("Turn off AirDrop") < router < out.index("move Wi-Fi to channel 100") < dev
+    out = run_bash(tmp_path, body.replace("W_UNKNOWN=2", "W_UNKNOWN=0"))
+    assert "Devices on your Wi-Fi (0) · nothing to change" in out
+
+
+def test_device_names_are_cleaned_and_typed(tmp_path):
+    body = """W_ROUTER=192.168.1.1
+dig() { case "$*" in *224.0.0.251*) echo "$NAME" ;; *) echo ';; no servers could be reached' ;; esac; }
+for NAME in 'Living-Room-TV.local.' 'HP1A2B3C.local.' 'DESKTOP-7K2L.home.' 'Kitchen-iPad.local.' ''; do
+  n=$(wifi_dev_name 192.168.1.30); printf '%s|%s\\n' "$n" "$(wifi_dev_kind "$n" | tr '\\t' ',')"
+done"""
+    out = run_bash(tmp_path, body).splitlines()
+    assert out == ["Living-Room-TV|tv,", "HP1A2B3C|", "DESKTOP-7K2L|computer,", "Kitchen-iPad|tablet,Apple", "|"]

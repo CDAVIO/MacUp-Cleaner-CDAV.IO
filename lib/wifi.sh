@@ -7,6 +7,7 @@
 #   ping             your router and 1.1.1.1 (ping jumps = a Wi-Fi problem)
 #   nettop           which apps use the network right now (5 seconds)
 #   networkQuality   Apple's built-in speed test (talks to Apple's test servers)
+#   ping, arp, dig   the devices on your own network and the names they announce
 # The fix never changes a setting by itself: MacUp writes down the current
 # values first, opens the right System Settings page (or your router's page)
 # and checks again afterwards. No admin password. Bash 3.2 compatible.
@@ -30,6 +31,7 @@ wifi_reset() {
   W_DNS=""; W_VPN=""; W_PROXY=0; W_LOWPOWER=0; W_AWDL=0
   W_AIRDROP=""; W_HANDOFF=""; W_AIRPLAY=""
   W_APPS=""; W_APPS_TOTAL="0"
+  W_LAN_N=0; W_UNKNOWN=0
   W_PLAN="${W_PLAN:-}"
 }
 
@@ -316,6 +318,7 @@ wifi_collect() {
   read -r W_I_MED W_I_MAX W_I_JIT W_I_SPIKES W_I_LOSS <<< "$(wifi_ping 1.1.1.1)"
   progress wifi_step_mac;   wifi_mac_settings
   progress wifi_step_apps;  wifi_apps
+  progress wifi_step_devices; wifi_devices
   progress wifi_step_speed; wifi_speed
   wifi_save_state
 }
@@ -366,42 +369,46 @@ wifi_is_dfs() { [ "${1:-0}" -ge 52 ] 2>/dev/null && [ "${1:-0}" -le 144 ]; }
 
 wifi_pct() { awk -v a="${1:-0}" -v b="${2:-0}" 'BEGIN { if (b > 0) printf "%.0f", a * 100 / b }'; }
 
-# REC lines: level|title|detail|command (same format as the complete check)
+# REC lines: level|title|detail|command|group — group is where the change is
+# made: mac (this Mac), router (your router) or devices (devices on your Wi-Fi).
 wifi_recommendations() {
   REC=""
-  add() { REC="${REC}$1|$2|$3|${4:-}"$'\n'; }
+  add() { REC="${REC}$1|$3|$4||$2"$'\n'; }   # LEVEL GROUP TITLE DETAIL
   if [ -n "$W_SIGNAL" ] && [ "$W_SIGNAL" -lt -70 ] 2>/dev/null; then
-    add bad "$(t wifi_rec_signal "$W_SIGNAL")" "$(t wifi_rec_signal_d)"
+    add bad router "$(t wifi_rec_signal "$W_SIGNAL")" "$(t wifi_rec_signal_d)"
   fi
   if [ "$W_BAND" = "2.4" ]; then
-    add warn "$(t wifi_rec_band)" "$(t wifi_rec_band_d)"
+    add warn mac "$(t wifi_rec_band)" "$(t wifi_rec_band_d)"
   fi
   if wifi_continuity_busy && { wifi_has_jumps || [ "$W_AWDL" = "1" ]; }; then
-    add warn "$(t wifi_rec_awdl)" "$(t wifi_rec_awdl_d)"
+    add warn mac "$(t wifi_rec_awdl)" "$(t wifi_rec_awdl_d)"
   fi
   if wifi_channel_fix; then
     local extra=""
     wifi_is_dfs "$W_BEST" && extra=" $(t wifi_rec_dfs)"
-    add warn "$(t wifi_rec_channel "$W_BEST" "$W_WIDTH")" "$(t wifi_rec_channel_d "$W_SHARE" "$W_CH" "$W_BEST_N")$extra"
+    add warn router "$(t wifi_rec_channel "$W_BEST" "$W_WIDTH")" "$(t wifi_rec_channel_d "$W_SHARE" "$W_CH" "$W_BEST_N")$extra"
   fi
-  if [ -n "$W_VPN" ]; then add warn "$(t wifi_rec_vpn "$W_VPN")" "$(t wifi_rec_vpn_d)"; fi
-  if [ "$W_LOWPOWER" = "1" ]; then add warn "$(t wifi_rec_lowpower)" "$(t wifi_rec_lowpower_d)"; fi
+  if [ -n "$W_VPN" ]; then add warn mac "$(t wifi_rec_vpn "$W_VPN")" "$(t wifi_rec_vpn_d)"; fi
+  if [ "$W_LOWPOWER" = "1" ]; then add warn mac "$(t wifi_rec_lowpower)" "$(t wifi_rec_lowpower_d)"; fi
   local busy_mb busy_app
   busy_mb=$(head -1 "$MACUP_TMP/wifi.apps" 2>/dev/null | cut -f1)
   busy_app=$(head -1 "$MACUP_TMP/wifi.apps" 2>/dev/null | cut -f2)
   if [ -n "$busy_mb" ] && awk -v m="$busy_mb" 'BEGIN { exit !(m >= 5) }'; then
-    add warn "$(t wifi_rec_app "$busy_app" "$(awk -v m="$busy_mb" 'BEGIN { printf "%.0f", m }')")" "$(t wifi_rec_app_d)"
+    add warn mac "$(t wifi_rec_app "$busy_app" "$(awk -v m="$busy_mb" 'BEGIN { printf "%.0f", m }')")" "$(t wifi_rec_app_d)"
   fi
   case "$W_GEN" in
     4|5)
       local pct=""
       [ -n "$W_PLAN" ] && [ -n "$W_DL" ] && pct=$(wifi_pct "$W_DL" "$W_PLAN")
       if [ -z "$pct" ] || [ "$pct" -lt 60 ]; then
-        add info "$(t wifi_rec_router "$W_GEN")" "$(t wifi_rec_router_d)"
+        add info router "$(t wifi_rec_router "$W_GEN")" "$(t wifi_rec_router_d)"
       fi
       ;;
   esac
-  if [ -z "$REC" ]; then add ok "$(t wifi_rec_all_good)" "$(t wifi_rec_all_good_d)"; fi
+  if [ "${W_UNKNOWN:-0}" -gt 0 ] 2>/dev/null; then
+    add warn devices "$(t wifi_rec_devices "$W_UNKNOWN")" "$(t wifi_rec_devices_d)"
+  fi
+  if [ -z "$REC" ]; then add ok mac "$(t wifi_rec_all_good)" "$(t wifi_rec_all_good_d)"; fi
   unset -f add
   return 0
 }
@@ -504,11 +511,208 @@ wifi_show_mac() {
   fi
 }
 
+wifi_type_word() {
+  case "$1" in
+    router) t wifi_dev_t_router ;; thismac) t wifi_dev_t_thismac ;; phone) t wifi_dev_t_phone ;;
+    tablet) t wifi_dev_t_tablet ;; computer) t wifi_dev_t_computer ;; tv) t wifi_dev_t_tv ;;
+    speaker) t wifi_dev_t_speaker ;; watch) t wifi_dev_t_watch ;; printer) t wifi_dev_t_printer ;;
+    console) t wifi_dev_t_console ;; camera) t wifi_dev_t_camera ;; *) t wifi_dev_t_unknown ;;
+  esac
+}
+
+wifi_group_word() {
+  case "$1" in mac) t wifi_group_mac ;; router) t wifi_group_router ;; *) t wifi_group_devices ;; esac
+}
+
+wifi_show_devices() {
+  printf "\n  ${C_D}%s${C_R}\n" "$(t k_devices)"
+  if [ ! -s "$MACUP_TMP/wifi.devices" ]; then
+    ui_row "$(t k_devices_found)" "$(t wifi_devices_none)" info
+    return 0
+  fi
+  if [ "${W_UNKNOWN:-0}" -gt 0 ]; then
+    ui_row "$(t k_devices_found)" "$(t wifi_devices_found "$W_LAN_N" "$W_UNKNOWN")" warn
+  else
+    ui_row "$(t k_devices_found)" "$(t wifi_devices_all_named "$W_LAN_N")" ok
+  fi
+  printf "     ${C_D}%s %s %s %s${C_R}\n" "$(ui_pad "$(t wifi_dev_h_ip)" 15)" "$(ui_pad "$(t wifi_dev_h_name)" 24)" \
+    "$(ui_pad "$(t wifi_dev_h_type)" 12)" "$(t wifi_dev_h_maker)"
+  local ip name type maker flag mark
+  while IFS=$'\t' read -r ip name type maker flag; do
+    mark=" "
+    [ "$name" = "-" ] && name=""
+    [ "$maker" = "-" ] && maker=""
+    [ "$flag" = "unknown" ] && mark="${C_Y}?${C_R}"
+    [ "$flag" = "gw" ] && maker="${maker:+$maker · }$(t wifi_router_main)"
+    printf "  %b  %s %s %s ${C_D}%s${C_R}\n" "$mark" "$(ui_pad "$ip" 15)" "$(ui_pad "${name:-—}" 24)" \
+      "$(ui_pad "$(wifi_type_word "$type")" 12)" "$maker"
+  done < "$MACUP_TMP/wifi.devices"
+  [ "${W_UNKNOWN:-0}" -gt 0 ] && ui_note "     $(t wifi_devices_note)"
+  return 0
+}
+
+# The fixes in one list, grouped by where the change is made, with a count.
+wifi_show_fixes() {
+  local total g n level title detail cmd group mark
+  case "$REC" in
+    ok\|*) ui_title "$(t report_recs)" "→"; show_recommendations; return 0 ;;
+  esac
+  total=$(printf '%s' "$REC" | awk -F'|' 'NF && $1 != "ok"' | wc -l | tr -d ' ')
+  ui_title "$(t wifi_fixes_title "$total")" "→"
+  for g in mac router devices; do
+    n=$(printf '%s' "$REC" | awk -F'|' -v g="$g" '$5 == g' | wc -l | tr -d ' ')
+    if [ "$n" -eq 0 ]; then
+      printf "  ${C_D}%s (0) · %s${C_R}\n" "$(wifi_group_word "$g")" "$(t wifi_group_none)"
+      continue
+    fi
+    printf "  ${C_Y}%s (%s)${C_R}\n" "$(wifi_group_word "$g")" "$n"
+    while IFS='|' read -r level title detail cmd group; do
+      [ "$group" = "$g" ] || continue
+      case "$level" in bad) mark="${C_Y}✕${C_R}" ;; warn) mark="${C_Y}!${C_R}" ;; *) mark="${C_D}·${C_R}" ;; esac
+      printf "  %b  ${C_B}%s${C_R}\n" "$mark" "$title"
+      printf "     ${C_D}%s${C_R}\n" "$detail"
+    done <<< "$REC"
+  done
+  return 0
+}
+
+# ── devices on your network ─────────────────────────────────────────────────
+
+# Wakes the devices on your network (one ping to each address, /24 networks
+# only) and lists the ones that answered → $MACUP_TMP/wifi.lan "ip<TAB>mac".
+wifi_sweep() {
+  local net="${W_ROUTER%.*}" mask i
+  : > "$MACUP_TMP/wifi.lan"
+  [ -n "$W_ROUTER" ] || return 0
+  mask=$(ipconfig getoption "$W_DEV" subnet_mask 2>/dev/null) || mask=""
+  if [ "$mask" = "255.255.255.0" ]; then
+    for ((i = 1; i < 255; i++)); do ping -c1 -W 300 "$net.$i" >/dev/null 2>&1 & done
+    wait
+  fi
+  arp -an 2>/dev/null | awk -v net="$net." '{
+      ip = $2; gsub(/[()]/, "", ip)
+      if (index(ip, net) == 1 && $4 ~ /:/ && $4 != "ff:ff:ff:ff:ff:ff") print ip "\t" $4 }' |
+    sort -u -t. -k4,4n > "$MACUP_TMP/wifi.lan"
+  awk -F'\t' -v r="$W_ROUTER" '$1 == r { f = 1 } END { exit !f }' "$MACUP_TMP/wifi.lan" ||
+    printf '%s\t\n' "$W_ROUTER" >> "$MACUP_TMP/wifi.lan"
+  return 0
+}
+
+# A phone or tablet with "Private Wi-Fi Address" on uses a made-up address:
+# its first byte has the "locally administered" bit (x2, x6, xA, xE).
+wifi_mac_private() {
+  local b="${1%%:*}"
+  [ "${#b}" -eq 1 ] && b="0$b"
+  case "$b" in ?[26aAeE]) return 0 ;; esac
+  return 1
+}
+
+# IP → the name the device announces (Bonjour), or the name your router gave
+# it. Empty when neither answers within a second.
+wifi_dev_name() {
+  local n=""
+  n=$(dig +short +time=1 +tries=1 -x "$1" @224.0.0.251 -p 5353 2>/dev/null | grep -v '^;' | head -1)
+  if [ -z "$n" ] && [ -n "$W_ROUTER" ]; then
+    n=$(dig +short +time=1 +tries=1 -x "$1" @"$W_ROUTER" 2>/dev/null | grep -v '^;' | head -1)
+  fi
+  n=${n%.}
+  case "$n" in *.local|*.lan|*.home|*.localdomain|*.box|*.router) n=${n%.*} ;; esac
+  case "$n" in *.fritz) n=${n%.fritz} ;; esac
+  case "$n" in ""|*.in-addr.arpa|*" "*) n="" ;; esac
+  printf '%s' "${n:0:40}"
+}
+
+# NAME (or page title) → "type<TAB>maker" when the name gives it away.
+wifi_dev_kind() {
+  local n
+  n=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+  case "$n" in
+    *iphone*) printf 'phone\tApple' ;;
+    *ipad*) printf 'tablet\tApple' ;;
+    *macbook*|*imac*|*mac-mini*|*macmini*|*mac-studio*|*mac-pro*) printf 'computer\tApple' ;;
+    *apple-tv*|*appletv*) printf 'tv\tApple' ;;
+    *homepod*) printf 'speaker\tApple' ;;
+    *apple-watch*|*applewatch*) printf 'watch\tApple' ;;
+    *galaxy-tab*|*galaxytab*) printf 'tablet\tSamsung' ;;
+    *galaxy*|sm-*) printf 'phone\tSamsung' ;;
+    *pixel*) printf 'phone\tGoogle' ;;
+    *chromecast*|*google-tv*) printf 'tv\tGoogle' ;;
+    *google-home*|*google-nest*|nest-*) printf 'speaker\tGoogle' ;;
+    *redmi*|*xiaomi*|*poco*) printf 'phone\tXiaomi' ;;
+    *huawei*) printf 'phone\tHuawei' ;;
+    *oneplus*) printf 'phone\tOnePlus' ;;
+    *android*) printf 'phone\t' ;;
+    *echo*|*alexa*) printf 'speaker\tAmazon' ;;
+    *fire-tv*|*firetv*) printf 'tv\tAmazon' ;;
+    *kindle*) printf 'tablet\tAmazon' ;;
+    *playstation*|*ps4*|*ps5*) printf 'console\tSony' ;;
+    *xbox*) printf 'console\tMicrosoft' ;;
+    *nintendo*) printf 'console\tNintendo' ;;
+    *bravia*) printf 'tv\tSony' ;;
+    *webos*|*lg-tv*|*lgtv*) printf 'tv\tLG' ;;
+    *tizen*|*samsung-tv*) printf 'tv\tSamsung' ;;
+    *roku*) printf 'tv\tRoku' ;;
+    *sonos*) printf 'speaker\tSonos' ;;
+    *laserjet*|*officejet*|*deskjet*) printf 'printer\tHP' ;;
+    *epson*) printf 'printer\tEpson' ;;
+    *canon*) printf 'printer\tCanon' ;;
+    *brother*) printf 'printer\tBrother' ;;
+    *printer*) printf 'printer\t' ;;
+    *camera*|*ipcam*|*-cam|*-cam-*) printf 'camera\t' ;;
+    *watch*) printf 'watch\t' ;;
+    *-tv|*-tv-*|*smarttv*|*smart-tv*) printf 'tv\t' ;;
+    desktop-*|laptop-*|*-pc|*thinkpad*|*windows*) printf 'computer\t' ;;
+  esac
+}
+
+# The devices on your network → $MACUP_TMP/wifi.devices
+#   ip<TAB>name<TAB>type<TAB>maker<TAB>flag (me, gw, known or unknown; "-" = not known)
+# and W_LAN_N (how many) / W_UNKNOWN (how many MacUp could not name).
+# Only reads: one ping per address, the names devices announce (Bonjour) or
+# your router gave them, and each device's start page like a browser would.
+wifi_devices() {
+  local ip mac name type maker flag label brand kind
+  : > "$MACUP_TMP/wifi.devices"
+  W_LAN_N=0; W_UNKNOWN=0
+  [ -n "$W_ROUTER" ] || return 0
+  wifi_sweep
+  while IFS=$'\t' read -r ip mac; do
+    [ "$ip" = "$W_IP" ] && continue
+    ( wifi_dev_name "$ip" > "$MACUP_TMP/name.$ip" ) &
+    ( wifi_web_label "$ip" > "$MACUP_TMP/web.$ip" ) &
+  done < "$MACUP_TMP/wifi.lan"
+  wait
+  while IFS=$'\t' read -r ip mac; do
+    [ -n "$ip" ] || continue
+    name=""; type="unknown"; maker=""; flag="known"; label=""; brand=0
+    if [ "$ip" = "$W_IP" ]; then
+      name=$(scutil --get ComputerName 2>/dev/null) || name=""
+      type="thismac"; maker="Apple"; flag="me"
+    else
+      name=$(cat "$MACUP_TMP/name.$ip" 2>/dev/null)
+      [ -s "$MACUP_TMP/web.$ip" ] && IFS=$'\t' read -r label brand < "$MACUP_TMP/web.$ip"
+      kind=$(wifi_dev_kind "${name:-$label}")
+      if [ -n "$kind" ]; then type=${kind%%$'\t'*}; maker=${kind#*$'\t'}; fi
+      if [ "$brand" = "1" ]; then type="router"; maker=${label%% ·*}; fi
+      if [ "$ip" = "$W_ROUTER" ]; then type="router"; flag="gw"; fi
+      [ -z "$name" ] && [ -n "$label" ] && [ "$label" != "web page" ] && name="$label"
+      if [ -z "$maker" ] && [ -n "$mac" ] && wifi_mac_private "$mac"; then maker="$(t wifi_dev_private)"; fi
+      [ -z "$name" ] && [ "$flag" = "known" ] && flag="unknown"
+    fi
+    # "-" stands for "not known": read splits on tabs and would skip an empty field.
+    name=$(printf '%s' "${name:0:24}" | tr '\t' ' ')
+    printf '%s\t%s\t%s\t%s\t%s\n' "$ip" "${name:--}" "$type" "${maker:--}" "$flag"
+  done < "$MACUP_TMP/wifi.lan" > "$MACUP_TMP/wifi.devices"
+  W_LAN_N=$(wc -l < "$MACUP_TMP/wifi.devices" | tr -d ' ')
+  W_UNKNOWN=$(awk -F'\t' '$5 == "unknown"' "$MACUP_TMP/wifi.devices" | wc -l | tr -d ' ')
+  return 0
+}
+
 # The router that gives your Wi-Fi is not always the main router: a second
 # router, mesh or access point can hang behind it (e.g. a TP-Link on the
-# provider's box). After you say yes to the fix, MacUp pings each address of
-# your network once and opens the start page of the devices that answer, the
-# same as a browser would (no login, nothing is changed), to name them.
+# provider's box). To name them, MacUp pings each address of your network
+# once and opens the start page of the devices that answer, the same as a
+# browser would (no login, nothing is changed).
 wifi_web_label() { # IP → "label<TAB>1 if a router brand was recognised"
   local raw low brand="" title realm label
   raw=$(curl -s -k -m 2 --noproxy '*' -L --max-redirs 2 -D - "http://$1/" 2>/dev/null | head -c 40000 | tr '\r\n\t' '   ') || raw=""
@@ -548,25 +752,17 @@ wifi_web_label() { # IP → "label<TAB>1 if a router brand was recognised"
 }
 
 wifi_find_routers() { # → $MACUP_TMP/wifi.routers: "ip<TAB>label<TAB>brand"
-  local net="${W_ROUTER%.*}" mask ip i
+  local ip mac
   : > "$MACUP_TMP/wifi.routers"
   [ -n "$W_ROUTER" ] || return 0
-  mask=$(ipconfig getoption "$W_DEV" subnet_mask 2>/dev/null) || mask=""
-  if [ "$mask" = "255.255.255.0" ]; then
-    for ((i = 1; i < 255; i++)); do ping -c1 -W 300 "$net.$i" >/dev/null 2>&1 & done
-    wait
-  fi
-  arp -an 2>/dev/null | awk -v net="$net." '{
-      ip = $2; gsub(/[()]/, "", ip)
-      if (index(ip, net) == 1 && $4 ~ /:/ && $4 != "ff:ff:ff:ff:ff:ff") print ip }' |
-    sort -u -t. -k4,4n > "$MACUP_TMP/wifi.lan"
-  grep -qx "$W_ROUTER" "$MACUP_TMP/wifi.lan" || printf '%s\n' "$W_ROUTER" >> "$MACUP_TMP/wifi.lan"
-  while read -r ip; do
+  [ -s "$MACUP_TMP/wifi.lan" ] || wifi_sweep
+  while IFS=$'\t' read -r ip mac; do
     [ "$ip" = "$W_IP" ] && continue
+    [ -f "$MACUP_TMP/web.$ip" ] && continue
     ( wifi_web_label "$ip" > "$MACUP_TMP/web.$ip" ) &
   done < "$MACUP_TMP/wifi.lan"
   wait
-  sort -u -t. -k4,4n "$MACUP_TMP/wifi.lan" | while read -r ip; do
+  cut -f1 "$MACUP_TMP/wifi.lan" | sort -u -t. -k4,4n | while read -r ip; do
     [ -s "$MACUP_TMP/web.$ip" ] && printf '%s\t%s\n' "$ip" "$(cat "$MACUP_TMP/web.$ip")"
   done > "$MACUP_TMP/wifi.routers"
   return 0
@@ -620,6 +816,7 @@ wifi_write_before() {
     printf '\n%s: %s Mbps\n' "$(t k_download)" "${W_DL:-—}"
     [ -n "$W_R_MED" ] && printf '%s: %s\n' "$(t k_ping_router)" "$(t wifi_ping_val "$W_R_MED" "$W_R_MAX" "$W_R_JIT")"
     [ -n "$W_I_MED" ] && printf '%s: %s\n' "$(t k_ping_net)" "$(t wifi_ping_val "$W_I_MED" "$W_I_MAX" "$W_I_JIT")"
+    :   # a missing last value must not count as "could not save"
   } > "$WIFI_BEFORE"
 }
 
@@ -680,18 +877,31 @@ wifi_before_after() { # B_DL B_RMAX B_RJIT
   return 0
 }
 
+# wifi_step_ok QUESTION → yes when you chose "Yes, all of them", else asks.
+wifi_step_ok() {
+  [ "${WIFI_FIX_MODE:-pick}" = "all" ] && return 0
+  ui_yes "$1" y
+}
+
+wifi_step_head() { # TITLE → numbered step heading
+  WIFI_STEP=$((WIFI_STEP + 1))
+  echo
+  printf "  ${C_Y}%s${C_R}  ${C_B}%s${C_R}\n" "$WIFI_STEP" "$1"
+}
+
+# wifi_fix all|pick
 wifi_fix() {
-  local b_dl="$W_DL" b_rmax="$W_R_MAX" b_rjit="$W_R_JIT" changed=0
+  local b_dl="$W_DL" b_rmax="$W_R_MAX" b_rjit="$W_R_JIT" changed=0 wifi_router=""
+  WIFI_FIX_MODE="${1:-pick}"; WIFI_STEP=0
   ui_title "$(t wifi_fix_title)" "→"
   if wifi_write_before; then
     ui_row "$(t wifi_saved)" "${C_D}$WIFI_BEFORE${C_R}" ok
     ui_note "     $(t wifi_undo_hint)"
   fi
   if wifi_continuity_busy; then
-    echo
-    printf "  ${C_Y}1${C_R}  ${C_B}%s${C_R}\n" "$(t wifi_rec_awdl)"
+    wifi_step_head "$(t wifi_rec_awdl)"
     ui_note "     $(t wifi_switch_steps)"
-    if ui_yes "$(t wifi_open_airdrop_q)" y; then
+    if wifi_step_ok "$(t wifi_open_airdrop_q)"; then
       open "$WIFI_PANE_AIRDROP" 2>/dev/null || open -b com.apple.systempreferences 2>/dev/null || true
       ui_pause "$(t wifi_done_enter)"
       wifi_read_continuity
@@ -702,31 +912,38 @@ wifi_fix() {
     fi
   fi
   if wifi_channel_fix; then
-    echo
-    printf "  ${C_Y}2${C_R}  ${C_B}%s${C_R}\n" "$(t wifi_rec_channel "$W_BEST" "$W_WIDTH")"
-    local wifi_router=""
+    wifi_step_head "$(t wifi_rec_channel "$W_BEST" "$W_WIDTH")"
     wifi_pick_router; wifi_router="$REPLY"
     ui_note "     $(t wifi_router_steps "${wifi_router:-192.168.1.1}" "$W_BEST" "$W_WIDTH")"
     wifi_is_dfs "$W_BEST" && ui_note "     $(t wifi_rec_dfs)"
-    if [ -n "$wifi_router" ] && ui_yes "$(t wifi_open_router_q)" y; then
+    if [ -n "$wifi_router" ] && wifi_step_ok "$(t wifi_open_router_q)"; then
       open "http://$wifi_router" 2>/dev/null || true
       ui_pause "$(t wifi_done_enter)"
       changed=1
     fi
   fi
   if [ "$W_LOWPOWER" = "1" ]; then
-    echo
-    printf "  ${C_Y}3${C_R}  ${C_B}%s${C_R}\n" "$(t wifi_rec_lowpower)"
-    if ui_yes "$(t wifi_open_battery_q)" y; then
+    wifi_step_head "$(t wifi_rec_lowpower)"
+    if wifi_step_ok "$(t wifi_open_battery_q)"; then
       open "$WIFI_PANE_BATTERY" 2>/dev/null || true
       ui_pause "$(t wifi_done_enter)"
       changed=1
     fi
   fi
-  # Offer the test whenever a step was shown: some changes (like the router's
-  # channel) are often made by hand in the browser.
+  if [ "${W_UNKNOWN:-0}" -gt 0 ] 2>/dev/null; then
+    wifi_step_head "$(t wifi_rec_devices "$W_UNKNOWN")"
+    awk -F'\t' '$5 == "unknown" { printf "     ?  %-15s  %s\n", $1, ($4 == "-" ? "" : $4) }' "$MACUP_TMP/wifi.devices" 2>/dev/null
+    [ -n "$wifi_router" ] || { wifi_pick_router; wifi_router="$REPLY"; }
+    ui_note "     $(t wifi_devices_steps "${wifi_router:-192.168.1.1}")"
+    if [ -n "$wifi_router" ] && wifi_step_ok "$(t wifi_open_router_q)"; then
+      open "http://$wifi_router" 2>/dev/null || true
+      ui_pause "$(t wifi_done_enter)"
+    fi
+  fi
+  # Offer the test whenever a speed step was shown: some changes (like the
+  # router's channel) are often made by hand in the browser.
   [ "$changed" = "1" ] || wifi_continuity_busy || wifi_channel_fix || [ "$W_LOWPOWER" = "1" ] || return 0
-  if ui_yes "$(t wifi_retest_q)" y; then
+  if wifi_step_ok "$(t wifi_retest_q)"; then
     echo
     ui_spin "$(t wifi_checking)" wifi_measure_quiet
     wifi_load_state
@@ -751,6 +968,7 @@ cmd_wifi() {
   ui_title "$(t wifi_title)" "7"
   ui_note "$(t wifi_intro)"
   ui_note "$(t wifi_intro_net)"
+  ui_note "$(t wifi_intro_devices)"
   W_DEV=$(wifi_device)
   if [ -z "$W_DEV" ]; then echo; ui_row "Wi-Fi" "$(t wifi_no_wifi)" warn; return 0; fi
   W_IP=$(ipconfig getifaddr "$W_DEV" 2>/dev/null) || W_IP=""
@@ -768,13 +986,31 @@ cmd_wifi() {
   wifi_show_speed
   wifi_show_radio
   wifi_show_mac
-  ui_title "$(t report_recs)" "→"
+  wifi_show_devices
   wifi_recommendations
-  show_recommendations
+  wifi_show_fixes
   case "$REC" in
     ok\|*) return 0 ;;
   esac
-  if [ -t 0 ] && ui_yes "$(t wifi_fix_q)" y; then wifi_fix; fi
+  [ -t 0 ] || return 0
+  wifi_choose
+  case "$REPLY" in
+    1) wifi_fix all ;;
+    2) wifi_fix pick ;;
+    *) echo; ui_note "$(t wifi_choice_later_note)" ;;
+  esac
+  return 0
+}
+
+# Yes, all of them / Let me choose / Not now → 1, 2 or 3 in $REPLY.
+wifi_choose() {
+  if [ "${MACUP_YES:-0}" = "1" ]; then REPLY=1; return 0; fi
+  printf "\n  ${C_B}%s${C_R}\n" "$(t wifi_choice_q)"
+  printf "     ${C_Y}1${C_R}  %s\n" "$(t wifi_choice_all)"
+  printf "     ${C_Y}2${C_R}  %s\n" "$(t wifi_choice_pick)"
+  printf "     ${C_Y}3${C_R}  %s\n" "$(t wifi_choice_later)"
+  ui_ask "$(t wifi_choice_prompt)" 1
+  case "$REPLY" in 1|2) ;; *) REPLY=3 ;; esac
   return 0
 }
 

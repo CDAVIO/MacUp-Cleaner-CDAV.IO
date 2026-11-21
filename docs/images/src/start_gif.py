@@ -96,7 +96,7 @@ def build():
     ask = [[], [("  › ", Y, False), (S["choose"] + " ", M, False)]]
     add(shown + menu + rows + ask, 3, "Type macup — then pick a number", ms=500, cursor=True, small_row=0)
     ask7 = [[], [("  › ", Y, False), (S["choose"] + " ", M, False), ("7", Y, True)]]
-    add(shown + menu + rows + ask7, 3, "Type macup — then pick a number  ·  7 = Wi-Fi Fix", ms=5000 - sum(durations) - 0,
+    add(shown + menu + rows + ask7, 3, "Type macup — then pick a number  ·  7 = Wi-Fi Check", ms=5000 - sum(durations) - 0,
         small_row=0)
     assert sum(durations) == 5000, sum(durations)
     pal = [f.convert("P", palette=Image.ADAPTIVE, colors=128) for f in frames]

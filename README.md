@@ -7,8 +7,9 @@
 **Mac health from the Terminal — free & open source.**
 Find the hidden caches behind “System Data”, check your SSD, battery, memory,
 processor, graphics and built-in security, and see your **battery health %** —
-like on iPhone — with a PDF report saved in Downloads. And when the Wi-Fi is
-slow, **`macup wifi`** finds out why and walks you through the fix.
+like on iPhone — with a PDF report saved in Downloads. And **`macup wifi`**
+checks your Wi-Fi: it tells you if everything is fine — or what slows it down,
+and how to fix it.
 
 **100% free — forever.** No price, no trial, no “Pro” version, no subscription,
 no ads, no account, no admin password. MacUp **never deletes anything for good** —
@@ -59,7 +60,7 @@ you like; it is short.
    4  Performance      Load, busiest apps, startup items
    5  Complete check   Everything + battery health % + PDF report in Downloads
    6  Recent Items     Empty the Apple menu’s Recent Items list
-   7  Wi-Fi Fix        Why is my Wi-Fi slow? Speed, ping, channel — and the fix
+   7  Wi-Fi Check      Is my Wi-Fi OK? Speed, ping, channel — and a fix if needed
 ```
 
 | # | Command | What you get |
@@ -70,7 +71,7 @@ you like; it is short.
 | 4 | `macup perf` | Load, busiest apps (processor and memory), startup items and broken startup items. |
 | 5 | `macup check` | Runs everything (read-only), shows your **battery health %**, marks every part **✓ Good** or **! Needs attention**, and saves `MacUp-Health-Report-….pdf` in **Downloads**. |
 | 6 | `macup recent` | Empties Apple menu → Recent Items (applications, documents, servers) — the same as **Clear Menu**. Asks first; files and apps are never touched. |
-| 7 | `macup wifi` | **Wi-Fi Fix**: real speed vs. your plan, ping and jitter to your router and to the internet, band, channel, signal, how many neighbours share your channel and which one is empty, plus the Mac settings that slow Wi-Fi down. Then it walks you through the fix — [details below](#wi-fi-fix--why-is-my-wi-fi-slow). |
+| 7 | `macup wifi` | **Wi-Fi Check**: real speed vs. your plan, ping and jitter to your router and to the internet, band, channel, signal, how many neighbours share your channel and which one is empty, plus the Mac settings that slow Wi-Fi down. If something is wrong, it walks you through the fix — [details below](#wi-fi-check--is-my-wi-fi-ok). |
 
 Other commands: `macup wifi undo`, `macup update`, `macup uninstall`,
 `macup --lang ro|de|it|fr|ko|zh`, `macup --help`. The language follows your Mac
@@ -115,14 +116,14 @@ Mac Pro) show the SSD instead. There is no made-up overall score.
 
 ---
 
-## Wi-Fi Fix — why is my Wi-Fi slow?
+## Wi-Fi Check — is my Wi-Fi OK?
 
 <p align="center">
-  <img src="docs/images/wifi-fix-logo.svg" alt="MacUp Wi-Fi Fix logo: Wi-Fi waves with a yellow up-arrow and MacUp’s ✦" width="96">
+  <img src="docs/images/wifi-check-logo.svg" alt="MacUp Wi-Fi Check logo: Wi-Fi waves with a yellow up-arrow and MacUp’s ✦" width="96">
 </p>
 
 <p align="center">
-  <img src="docs/images/wifi-fix.gif" alt="Animated Terminal: macup wifi finds AirDrop/Handoff and a crowded channel, fixes them, and the download goes from 350 to 600 Mbps (example values)" width="100%">
+  <img src="docs/images/wifi-check.gif" alt="Animated Terminal: macup wifi finds AirDrop/Handoff and a crowded channel, fixes them, and the download goes from 350 to 600 Mbps (example values)" width="100%">
 </p>
 <p align="center"><sub>Example values — not a real network.</sub></p>
 
@@ -134,8 +135,10 @@ macup wifi
 ```
 
 MacUp asks for your plan’s speed (press Enter to skip), checks for about
-30 seconds and tells you in plain words **where the speed is lost** — your
-internet line, your router, your Wi-Fi channel or this Mac.
+30 seconds and tells you in plain words **whether your Wi-Fi is fine** — and
+if not, **where the speed is lost**: your internet line, your router, your
+Wi-Fi channel or this Mac. If nothing is wrong, it says so:
+*“Your Wi-Fi looks healthy.”*
 
 ### What it checks
 
@@ -150,7 +153,7 @@ internet line, your router, your Wi-Fi channel or this Mac.
 | **Shared channel** | How many nearby networks overlap your channel, networks per channel, and the **emptiest channel** | Neighbours on the same channel take turns with you |
 | **This Mac** | DNS, VPN / proxy, Low Power Mode, AirDrop, Handoff, AirPlay Receiver, busiest apps | Settings and apps that quietly slow Wi-Fi down |
 
-### What it fixes
+### If something needs fixing
 
 MacUp shows a short **What to do** list, then asks **Fix it now?**
 
@@ -175,7 +178,7 @@ you flip the switch, MacUp checks it.
 ### Example
 
 ```
-  7  Wi-Fi Fix
+  7  Wi-Fi Check
   ──────────────────────────────────────────────────────────────
   › Your internet plan in Mbps (Enter to skip): 1000
 
@@ -304,7 +307,7 @@ official copy is this repository, installed with the one line above.
   Archives, the Maven local repository and the live system font cache.
 - **Read-only checks.** Options 2–5 only read information. They don’t change
   settings; when something is off, MacUp tells you where to switch it on.
-- **Wi-Fi Fix never changes a setting by itself.** It writes down your current
+- **Wi-Fi Check never changes a setting by itself.** It writes down your current
   settings first, opens the right System Settings page or your router’s page,
   and you flip the switch. `macup wifi undo` shows what was there before.
 - **No admin password, no background process, no network** — except
@@ -355,7 +358,7 @@ python3 -m venv .venv && .venv/bin/pip install pytest && .venv/bin/python -m pyt
 
 Only built-in macOS tools are used (`system_profiler`, `diskutil`, `sysctl`,
 `memory_pressure`, `pmset`, `spctl`, `csrutil`, `fdesetup`, `plutil`, and for
-Wi-Fi Fix `networkQuality`, `ping`, `nettop`, `scutil`, `networksetup`…).
+Wi-Fi Check `networkQuality`, `ping`, `nettop`, `scutil`, `networksetup`…).
 
 ## License
 
@@ -365,7 +368,7 @@ and open source under the same license, keep the copyright notices and show
 where it came from**. Nobody may take MacUp, hide its code, remove your name
 from it and call it their own.
 
-- The **name and logos** (MacUp, MacUp Wi-Fi Fix, ✦) are not part of the
+- The **name and logos** (MacUp, MacUp Wi-Fi Check, ✦) are not part of the
   license — a copy needs its own name. See [TRADEMARKS.md](TRADEMARKS.md).
 - The cleanup engine in `engine/` comes from another open-source project and
   keeps its MIT License — see [engine/LICENSE](engine/LICENSE) and

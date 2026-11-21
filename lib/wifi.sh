@@ -1,5 +1,5 @@
 #!/bin/bash
-# MacUp — 7 · Wi-Fi Fix: why is the Wi-Fi slow, and what fixes it.
+# MacUp — 7 · Wi-Fi Check: is the Wi-Fi OK — and if not, what fixes it.
 # Copyright (c) 2026 cdav.io · GPL-3.0 · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
 #
 # The check only reads. It uses tools that ship with macOS:
@@ -494,7 +494,7 @@ wifi_show_mac() {
 wifi_write_before() {
   mkdir -p "$WIFI_DIR" 2>/dev/null || return 1
   {
-    printf 'MacUp Wi-Fi Fix — %s\n' "$(t wifi_before_title)"
+    printf 'MacUp %s — %s\n' "$(t wifi_title)" "$(t wifi_before_title)"
     printf '%s %s\n\n' "$(t wifi_saved_on)" "$(date '+%Y-%m-%d %H:%M')"
     printf 'AirDrop: %s\n' "$(wifi_airdrop_word "$W_AIRDROP")"
     printf 'Handoff: %s\n' "$(wifi_word "$W_HANDOFF")"

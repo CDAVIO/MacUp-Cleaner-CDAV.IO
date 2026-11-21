@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes docs/images/wifi-fix.gif — the 3-second Wi-Fi Fix animation for the README.
+"""Writes docs/images/wifi-check.gif — the 3-second Wi-Fi Check animation for the README.
 
     pip install pillow
     python3 docs/images/src/wifi_gif.py
@@ -13,7 +13,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[3]
-OUT = ROOT / "docs" / "images" / "wifi-fix.gif"
+OUT = ROOT / "docs" / "images" / "wifi-check.gif"
 
 BG, TERM, BAR = "#0a0a0a", "#141414", "#1d1d1d"
 Y, D, M, W, TRACK = "#ffd905", "#8d8e92", "#e8e8e6", "#ffffff", "#3a3a3a"
@@ -54,7 +54,7 @@ def sparkle(d, x, y, r, fill, waist=.28):
 
 
 def icon(size=40):
-    """The Wi-Fi Fix logo: Wi-Fi arcs, a yellow up-arrow and MacUp's ✦ (drawn at 4× then scaled)."""
+    """The Wi-Fi Check logo: Wi-Fi arcs, a yellow up-arrow and MacUp's ✦ (drawn at 4× then scaled)."""
     s = size * 4
     im = Image.new("RGBA", (s, s), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
@@ -105,7 +105,7 @@ def row(mark, mc, label, value, note=""):
 
 
 CMD = "macup wifi"
-HEAD = [[], [("  ✦ ", Y, False), ("MacUp", W, True), ("  Wi-Fi Fix", D, False)], [("  " + "─" * 62, D, False)]]
+HEAD = [[], [("  ✦ ", Y, False), ("MacUp", W, True), ("  Wi-Fi Check", D, False)], [("  " + "─" * 62, D, False)]]
 on, off = bar(35)
 BEFORE = [
     [("  !  ", Y, False), (f"{'Download':<19}", M, False), ("350 Mbps  ", W, True), (on, Y, False),

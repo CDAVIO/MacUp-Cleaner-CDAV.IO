@@ -4,8 +4,8 @@ The MacUp **code** is free software under the GNU General Public License v3.0
 (see [LICENSE](LICENSE)). The license covers the code — **not the name and not
 the logos**.
 
-“MacUp”, “MacUp Wi-Fi Fix”, the ✦ MacUp logo and the Wi-Fi Fix logo
-(`docs/images/wifi-fix-logo.svg`) belong to cdav.io.
+“MacUp”, “MacUp Wi-Fi Check”, the ✦ MacUp logo and the Wi-Fi Check logo
+(`docs/images/wifi-check-logo.svg`) belong to cdav.io.
 
 ## You may
 
@@ -19,7 +19,7 @@ the logos**.
 
 - publish a copy or a changed version **named MacUp** or with a name that looks
   like it;
-- use the MacUp or Wi-Fi Fix **logos** for your own app, website, store listing
+- use the MacUp or Wi-Fi Check **logos** for your own app, website, store listing
   or video;
 - make people think your version is the official MacUp, or made or approved by
   cdav.io;

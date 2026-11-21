@@ -10,7 +10,7 @@
 #   macup perf       4  Performance (load, busiest apps, startup items)
 #   macup check      5  Complete check + PDF report in ~/Downloads
 #   macup recent     6  Clear Recent Items in the Apple menu
-#   macup wifi       7  Wi-Fi Fix (speed, ping, channel — and what to change)
+#   macup wifi       7  Wi-Fi Check (speed, ping, channel — and a fix if needed)
 # shellcheck disable=SC2059,SC2034  # colours in printf formats; H_* results are read by other files
 set -uo pipefail
 

@@ -4,8 +4,8 @@
 
 - Runs as your user. It never asks for an admin password and refuses to install with `sudo`.
 - Cleaning only **moves files to the Trash** (`~/.Trash`). It never empties the Trash.
-- The checks (This Mac, Protection, Performance, Complete check, Wi-Fi Fix) are read-only.
-- Wi-Fi Fix never changes a setting by itself. It writes down your current
+- The checks (This Mac, Protection, Performance, Complete check, Wi-Fi Check) are read-only.
+- Wi-Fi Check never changes a setting by itself. It writes down your current
   settings first, then opens System Settings or your router’s page so you can
   make the change; `macup wifi undo` shows what was there before.
 - No background process, no telemetry. The only network access is `macup update`

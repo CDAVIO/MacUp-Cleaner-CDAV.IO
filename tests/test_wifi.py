@@ -1,4 +1,4 @@
-"""Tests for 7 · Wi-Fi Fix (lib/wifi.sh).
+"""Tests for 7 · Wi-Fi Check (lib/wifi.sh).
 
 macOS tools are replaced by shell functions with recorded output, so these
 tests run anywhere. The system_profiler text below is a real Mac's output
@@ -330,7 +330,7 @@ W_PLAN=1000
 cmd_wifi
 '''
     out = run_bash(tmp_path, body)
-    for text in ["7  Wi-Fi Fix", "350 Mbps", "35% of your 1000 Mbps", "4 ms · worst 85 ms",
+    for text in ["7  Wi-Fi Check", "350 Mbps", "35% of your 1000 Mbps", "4 ms · worst 85 ms",
                  "5 GHz · channel 36 · 80 MHz", "Wi-Fi 5 (802.11ac)", "-49 dBm · excellent (noise -94 dBm)",
                  "5 nearby networks use your channel", "Emptiest channel: 100 (0 networks)",
                  "1.1.1.1, 8.8.8.8", "Everyone", "Turn off AirDrop, Handoff and AirPlay Receiver",

@@ -52,7 +52,8 @@ menu = [
     (1.6, [("  " + "─" * 62, D, False)], False),
 ]
 items = [("1", "clean_title", "menu_clean"), ("2", "mac_title", "menu_mac"), ("3", "protection_title", "menu_protect"),
-         ("4", "performance_title", "menu_perf"), ("5", "check_title", "menu_check"), ("6", "recent_title", "menu_recent")]
+         ("4", "performance_title", "menu_perf"), ("5", "check_title", "menu_check"), ("6", "recent_title", "menu_recent"),
+         ("7", "wifi_title", "menu_wifi")]
 tm = 1.75
 for n, title, desc in items:
     menu.append((tm, [(f"  {n}  ", Y, False), (t(title), "#ffffff", True)], False))

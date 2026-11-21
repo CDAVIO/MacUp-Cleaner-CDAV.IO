@@ -1,5 +1,6 @@
 #!/bin/bash
 # MacUp — Terminal look: black, white, grey and one yellow accent.
+# Copyright (c) 2026 cdav.io · GPL-3.0 · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
 # Bash 3.2 compatible (the bash that ships with macOS).
 # shellcheck disable=SC2059,SC2034  # colours in printf formats; H_* results are read by other files
 

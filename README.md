@@ -7,10 +7,12 @@
 **Mac health from the Terminal — free & open source.**
 Find the hidden caches behind “System Data”, check your SSD, battery, memory,
 processor, graphics and built-in security, and see your **battery health %** —
-like on iPhone — with a PDF report saved in Downloads.
+like on iPhone — with a PDF report saved in Downloads. And when the Wi-Fi is
+slow, **`macup wifi`** finds out why and walks you through the fix.
 
-No app to download, no account, no subscription, no admin password.
-MacUp **never deletes anything for good** — everything it cleans goes to the Trash.
+**100% free — forever.** No price, no trial, no “Pro” version, no subscription,
+no ads, no account, no admin password. MacUp **never deletes anything for good** —
+everything it cleans goes to the Trash.
 
 🌐 English · Română · Deutsch · Italiano · Français · 한국어 · 中文
 
@@ -35,6 +37,11 @@ MacUp into `~/.macup` and adds the `macup` command — nothing runs in the
 background and nothing is sent anywhere. Read [`install.sh`](install.sh) first if
 you like; it is short.
 
+<p align="center">
+  <img src="docs/images/macup-start.gif" alt="Visual tutorial in 3 steps: 1 open Terminal, 2 paste the install line, 3 type macup and pick a number from 1 to 7" width="100%">
+</p>
+<p align="center"><sub>Three steps: open Terminal · paste the line once · type <code>macup</code> and pick a number.</sub></p>
+
 ---
 
 ## What it does
@@ -52,6 +59,7 @@ you like; it is short.
    4  Performance      Load, busiest apps, startup items
    5  Complete check   Everything + battery health % + PDF report in Downloads
    6  Recent Items     Empty the Apple menu’s Recent Items list
+   7  Wi-Fi Fix        Why is my Wi-Fi slow? Speed, ping, channel — and the fix
 ```
 
 | # | Command | What you get |
@@ -62,9 +70,11 @@ you like; it is short.
 | 4 | `macup perf` | Load, busiest apps (processor and memory), startup items and broken startup items. |
 | 5 | `macup check` | Runs everything (read-only), shows your **battery health %**, marks every part **✓ Good** or **! Needs attention**, and saves `MacUp-Health-Report-….pdf` in **Downloads**. |
 | 6 | `macup recent` | Empties Apple menu → Recent Items (applications, documents, servers) — the same as **Clear Menu**. Asks first; files and apps are never touched. |
+| 7 | `macup wifi` | **Wi-Fi Fix**: real speed vs. your plan, ping and jitter to your router and to the internet, band, channel, signal, how many neighbours share your channel and which one is empty, plus the Mac settings that slow Wi-Fi down. Then it walks you through the fix — [details below](#wi-fi-fix--why-is-my-wi-fi-slow). |
 
-Other commands: `macup update`, `macup uninstall`, `macup --lang ro|de|it|fr|ko|zh`,
-`macup --help`. The language follows your Mac automatically.
+Other commands: `macup wifi undo`, `macup update`, `macup uninstall`,
+`macup --lang ro|de|it|fr|ko|zh`, `macup --help`. The language follows your Mac
+automatically.
 
 ### Example: complete check
 
@@ -105,6 +115,129 @@ Mac Pro) show the SSD instead. There is no made-up overall score.
 
 ---
 
+## Wi-Fi Fix — why is my Wi-Fi slow?
+
+<p align="center">
+  <img src="docs/images/wifi-fix-logo.svg" alt="MacUp Wi-Fi Fix logo: Wi-Fi waves with a yellow up-arrow and MacUp’s ✦" width="96">
+</p>
+
+<p align="center">
+  <img src="docs/images/wifi-fix.gif" alt="Animated Terminal: macup wifi finds AirDrop/Handoff and a crowded channel, fixes them, and the download goes from 350 to 600 Mbps (example values)" width="100%">
+</p>
+<p align="center"><sub>Example values — not a real network.</sub></p>
+
+You pay for 1000 Mbps, but the speed test shows 350? Before you call your
+provider, run:
+
+```bash
+macup wifi
+```
+
+MacUp asks for your plan’s speed (press Enter to skip), checks for about
+30 seconds and tells you in plain words **where the speed is lost** — your
+internet line, your router, your Wi-Fi channel or this Mac.
+
+### What it checks
+
+| Check | What you see | Why it matters |
+|---|---|---|
+| **Speed** | Download and upload, and how many **% of your plan** you get | Apple’s built-in speed test, run one direction at a time so the numbers are real |
+| **Ping to your router** | Usual ping, worst ping, **jitter** and how often it **jumps** | Jumps here come from Wi-Fi itself — your internet line is not even involved |
+| **Ping to the internet** | The same, to 1.1.1.1 | Steady here but jumpy to the router = a Wi-Fi problem, not your provider |
+| **Band and channel** | 2.4 / 5 / 6 GHz, channel number and width (20–160 MHz) | 2.4 GHz is slow and crowded; wider channels are faster |
+| **Wi-Fi type** | Wi-Fi 4, 5, 6, 6E or 7 | A Wi-Fi 5 router usually tops out at 400–600 Mbps |
+| **Signal** | dBm and noise, rated excellent / good / fair / weak | Weak signal = slow and unstable |
+| **Shared channel** | How many nearby networks overlap your channel, networks per channel, and the **emptiest channel** | Neighbours on the same channel take turns with you |
+| **This Mac** | DNS, VPN / proxy, Low Power Mode, AirDrop, Handoff, AirPlay Receiver, busiest apps | Settings and apps that quietly slow Wi-Fi down |
+
+### What it fixes
+
+MacUp shows a short **What to do** list, then asks **Fix it now?**
+
+1. **Saves your current settings first** (`~/Library/Application Support/MacUp/wifi-before.txt`),
+   so you can always go back — `macup wifi undo` shows them again.
+2. **AirDrop, Handoff and AirPlay Receiver** keep a hidden second Wi-Fi link
+   busy, and Wi-Fi pauses about once a second — that is the ping jump. MacUp
+   opens the right page in System Settings, tells you which three switches to
+   flip, and checks afterwards that they changed.
+3. **Crowded channel** — MacUp names the emptiest channel for your width and
+   opens your router’s page, with the exact steps. (Channels 52–144 check for
+   radar first, so Wi-Fi is back after about a minute.) If your Wi-Fi comes
+   from a second router or a mesh, change it there.
+4. **Low Power Mode, VPN, a busy app, weak signal, 2.4 GHz** — each gets its own
+   plain-words step.
+5. **Test again and compare** — the same test runs again and shows before and
+   after side by side.
+
+MacUp never changes a setting on its own and never needs an admin password:
+you flip the switch, MacUp checks it.
+
+### Example
+
+```
+  7  Wi-Fi Fix
+  ──────────────────────────────────────────────────────────────
+  › Your internet plan in Mbps (Enter to skip): 1000
+
+  Speed
+  !  Download                     350 Mbps  █████░░░░░░░░░░░ 35% of your 1000 Mbps
+  ·  Upload                       239 Mbps
+  !  Ping to your router          4 ms · worst 258 ms · jitter 47 ms
+  ✓  Ping to the internet         6 ms · worst 9 ms · jitter 1 ms
+       Ping jumped 7× even to your own router — that comes from Wi-Fi, not from your internet line.
+
+  Wi-Fi
+  ✓  Band and channel             5 GHz · channel 36 · 80 MHz
+  !  Wi-Fi type                   Wi-Fi 5 (802.11ac)  older router
+  ✓  Signal                       -49 dBm · excellent (noise -94 dBm)
+  !  Shared channel               5 nearby networks use your channel
+       Emptiest channel: 100 (0 networks)
+
+  This Mac
+  ✓  VPN / proxy                  Off
+  !  AirDrop                      Everyone
+  !  Handoff                      On
+  ✓  Busiest apps (5 s)           all quiet
+
+  →  What to do
+  ──────────────────────────────────────────────────────────────
+  !  Turn off AirDrop, Handoff and AirPlay Receiver
+  !  On your router: move Wi-Fi to channel 100 (80 MHz)
+  ·  Wi-Fi 5 router — it limits your speed
+
+  › Fix it now? MacUp writes down your current settings first, so you can undo. [Y/n]
+  …
+                         Before         After
+  Download               350 Mbps       600 Mbps  ▲ +71%
+  Worst ping             258 ms         40 ms
+```
+
+<sub>Example values — your numbers depend on your router, your neighbours and your plan.</sub>
+
+### Why don’t I get my full 1000 Mbps on Wi-Fi?
+
+Wi-Fi shares the air with every device and every neighbour, and each Wi-Fi
+generation has its own limit. As a rough guide for a Mac like a MacBook:
+
+| Connection | What you can expect on a 1000 Mbps plan |
+|---|---|
+| Wi-Fi 5 router (802.11ac, 80 MHz) | about 400–600 Mbps |
+| Wi-Fi 6 router (802.11ax, 80 MHz) | about 600–900 Mbps |
+| Wi-Fi 6E / 7 router on 6 GHz or 160 MHz | close to your plan |
+| Network cable (USB-C to Ethernet) | about 940 Mbps — the real maximum of a 1 Gbps line |
+
+So if `macup wifi` shows a **Wi-Fi 5 router** and nothing else is wrong, the
+router is the limit: many providers swap it for a Wi-Fi 6 model on request.
+
+### Words, simply
+
+- **Ping** — how fast your connection answers, in milliseconds. Lower is better.
+- **Jitter** — how much the ping jumps around. Under 10 ms is good for calls and games.
+- **Channel** — the “lane” your Wi-Fi uses. Neighbours in the same lane slow each other down.
+- **dBm** — signal strength. −50 is excellent, −70 is weak.
+
+---
+
 ## “System Data” is mostly hidden cache — no need to format or reset
 
 macOS keeps caches, logs and crash reports in hidden folders such as
@@ -130,16 +263,34 @@ Store or developers you trust, and keep FileVault and the firewall on —
 
 | | **MacUp** | Subscription cleaner apps | “Mac antivirus” subscriptions | Doing it by hand |
 |---|---|---|---|---|
-| Price | **Free, open source** | Yearly subscription | Yearly subscription | Free |
+| Price | **Free forever — no price, no Pro version** | Yearly subscription | Yearly subscription | Free |
+| Trial, upsell or ads | **Never** | Often | Often | — |
 | Updates included | **Yes, forever** (`macup update`) | While you pay | While you pay | — |
 | Account required | **No** | Usually | Usually | No |
+| Open source — you can read every line | **Yes** (GPL-3.0) | Rarely | No | — |
+| Admin password needed | **Never** | Often | Yes | Sometimes |
 | Shows everything before removing | **Yes** (sizes + preview) | Varies | — | You decide |
 | Moves to Trash (undo) | **Always** | Varies | — | Easy to delete for good by mistake |
 | Developer caches (Xcode, npm, Cargo…) | **30+ tools** | Some | No | Hard to find |
 | Health report (SSD, battery, RAM, CPU, GPU) | **Yes + PDF** | Varies | No | Many different places |
-| Works offline, no telemetry | **Yes** | Varies | No (cloud scanning) | Yes |
+| Battery health % like on iPhone | **Yes** | Some | No | Settings → Battery |
+| Wi-Fi check & fix (speed, ping, channel) | **Yes** (`macup wifi`) | Rarely | No | Many different apps and sites |
+| Undo for every Wi-Fi change | **Yes** (`macup wifi undo`) | — | — | Write it down yourself |
+| Languages | **7** (EN RO DE IT FR KO ZH) | Varies | Varies | — |
+| Works offline, no telemetry | **Yes** (only the Wi-Fi speed test goes online) | Varies | No (cloud scanning) | Yes |
 | Malware scanning | No — macOS does it (XProtect) | Some | Yes | No |
 | Uses scare tactics | **Never** | Sometimes | Sometimes | — |
+
+MacUp does everything above for free and never sells you anything. The one
+thing it leaves to macOS is malware scanning — XProtect already does that, for
+free, on every Mac.
+
+## Free. Really.
+
+MacUp is free for everyone, forever: no price, no offer, no trial, no Pro
+version, no subscription, no ads and no account. There is nothing to buy.
+**If anyone asks you to pay for “MacUp”, it is not the real MacUp** — the only
+official copy is this repository, installed with the one line above.
 
 ---
 
@@ -153,8 +304,13 @@ Store or developers you trust, and keep FileVault and the firewall on —
   Archives, the Maven local repository and the live system font cache.
 - **Read-only checks.** Options 2–5 only read information. They don’t change
   settings; when something is off, MacUp tells you where to switch it on.
-- **No admin password, no background process, no network** (except
-  `macup update`, which downloads from this GitHub repo).
+- **Wi-Fi Fix never changes a setting by itself.** It writes down your current
+  settings first, opens the right System Settings page or your router’s page,
+  and you flip the switch. `macup wifi undo` shows what was there before.
+- **No admin password, no background process, no network** — except
+  `macup update` (downloads from this GitHub repo) and `macup wifi`, which runs
+  Apple’s built-in speed test (`networkQuality`, Apple’s test servers) and pings
+  your router and 1.1.1.1. Nothing about you is sent anywhere.
 - **Skips files in use.** Files an app is using right now are left alone.
 - See [SECURITY.md](SECURITY.md) to report a problem.
 
@@ -180,14 +336,14 @@ brew install smartmontools
 
 ```
 macup            entry point (Bash 3.2 — works with the bash that ships with macOS)
-lib/             ui.sh · i18n.sh · checks.sh · clean.sh · views.sh · report.sh
+lib/             ui.sh · i18n.sh · checks.sh · clean.sh · views.sh · report.sh · wifi.sh
 lib/lang/        en ro de it fr ko zh (English is the fallback for any missing text)
 engine/          cleanup engine (clean_mac.sh + lib/), used in Trash-only mode
 pdf/             MacUpPDF.swift — turns the HTML report into a PDF (WebKit + PDFKit)
 recent/          MacUpRecent.swift — counts / clears Apple menu → Recent Items
 bin/             universal builds of pdf/ and recent/ (each build.sh rebuilds them)
 tests/           pytest suite
-docs/images/     README images (sources in docs/images/src/: banner.html, terminal_svg.py, report_example.sh)
+docs/images/     README images (sources in docs/images/src/: banner.html, terminal_svg.py, wifi_gif.py, report_example.sh)
 install.sh       installer
 ```
 
@@ -198,9 +354,23 @@ python3 -m venv .venv && .venv/bin/pip install pytest && .venv/bin/python -m pyt
 ```
 
 Only built-in macOS tools are used (`system_profiler`, `diskutil`, `sysctl`,
-`memory_pressure`, `pmset`, `spctl`, `csrutil`, `fdesetup`, `plutil`…).
+`memory_pressure`, `pmset`, `spctl`, `csrutil`, `fdesetup`, `plutil`, and for
+Wi-Fi Fix `networkQuality`, `ping`, `nettop`, `scutil`, `networksetup`…).
 
 ## License
 
-MIT — see [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-MacUp is not affiliated with Apple Inc. Made by [cdav.io](https://cdav.io).
+**GNU GPL v3.0** — see [LICENSE](LICENSE). In plain words: you may use, share
+and change MacUp for free, but every copy or changed version must **stay free
+and open source under the same license, keep the copyright notices and show
+where it came from**. Nobody may take MacUp, hide its code, remove your name
+from it and call it their own.
+
+- The **name and logos** (MacUp, MacUp Wi-Fi Fix, ✦) are not part of the
+  license — a copy needs its own name. See [TRADEMARKS.md](TRADEMARKS.md).
+- The cleanup engine in `engine/` comes from another open-source project and
+  keeps its MIT License — see [engine/LICENSE](engine/LICENSE) and
+  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- Found a copy that breaks these rules? See [TRADEMARKS.md](TRADEMARKS.md#found-a-copy-that-breaks-these-rules).
+
+Copyright © 2026 cdav.io. MacUp is not affiliated with Apple Inc. Made by
+[cdav.io](https://cdav.io).

@@ -1,6 +1,7 @@
 #!/bin/bash
 # MacUp — keep your Mac healthy from the Terminal.
-# Free and open source (MIT) · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
+# Free and open source (GPL-3.0) · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
+# Copyright (c) 2026 cdav.io · the MacUp name and logos: see TRADEMARKS.md
 #
 #   macup            menu
 #   macup clean      1  Smart Clean (moves hidden caches to the Trash)
@@ -8,6 +9,8 @@
 #   macup protect    3  Protection (built-in macOS security, read-only)
 #   macup perf       4  Performance (load, busiest apps, startup items)
 #   macup check      5  Complete check + PDF report in ~/Downloads
+#   macup recent     6  Clear Recent Items in the Apple menu
+#   macup wifi       7  Wi-Fi Fix (speed, ping, channel — and what to change)
 # shellcheck disable=SC2059,SC2034  # colours in printf formats; H_* results are read by other files
 set -uo pipefail
 
@@ -38,17 +41,23 @@ case "$(locale charmap 2>/dev/null)" in UTF-8) ;; *) export LC_ALL=en_US.UTF-8 ;
 . "$MACUP_ROOT/lib/views.sh"
 # shellcheck source=lib/report.sh
 . "$MACUP_ROOT/lib/report.sh"
+# shellcheck source=lib/wifi.sh
+. "$MACUP_ROOT/lib/wifi.sh"
 
 cmd=""
+arg=""
+W_PLAN=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --lang) shift; MACUP_LANG="${1:-en}" ;;
     --lang=*) MACUP_LANG="${1#--lang=}" ;;
     --yes|-y) MACUP_YES=1 ;;
     --no-color) C_Y=""; C_B=""; C_D=""; C_R="" ;;
+    --plan) shift; W_PLAN="${1:-}" ;;
+    --plan=*) W_PLAN="${1#--plan=}" ;;
     -h|--help) cmd="help" ;;
     -v|--version) cmd="version" ;;
-    *) [ -z "$cmd" ] && cmd="$1" ;;
+    *) if [ -z "$cmd" ]; then cmd="$1"; elif [ -z "$arg" ]; then arg="$1"; fi ;;
   esac
   shift
 done
@@ -71,10 +80,12 @@ cmd_help() {
   printf "  ${C_B}macup perf${C_R}       %s\n" "$(t help_perf)"
   printf "  ${C_B}macup check${C_R}      %s\n" "$(t help_check)"
   printf "  ${C_B}macup recent${C_R}     %s\n" "$(t help_recent)"
+  printf "  ${C_B}macup wifi${C_R}       %s\n" "$(t help_wifi)"
+  printf "  ${C_B}macup wifi undo${C_R}  %s\n" "$(t help_wifi_undo)"
   printf "  ${C_B}macup update${C_R}     %s\n" "$(t help_update)"
   printf "  ${C_B}macup uninstall${C_R}  %s\n" "$(t help_uninstall)"
   echo
-  printf "  ${C_D}--lang en|ro|de|it|fr|ko|zh   --yes   --no-color   --version${C_R}\n\n"
+  printf "  ${C_D}--lang en|ro|de|it|fr|ko|zh   --yes   --no-color   --version   --plan MBPS${C_R}\n\n"
 }
 
 cmd_update() {
@@ -116,6 +127,7 @@ menu() {
     printf "  ${C_Y}4${C_R}  ${C_B}%s${C_R}\n     ${C_D}%s${C_R}\n" "$(t performance_title)" "$(t menu_perf)"
     printf "  ${C_Y}5${C_R}  ${C_B}%s${C_R}\n     ${C_D}%s${C_R}\n" "$(t check_title)" "$(t menu_check)"
     printf "  ${C_Y}6${C_R}  ${C_B}%s${C_R}\n     ${C_D}%s${C_R}\n" "$(t recent_title)" "$(t menu_recent)"
+    printf "  ${C_Y}7${C_R}  ${C_B}%s${C_R}\n     ${C_D}%s${C_R}\n" "$(t wifi_title)" "$(t menu_wifi)"
     printf "  ${C_D}q  %s${C_R}\n" "$(t quit)"
     ui_ask "$(t choose)" "q"
     case "$REPLY" in
@@ -125,6 +137,7 @@ menu() {
       4) cmd_performance ;;
       5) cmd_check ;;
       6) cmd_recent ;;
+      7) cmd_wifi ;;
       q|Q|"") echo; return 0 ;;
       *) continue ;;
     esac
@@ -141,6 +154,13 @@ case "$cmd" in
   4|perf|performance) cmd_performance ;;
   5|check|complete|report) cmd_check ;;
   6|recent|recent-items) cmd_recent ;;
+  7|wifi|wi-fi|wlan)
+    case "$arg" in
+      undo) cmd_wifi_undo ;;
+      "") cmd_wifi ;;
+      *[!0-9]*) t unknown_command "wifi $arg" >&2; echo >&2; cmd_help; exit 2 ;;
+      *) W_PLAN="$arg"; cmd_wifi ;;
+    esac ;;
   update) cmd_update ;;
   uninstall) cmd_uninstall ;;
   version) echo "MacUp $MACUP_VERSION" ;;

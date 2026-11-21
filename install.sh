@@ -1,5 +1,6 @@
 #!/bin/bash
 # MacUp installer — free & open source · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
+# Copyright (c) 2026 cdav.io · GPL-3.0 · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
 #
 #   curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash
 #

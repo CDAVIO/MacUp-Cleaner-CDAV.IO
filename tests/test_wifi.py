@@ -409,3 +409,19 @@ def test_unreadable_setting_says_where_to_look(tmp_path):
     out = run_bash(tmp_path, '''wifi_reset; W_AIRDROP=everyone; W_HANDOFF=off; W_AIRPLAY=""; wifi_show_mac''')
     assert "AirPlay Receiver             check in System Settings" in out
     assert "·  AirPlay Receiver" in out
+
+
+def test_a_router_behind_the_provider_box_is_suggested_even_without_a_brand(tmp_path):
+    (tmp_path / "zte.html").write_text(ZTE_PAGE)
+    (tmp_path / "ap.html").write_text("HTTP/1.1 200 OK\r\n\r\n<html><head><title>Opening...</title></head></html>")
+    body = f'''
+ping() {{ :; }}
+ipconfig() {{ echo 255.255.255.0; }}
+arp() {{ printf '? (192.168.1.1) at 24:58:6e:d7:c8:d1 on en0 ifscope [ethernet]\\n? (192.168.1.8) at 98:da:c4:b8:e:8e on en0 ifscope [ethernet]\\n'; }}
+curl() {{ local u; for u; do :; done; case "$u" in http://192.168.1.1/) cat "{tmp_path}/zte.html" ;; http://192.168.1.8/) cat "{tmp_path}/ap.html" ;; *) return 7 ;; esac; }}
+wifi_reset; W_DEV=en0; W_IP=192.168.1.5; W_ROUTER=192.168.1.1
+wifi_pick_router
+echo "PICK=$REPLY"
+'''
+    out = run_bash(tmp_path, body)
+    assert "PICK=192.168.1.8" in out and "second router" in out

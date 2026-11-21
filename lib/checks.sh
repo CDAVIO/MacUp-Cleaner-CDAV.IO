@@ -1,5 +1,6 @@
 #!/bin/bash
 # MacUp — read-only health checks. Uses only tools that ship with macOS and
+# Copyright (c) 2026 cdav.io · GPL-3.0 · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
 # never needs an administrator password. Results go into H_* variables.
 # Bash 3.2 compatible.
 # shellcheck disable=SC2059,SC2034  # colours in printf formats; H_* results are read by other files

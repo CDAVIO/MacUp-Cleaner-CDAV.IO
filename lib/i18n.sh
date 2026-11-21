@@ -1,5 +1,6 @@
 #!/bin/bash
 # MacUp — languages: en, ro, de, it, fr, ko, zh.
+# Copyright (c) 2026 cdav.io · GPL-3.0 · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
 # Every language file defines S_<key>='…' strings; English loads first, so a
 # missing translation falls back to English instead of breaking.
 # shellcheck disable=SC2059,SC2034  # colours in printf formats; H_* results are read by other files

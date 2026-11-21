@@ -1,5 +1,6 @@
 #!/bin/bash
 # MacUp — Smart Clean. Only rebuildable caches, always moved to the Trash.
+# Copyright (c) 2026 cdav.io · GPL-3.0 · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
 # The cleaning itself is done by engine/clean_mac.sh in Trash-only mode,
 # which refuses anything that would delete permanently.
 # shellcheck disable=SC2059,SC2034  # colours in printf formats; H_* results are read by other files

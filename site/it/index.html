@@ -38,7 +38,7 @@
 })();
 </script>
 <link rel="stylesheet" href="/assets/style.css?v=74f1171f85">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "MacUp", "applicationCategory": "UtilitiesApplication", "operatingSystem": "macOS 13 or later", "description": "Strumento gratuito e open source per macOS nel Terminale: elimina le cache nascoste dietro “Dati di sistema”, controlla SSD, batteria, RAM, processore, grafica e sicurezza e mostra la salute della batteria in % in un report PDF. Nessuna app, nessun abbonamento, solo Cestino.", "url": "https://macup.cdav.io/it/", "inLanguage": "it", "license": "https://opensource.org/licenses/MIT", "codeRepository": "https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "MacUp", "applicationCategory": "UtilitiesApplication", "operatingSystem": "macOS 13 or later", "description": "Strumento gratuito e open source per macOS nel Terminale: elimina le cache nascoste dietro “Dati di sistema”, controlla SSD, batteria, RAM, processore, grafica e sicurezza e mostra la salute della batteria in % in un report PDF. Nessuna app, nessun abbonamento, solo Cestino.", "url": "https://macup.cdav.io/it/", "inLanguage": "it", "license": "https://www.gnu.org/licenses/gpl-3.0.html", "codeRepository": "https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
 </head>
 <body>
 <a class="skip" href="#main">Vai al contenuto</a>
@@ -142,7 +142,7 @@
       <li><span class="n">1</span><h3>Apri il Terminale</h3><p>Premi ⌘ Spazio, scrivi “Terminale” e premi Invio.</p><div class="keys"><kbd>⌘</kbd><kbd>Space</kbd><span>Terminal</span><kbd>↩</kbd></div></li>
       <li><span class="n">2</span><h3>Incolla il comando</h3><p>Installa MacUp nella tua cartella Inizio. Nessuna password, niente in background.</p>
         <div class="install small" data-copy-box><code data-copy-text>curl -fsSL https://raw.githubusercontent.com/CDAVIO/MacUp-Cleaner-CDAV.IO/main/install.sh | bash</code><button class="copy" type="button" data-copy data-label="Copia" data-done="Copiato">Copia</button></div></li>
-      <li><span class="n">3</span><h3>Scrivi macup</h3><p>Scegli 1–5, premi q per uscire. Rimuovilo quando vuoi con macup uninstall.</p><div class="mini-term"><span class="p">$</span> macup<br><span class="d">Scegli 1–6 (q per uscire):</span> <span class="y">5</span></div></li>
+      <li><span class="n">3</span><h3>Scrivi macup</h3><p>Scegli 1–5, premi q per uscire. Rimuovilo quando vuoi con macup uninstall.</p><div class="mini-term"><span class="p">$</span> macup<br><span class="d">Scegli 1–7 (q per uscire):</span> <span class="y">5</span></div></li>
     </ol>
 
     <div class="head head-gap">
@@ -312,7 +312,7 @@
   <div class="wrap faq-in">
     <h2>Domande</h2>
     <div class="qa">
-      <details><summary>MacUp è davvero gratis?</summary><p>Sì. È open source con licenza MIT — nessuna prova, nessun abbonamento, nessun account, nessuna pubblicità.</p></details>
+      <details><summary>MacUp è davvero gratis?</summary><p>Sì. È open source con licenza GPL-3.0 — nessuna prova, nessun abbonamento, nessun account, nessuna pubblicità.</p></details>
       <details><summary>Perché il Terminale e non un’app?</summary><p>Uno strumento da Terminale è piccolo e trasparente: nessun installer, nessuna password da amministratore, nessun processo in background. Puoi leggere ogni riga che esegue.</p></details>
       <details><summary>È sicuro eliminare le cache?</summary><p>Sì. Le cache sono copie che le app ricreano da sole. MacUp le sposta nel Cestino, quindi non perdi nulla finché non lo svuoti, e i file in uso vengono saltati.</p></details>
       <details><summary>Perderò password, preferiti o documenti?</summary><p>No. MacUp non tocca documenti, foto, password o preferiti. “Solo cronologia del browser” è facoltativo e disattivato di base.</p></details>
@@ -342,7 +342,7 @@ macup uninstall</code></pre></details>
 <footer class="foot">
   <div class="wrap foot-in">
     <a class="brand" href="/it/"><img src="/favicon.svg" alt="" width="26" height="26"><span>MacUp</span></a>
-    <nav class="foot-links" aria-label="Footer"><a href="/terms/">Termini</a><a href="/privacy/">Privacy</a><a href="/legal/">Note legali</a><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/LICENSE">Licenza MIT</a><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/SECURITY.md">Sicurezza</a></nav>
+    <nav class="foot-links" aria-label="Footer"><a href="/terms/">Termini</a><a href="/privacy/">Privacy</a><a href="/legal/">Note legali</a><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/LICENSE">Licenza GPL-3.0</a><a href="https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO/blob/main/SECURITY.md">Sicurezza</a></nav>
     <div class="fine">
       <p>Copyright © 2026 <a href="https://cdav.io">CDAV.IO</a>. Tutti i diritti riservati.</p>
       <ul class="social"><li><a href="https://github.com/CDAVIO" aria-label="GitHub" title="GitHub" rel="me noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.6 9.6 0 0 1 5 0c1.9-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9V21c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg></a></li></ul>

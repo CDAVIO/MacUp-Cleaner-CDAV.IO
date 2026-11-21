@@ -1,5 +1,6 @@
 #!/bin/bash
 # MacUp — "This Mac", "Protection" and "Performance" screens (read-only).
+# Copyright (c) 2026 cdav.io · GPL-3.0 · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
 # shellcheck disable=SC2059,SC2034  # colours in printf formats; H_* results are read by other files
 
 cmd_mac() {

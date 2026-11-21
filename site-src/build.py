@@ -323,7 +323,7 @@ def build_page(template, code, en_site, en_cli, asset_v):
         "description": site["meta_desc"],
         "url": url_for(code),
         "inLanguage": HTML_LANG.get(code, code),
-        "license": "https://opensource.org/licenses/MIT",
+        "license": "https://www.gnu.org/licenses/gpl-3.0.html",
         "codeRepository": "https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO",
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
     }

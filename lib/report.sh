@@ -1,5 +1,6 @@
 #!/bin/bash
 # MacUp — "Complete check": every check, a total health %, recommendations,
+# Copyright (c) 2026 cdav.io · GPL-3.0 · https://github.com/CDAVIO/MacUp-Cleaner-CDAV.IO
 # and an A4 PDF report saved in ~/Downloads.
 # shellcheck disable=SC2059,SC2034  # colours in printf formats; H_* results are read by other files
 

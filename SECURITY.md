@@ -11,9 +11,11 @@
 - No background process, no telemetry. The only network access is `macup update`
   and the installer, which download this repository from GitHub over HTTPS, and
   `macup wifi`, which runs Apple’s built-in speed test (`networkQuality`) and
-  pings your router and 1.1.1.1. If you say yes to the fix, it also opens the
-  start page of the devices on your own network to name your routers (no
-  login, nothing is changed).
+  pings your router and 1.1.1.1. To list the devices on your own network it
+  pings each address of that network once, asks the devices for the name they
+  announce (Bonjour) or the name your router gave them, and opens each one’s
+  start page like a browser would (no login, nothing is changed). That list
+  stays on your Mac.
 - Installs only into `~/.macup` plus one `macup` link. The installer refuses to
   replace a `~/.macup` folder or a `macup` command that isn’t MacUp.
 

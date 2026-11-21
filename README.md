@@ -103,7 +103,7 @@ example `macup wifi` or `macup check` (full list below).
 | 4 | `macup perf` | Load, busiest apps (processor and memory), startup items and broken startup items. |
 | 5 | `macup check` | Runs everything (read-only), shows your **battery health %**, marks every part **✓ Good** or **! Needs attention**, and saves `MacUp-Health-Report-….pdf` in **Downloads**. |
 | 6 | `macup recent` | Empties Apple menu → Recent Items (applications, documents, servers) — the same as **Clear Menu**. Asks first; files and apps are never touched. |
-| 7 | `macup wifi` | **Wi-Fi Check**: real speed vs. your plan, ping and jitter to your router and to the internet, band, channel, signal, how many neighbours share your channel and which one is empty, plus the Mac settings that slow Wi-Fi down. If something is wrong, it walks you through the fix — [details below](#wi-fi-check--is-my-wi-fi-ok). |
+| 7 | `macup wifi` | **Wi-Fi Check**: real speed vs. your plan, ping and jitter to your router and to the internet, band, channel, signal, how many neighbours share your channel and which one is empty, the Mac settings that slow Wi-Fi down, and the devices on your network. If something is wrong, it walks you through the fix — [details below](#wi-fi-check--is-my-wi-fi-ok). |
 
 Other commands: `macup wifi undo`, `macup update`, `macup uninstall`,
 `macup --lang ro|de|it|fr|ko|zh`, `macup --help`. The language follows your Mac
@@ -184,10 +184,21 @@ Wi-Fi channel or this Mac. If nothing is wrong, it says so:
 | **Signal** | dBm and noise, rated excellent / good / fair / weak | Weak signal = slow and unstable |
 | **Shared channel** | How many nearby networks overlap your channel, networks per channel, and the **emptiest channel** | Neighbours on the same channel take turns with you |
 | **This Mac** | DNS, VPN / proxy, Low Power Mode, AirDrop, Handoff, AirPlay Receiver, busiest apps | Settings and apps that quietly slow Wi-Fi down |
+| **Devices on your network** | Address, name, type (phone, TV, router…) and maker where MacUp can tell; devices without a name are marked **?** | A device you don’t know uses your Wi-Fi — and your speed |
 
 ### If something needs fixing
 
-MacUp shows a short **What to do** list, then asks **Fix it now?**
+MacUp puts every fix in **one list, in three groups**, with a count for each:
+**On this Mac**, **On your router** and **Devices on your Wi-Fi**. Then it asks:
+
+```
+  1  Yes, all of them
+  2  Let me choose
+  3  Not now
+```
+
+Nothing happens before you answer. **Yes, all of them** goes through every step;
+**Let me choose** asks before each one; **Not now** changes nothing.
 
 1. **Saves your current settings first** (`~/Library/Application Support/MacUp/wifi-before.txt`),
    so you can always go back — `macup wifi undo` shows them again.
@@ -200,13 +211,17 @@ MacUp shows a short **What to do** list, then asks **Fix it now?**
    access point behind your provider’s box — asks which one gives your Wi-Fi,
    and opens its page with the exact steps. (Channels 52–144 check for radar
    first, so Wi-Fi is back after about a minute.)
-4. **Low Power Mode, VPN, a busy app, weak signal, 2.4 GHz** — each gets its own
+4. **Devices without a name** — MacUp lists them and opens your router’s page
+   with the steps to block the ones you don’t know (or change the Wi-Fi
+   password). Phones often hide behind a private address, so an unnamed device
+   can still be yours. MacUp itself never blocks anything.
+5. **Low Power Mode, VPN, a busy app, weak signal, 2.4 GHz** — each gets its own
    plain-words step.
-5. **Test again and compare** — the same test runs again, shows before and
+6. **Test again and compare** — the same test runs again, shows before and
    after side by side, and answers the real question in one line:
    *“✓ Faster: 470 → 560 Mbps (+19%)”*, *“≈ About the same”* (then the router
    is the limit) or *“▼ Slower”* (with the way back).
-6. **Every check is remembered** — the next `macup wifi` shows *“Since your last
+7. **Every check is remembered** — the next `macup wifi` shows *“Since your last
    check”*, so you can see what a change did, even days later.
 
 MacUp never changes a setting on its own and never needs an admin password:
@@ -239,13 +254,30 @@ you flip the switch, MacUp checks it.
   !  Handoff                      On
   ✓  Busiest apps (5 s)           all quiet
 
-  →  What to do
+  Devices on your network
+  !  Devices found                5 · 1 without a name
+     Address         Name                     Type         Maker
+     192.168.1.1     ZTE · F618               router       ZTE · main router
+     192.168.1.5     MacBook Pro              this Mac     Apple
+     192.168.1.8     TP-Link · Archer C6      router       TP-Link
+     192.168.1.9     iPhone                   phone        Apple
+  ?  192.168.1.12    —                        ?            private address
+
+  →  What to fix · 4 in all
   ──────────────────────────────────────────────────────────────
+  On this Mac (1)
   !  Turn off AirDrop, Handoff and AirPlay Receiver
+  On your router (2)
   !  On your router: move Wi-Fi to channel 100 (80 MHz)
   ·  Wi-Fi 5 router — it limits your speed
+  Devices on your Wi-Fi (1)
+  !  Devices without a name: 1 — make sure they are yours
 
-  › Fix it now? MacUp writes down your current settings first, so you can undo. [Y/n]
+  Make these changes now? MacUp writes down your current settings first, so you can undo.
+     1  Yes, all of them
+     2  Let me choose
+     3  Not now
+  › Choose 1–3 (Enter = 1): 1
   …
                          Before         After
   Download               350 Mbps       600 Mbps  ▲ +71%
@@ -350,9 +382,9 @@ official copy is this repository, installed with the one line above.
 - **No admin password, no background process, no network** — except
   `macup update` (downloads from this GitHub repo) and `macup wifi`, which runs
   Apple’s built-in speed test (`networkQuality`, Apple’s test servers) and pings
-  your router and 1.1.1.1. Only if you say yes to the fix does it look for
-  router pages on your own network (like opening them in a browser, no login).
-  Nothing about you is sent anywhere.
+  your router and 1.1.1.1. To list the devices on your own network it pings
+  them, reads the names they announce and opens their start page like a
+  browser would (no login, nothing is changed). Nothing about you is sent anywhere.
 - **Skips files in use.** Files an app is using right now are left alone.
 - See [SECURITY.md](SECURITY.md) to report a problem.
 
@@ -398,7 +430,7 @@ python3 -m venv .venv && .venv/bin/pip install pytest && .venv/bin/python -m pyt
 
 Only built-in macOS tools are used (`system_profiler`, `diskutil`, `sysctl`,
 `memory_pressure`, `pmset`, `spctl`, `csrutil`, `fdesetup`, `plutil`, and for
-Wi-Fi Check `networkQuality`, `ping`, `nettop`, `scutil`, `networksetup`…).
+Wi-Fi Check `networkQuality`, `ping`, `nettop`, `scutil`, `networksetup`, `arp`, `dig`…).
 
 ## License
 

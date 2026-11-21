@@ -515,7 +515,7 @@ wifi_web_label() { # IP → "label<TAB>1 if a router brand was recognised"
   [ -z "$raw" ] && return 0
   low=$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]')
   case "$low" in
-    *tp-link*|*tplink*|*archer*) brand="TP-Link" ;;
+    *tp-link*|*tplink*|*archer*|*"/webpages/"*|*"su/su.js"*) brand="TP-Link" ;;
     *zxhn*|*"zte corporation"*) brand="ZTE" ;;
     *fritz*) brand="FRITZ!Box" ;;
     *asuswrt*|*"asus router"*) brand="ASUS" ;;
@@ -585,7 +585,16 @@ wifi_pick_router() {
     [ -z "$def" ] && [ "$ip" != "$W_ROUTER" ] && [ "$brand" = "1" ] && def=$n
     printf "     ${C_Y}%s${C_R}  %s  ${C_D}%s${C_R}\n" "$n" "$(ui_pad "$ip" 15)" "$label"
   done < "$MACUP_TMP/wifi.routers"
+  # The main router is a provider's box (ZTE, Huawei…)? Then a second device
+  # with a web page is most likely the Wi-Fi router plugged in behind it.
+  if [ -z "$def" ] && [ "$n" -gt 1 ]; then
+    case "$(sed -n "${gw_n}p" "$MACUP_TMP/wifi.routers" | cut -f2)" in
+      ZTE*|Huawei*|FiberHome*|Sagemcom*|Technicolor*|Zyxel*|Nokia*)
+        def=$(awk -F'\t' -v gw="$W_ROUTER" '$1 != gw { print NR; exit }' "$MACUP_TMP/wifi.routers") ;;
+    esac
+  fi
   [ -z "$def" ] && def=$gw_n
+  [ "$n" -gt 1 ] && ui_note "     $(t wifi_router_hint)"
   pick=$def
   if [ "$n" -gt 1 ]; then
     ui_ask "$(t wifi_router_pick)" "$def"

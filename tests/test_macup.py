@@ -558,3 +558,20 @@ parts | sed -n 3p
     hero, battery_card = out.stdout.strip().splitlines()
     assert hero == "0|SSD health|S.M.A.R.T.: Verified|ok"
     assert battery_card == "none|Battery|—|No battery (desktop Mac)"
+
+
+def test_update_compares_versions_and_skips_cdn_cache():
+    """`macup update` must not say "up to date" because of a stale CDN copy,
+    and must never "update" to an older version a cache still serves."""
+    src = (ROOT / "macup").read_text()
+    assert "api.github.com/repos/$MACUP_REPO/contents/VERSION" in src
+    assert "main/VERSION?t=" in src
+    script = (
+        'eval "$(sed -n "/^macup_version_newer()/,/^}/p" "$1")"\n'
+        'for p in "2.1.2 2.1.1" "2.1.1 2.1.2" "2.1.1 2.1.1" "2.1.10 2.1.9" "2.2 2.1.9" "2.1 2.1.0"; do\n'
+        '  set -- $p "$1"; if macup_version_newer "$1" "$2"; then echo yes; else echo no; fi; set -- "$3"\n'
+        'done\n'
+    )
+    out = subprocess.run(["bash", "-c", script, "x", str(ROOT / "macup")],
+                         capture_output=True, text=True, check=True).stdout.split()
+    assert out == ["yes", "no", "no", "yes", "yes", "no"]

@@ -88,14 +88,43 @@ cmd_help() {
   printf "  ${C_D}--lang en|ro|de|it|fr|ko|zh   --yes   --no-color   --version   --plan MBPS${C_R}\n\n"
 }
 
+# The newest version number on GitHub. Asks the GitHub API first: the raw
+# file below sits behind a CDN that can keep an old copy for 5 minutes or
+# more, which made `macup update` say "already up to date" right after a
+# release. The raw file (with a cache-busting query) is only the fallback.
+macup_latest_version() {
+  local v
+  v=$(curl -fsSL -m 8 -H 'Accept: application/vnd.github.raw' \
+        "https://api.github.com/repos/$MACUP_REPO/contents/VERSION?ref=main" 2>/dev/null | tr -d '[:space:]')
+  case "$v" in [0-9]*.[0-9]*) printf '%s' "$v"; return 0 ;; esac
+  v=$(curl -fsSL -m 8 -H 'Cache-Control: no-cache' \
+        "https://raw.githubusercontent.com/$MACUP_REPO/main/VERSION?t=$(date +%s)" 2>/dev/null | tr -d '[:space:]')
+  case "$v" in [0-9]*.[0-9]*) printf '%s' "$v" ;; esac
+}
+
+# True when version $1 is newer than $2 (e.g. 2.1.10 > 2.1.9).
+macup_version_newer() {
+  local a="$1" b="$2" x y
+  while [ -n "$a" ] || [ -n "$b" ]; do
+    x=${a%%.*}; y=${b%%.*}
+    case "$x" in ''|*[!0-9]*) x=0 ;; esac
+    case "$y" in ''|*[!0-9]*) y=0 ;; esac
+    [ "$x" -gt "$y" ] && return 0
+    [ "$x" -lt "$y" ] && return 1
+    case "$a" in *.*) a=${a#*.} ;; *) a="" ;; esac
+    case "$b" in *.*) b=${b#*.} ;; *) b="" ;; esac
+  done
+  return 1
+}
+
 cmd_update() {
   ui_title "$(t update_title)" "↻"
   local latest
-  latest=$(curl -fsSL -m 8 "https://raw.githubusercontent.com/$MACUP_REPO/main/VERSION" 2>/dev/null | tr -d '[:space:]')
+  latest=$(macup_latest_version)
   if [ -z "$latest" ]; then ui_row "$(t update_title)" "$(t update_offline)" warn; return 1; fi
-  if [ "$latest" = "$MACUP_VERSION" ]; then ui_row "MacUp $MACUP_VERSION" "$(t up_to_date)" ok; return 0; fi
+  if ! macup_version_newer "$latest" "$MACUP_VERSION"; then ui_row "MacUp $MACUP_VERSION" "$(t up_to_date)" ok; return 0; fi
   ui_row "MacUp $MACUP_VERSION → $latest" "$(t updating)" info
-  curl -fsSL "https://raw.githubusercontent.com/$MACUP_REPO/main/install.sh" | bash
+  curl -fsSL -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/$MACUP_REPO/main/install.sh?t=$(date +%s)" | bash
 }
 
 cmd_uninstall() {
